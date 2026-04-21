@@ -103,22 +103,29 @@ const config = {
 }
 ```
 
+## 示例
+
+![light](./img/light.png)
+![dark](./img/dark.png)
+![preview](./img/preview.png)
+
 ## 发布到 npm（公共仓库）
 
-1) 确认 `package.json`：
+1. 确认 `package.json`：
+
 - `name` 是未被占用的包名
 - `version` 已更新（遵循 semver）
 - `publishConfig.access = "public"`
 - `private` 已移除
 
-2) 安装依赖并生成构建产物：
+2. 安装依赖并生成构建产物：
 
 ```bash
 pnpm install --no-frozen-lockfile
 pnpm build
 ```
 
-3) 登录并发布：
+3. 登录并发布：
 
 ```bash
 npm login
