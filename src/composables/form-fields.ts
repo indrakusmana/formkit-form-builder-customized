@@ -401,6 +401,30 @@ export function useFormField() {
     return Array.from(new Set(extractNames(formSchema.value)))
   })
 
+  const rowSpan = computed<number>({
+    get: () => {
+      const outerClass = selectedField.value?.outerClass
+      if (typeof outerClass !== 'string') return 1
+      const match = outerClass.match(/\brow-span-(\d+)\b/)
+      return match ? parseInt(match[1]!, 10) : 1
+    },
+    set: (value: number) => {
+      const nextSpan = Math.max(1, Math.min(6, Math.round(value)))
+      const currentOuterClass = selectedField.value?.outerClass
+      let classes = typeof currentOuterClass === 'string' ? currentOuterClass : ''
+
+      if (nextSpan === 1) {
+        classes = classes.replace(/\brow-span-\d+\b/g, '').replace(/\s+/g, ' ').trim()
+      } else if (/\brow-span-\d+\b/.test(classes)) {
+        classes = classes.replace(/\brow-span-\d+\b/g, `row-span-${nextSpan}`).replace(/\s+/g, ' ').trim()
+      } else {
+        classes = `${classes} row-span-${nextSpan}`.replace(/\s+/g, ' ').trim()
+      }
+
+      setFieldProp('outerClass', classes || undefined)
+    },
+  })
+
   return {
     fieldName,
     useExpressionValue,
@@ -427,5 +451,6 @@ export function useFormField() {
     isValidationChecked,
     createButtonProp,
     createNaiveProp,
+    rowSpan,
   }
 }

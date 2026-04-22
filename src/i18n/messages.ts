@@ -107,6 +107,9 @@ export const messages = {
         previewDisabledLabel: '禁用预览（preview-disabled）',
         lazyLabel: '懒加载（lazy）',
       },
+      grid: {
+        rowSpanLabel: '占用行数',
+      },
       optionsLabel: '添加选项',
     },
   },
@@ -218,6 +221,9 @@ export const messages = {
         objectFitLabel: 'Object fit',
         previewDisabledLabel: 'Disable preview',
         lazyLabel: 'Lazy',
+      },
+      grid: {
+        rowSpanLabel: 'Row span',
       },
       optionsLabel: 'Add Items to List',
     },

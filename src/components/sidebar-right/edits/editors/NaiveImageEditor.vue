@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useFormField } from '../../../../composables/form-fields'
 import { useFormBuilderI18n } from '../../../../i18n/context'
 import LabelHelpSection from '../common/LabelHelpSection.vue'
+import RowSpanSection from '../common/RowSpanSection.vue'
 import SelectInput from '../common/SelectInput.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 import TextInput from '../common/TextInput.vue'
@@ -48,6 +49,7 @@ const lazy = createNaiveProp<boolean>('lazy', false)
 
 <template>
   <LabelHelpSection />
+  <RowSpanSection />
   <TextInput
     :label="t('edits.image.srcLabel')"
     :placeholder="t('edits.image.srcPlaceholder')"
