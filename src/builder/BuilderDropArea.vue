@@ -36,6 +36,13 @@ const getColSpan = (field: unknown, index: number): number => {
   return match ? parseInt(match[1], 10) : 12
 }
 
+const getRowSpan = (field: unknown, index: number): number => {
+  const outerClass =
+    (field as FormKitSchemaFormKit)?.outerClass || formSchema.value[index]?.outerClass || ''
+  const match = outerClass.match(/row-span-(\d+)/)
+  return match ? parseInt(match[1], 10) : 1
+}
+
 const resizingIndex = ref<number | null>(null)
 const resizingPointerId = ref<number | null>(null)
 const startX = ref(0)
@@ -269,7 +276,10 @@ watch(
               ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
               : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
           )"
-          :style="{ gridColumn: `span ${getColSpan(field, index)} / span ${getColSpan(field, index)}` }"
+          :style="{
+            gridColumn: `span ${getColSpan(field, index)} / span ${getColSpan(field, index)}`,
+            gridRow: `span ${getRowSpan(field, index)} / span ${getRowSpan(field, index)}`,
+          }"
           tabindex="0"
           @pointerdown.capture="clickedField(index)"
           @keydown.enter.stop.prevent="clickedField(index)"
