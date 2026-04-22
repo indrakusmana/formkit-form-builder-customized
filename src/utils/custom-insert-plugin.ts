@@ -703,7 +703,10 @@ function positionInsertPoint<T>(
     const leftPosition = targetX - insertPointWidth / 2
     const targetHeight = position.y[1]! - position.y[0]!
 
-    const targetRowSpan = getRowSpan(node.data.value)
+    const latestValues = parent.data.getValues(parent.el) as any
+    const latestValue =
+      Array.isArray(latestValues) && typeof node.data.index === 'number' ? latestValues[node.data.index] : undefined
+    const targetRowSpan = getRowSpan(latestValue ?? node.data.value)
     const draggedRowSpan = (insertState as any).draggedRowSpan ?? 1
     const shouldSegment = targetRowSpan > 1 && draggedRowSpan === 1
 
