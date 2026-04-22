@@ -23,9 +23,11 @@ const fieldProps = computed(() => createFieldProps(t))
   >
     <div class="p-4 border-b">
       <div class="flex items-center w-fit gap-2 rounded-lg backdrop-blur-2xl">
-        <span
-          :class="`${fieldProps.find((prop) => prop.name === currentFieldType)?.icon ?? ''} !h-8 !w-8 rounded-md text-green-700 dark:text-white/70 bg-ring/20 p-1.5`"
-        ></span>
+        <div class="h-8 w-8 rounded-md bg-ring/20 p-1.5 flex items-center justify-center">
+          <span
+            :class="`${fieldProps.find((prop) => prop.name === currentFieldType)?.icon ?? ''} h-5 w-5 text-green-700 dark:text-white/70`"
+          ></span>
+        </div>
       </div>
     </div>
     <n-scrollbar class="flex-1 sidebar-scrollbar">
