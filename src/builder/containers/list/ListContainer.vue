@@ -39,7 +39,6 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
   accepts: () => true,
   sortable: true,
   draggable: () => true,
-  performTransfer() {},
   handleNodePointerup(data) {
     data.targetData.node.el.setAttribute('draggable', 'true')
   },

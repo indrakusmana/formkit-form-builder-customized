@@ -315,15 +315,15 @@ export function customInsertPlugin<T>(insertConfig: InsertConfig<T>) {
 
         const originalHandleEnd = insertParentConfig.handleEnd
         insertParentConfig.handleEnd = (state: DragState<T> | SynthDragState<T>) => {
-          if (!insertState.handledEnd) {
-            insertState.handledEnd = true
+          const anyState = state as any
+          if (!anyState.__soloHandledEnd) {
+            anyState.__soloHandledEnd = true
             handleEnd(state as any)
           }
           originalHandleEnd(state)
         }
 
         parentData.on('dragStarted', () => {
-          insertState.handledEnd = false
           documentController = addEvents(document, {
             dragover: throttle(checkPosition),
             pointermove: throttle(checkPosition),
