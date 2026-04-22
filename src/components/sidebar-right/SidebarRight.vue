@@ -17,23 +17,27 @@ const currentProp = computed(() =>
 <template>
   <n-layout-sider
     bordered
-    width="300"
+    :width="300"
+    :collapsed-width="0"
     show-trigger="bar"
-    collapse-mode="transform"
+    collapse-mode="width"
     :native-scrollbar="false"
     content-style="display: flex; flex-direction: column; height: 100%;"
     class="sidebar-sider"
   >
     <div class="p-3 border-b">
-      <div class="flex flex-col items-start gap-2 rounded-lg backdrop-blur-2xl">
-        <div class="h-10 w-10 rounded-md bg-ring/20 p-1.5 flex items-center justify-center">
-          <span
-            :class="`${currentProp?.icon ?? ''} h-7 w-7 text-green-700 dark:text-white/70`"
-          ></span>
+      <div class="flex items-center gap-3">
+        <div class="h-11 w-11 rounded-md bg-ring/20 flex items-center justify-center shrink-0">
+          <span :class="`${currentProp?.icon ?? ''} h-8 w-8 text-green-700 dark:text-white/70`"></span>
         </div>
-        <span class="text-xs text-muted-foreground leading-tight">
-          {{ currentProp?.tooltip ?? '' }}
-        </span>
+        <div class="min-w-0 flex-1">
+          <div class="text-sm font-medium text-foreground truncate">
+            {{ currentProp?.tooltip ?? '' }}
+          </div>
+          <div class="text-[11px] text-muted-foreground truncate">
+            {{ currentFieldType ?? '' }}
+          </div>
+        </div>
       </div>
     </div>
     <n-scrollbar class="flex-1 sidebar-scrollbar">
