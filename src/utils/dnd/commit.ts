@@ -41,6 +41,33 @@ function updateListChildrenByKey(
   return nextSchema
 }
 
+function normalizeInsertValues(
+  insertValues: FormKitSchemaFormKit[],
+  isSource: boolean,
+): FormKitSchemaFormKit[] {
+  if (!isSource) return insertValues
+  const existingNames = new Set<string>()
+  collectSchemaNames(formSchema.value, existingNames)
+  return insertValues.map((value: any) => {
+    const valObj = JSON.parse(JSON.stringify(value))
+    if (typeof valObj === 'object' && valObj !== null) {
+      const val = valObj as any
+      const nextKey = typeof val.__key === 'string' && val.__key ? val.__key : generateKey()
+      const base = toSafeName(val.name || val.$formkit || 'field')
+      const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
+      if (val.$formkit === 'submit') return { ...valObj, __key: nextKey, outerClass: 'col-span-12 pt-2' }
+      return {
+        ...valObj,
+        __key: nextKey,
+        name: nextName,
+        id: `field_${nextKey}`,
+        outerClass: val.outerClass || 'col-span-12',
+      }
+    }
+    return valObj
+  }) as FormKitSchemaFormKit[]
+}
+
 // 调整横向插入时的 col-span：优先使用 explicitRow（row-span>1 的精确命中），否则回退到“视觉行”算法
 function adjustColSpansForInsert(
   targetParentValues: any[],
@@ -180,14 +207,15 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
           }) as any as FormKitSchemaFormKit[])
         : (draggedValues as any as FormKitSchemaFormKit[])
 
-      insertValues.forEach((val: any) => setColSpan(val, 12))
+      const processedInsertValues = normalizeInsertValues(insertValues, isSource)
+      processedInsertValues.forEach((val: any) => setColSpan(val, 12))
 
       const baseSchema = formSchema.value as any as FormKitSchemaFormKit[]
       const newParentValues = isSource
         ? baseSchema
         : (baseSchema as any[]).filter((x) => !draggedValues.some((y) => eq(x, y))) as any as FormKitSchemaFormKit[]
       const nextChildren = [...currentChildren]
-      nextChildren.splice(index, 0, ...(insertValues as any as FormKitSchemaFormKit[]))
+      nextChildren.splice(index, 0, ...(processedInsertValues as any as FormKitSchemaFormKit[]))
 
       const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
       if (!nextSchema) return
@@ -293,7 +321,47 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     }
     }
   } else if (insertState.draggedOverParent) {
-    if (state.currentParent.el.contains(state.initialParent.el)) {
+    if (listKey) {
+      const listParent = insertState.draggedOverParent
+      const currentChildren = parentValues(listParent.el, listParent.data) as any as FormKitSchemaFormKit[]
+      const indexRaw = (state as any).targetIndex as number | undefined
+      const index =
+        typeof indexRaw === 'number' && Number.isFinite(indexRaw)
+          ? Math.max(0, Math.min(currentChildren.length, indexRaw))
+          : currentChildren.length
+
+      const draggedValues = state.draggedNodes.map((node) => node.data.value) as any as FormKitSchemaFormKit[]
+      const isSource = state.initialParent.el.getAttribute('data-is-source') === 'true'
+      const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
+        ? (state.initialParent.data.config.insertConfig.dynamicValues({
+            sourceParent: state.initialParent,
+            targetParent: state.currentParent,
+            draggedNodes: state.draggedNodes,
+            targetNodes: insertState.draggedOverNodes as NodeRecord<T>[],
+            targetIndex: index,
+          }) as any as FormKitSchemaFormKit[])
+        : draggedValues
+
+      const processedInsertValues = normalizeInsertValues(insertValues as any, isSource)
+      processedInsertValues.forEach((val: any) => setColSpan(val, 12))
+
+      const baseSchema = formSchema.value as any as FormKitSchemaFormKit[]
+      const newParentValues = isSource
+        ? baseSchema
+        : (baseSchema as any[]).filter((x) => !draggedValues.some((y) => eq(x, y))) as any as FormKitSchemaFormKit[]
+
+      const nextChildren = [...currentChildren]
+      nextChildren.splice(index, 0, ...(processedInsertValues as any as FormKitSchemaFormKit[]))
+
+      const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
+      if (!nextSchema) return
+
+      if (!isSource) {
+        setParentValues(state.initialParent.el, state.initialParent.data, [...nextSchema] as any)
+      }
+      setParentValues(listParent.el, listParent.data, [...nextChildren] as any)
+      commitSchema(nextSchema, { reason: 'dnd' })
+    } else if (state.currentParent.el.contains(state.initialParent.el)) {
       const draggedParentValues = parentValues(state.initialParent.el, state.initialParent.data)
 
       const draggedOverParentValues = parentValues(insertState.draggedOverParent.el, insertState.draggedOverParent.data)

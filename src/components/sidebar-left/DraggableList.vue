@@ -29,7 +29,7 @@ const dragConfig = {
       return data.draggedNodes.map((node) => JSON.parse(JSON.stringify(node.data.value)))
     },
   },
-  onTransfer() {
+  handleEnd() {
     items.value = [...props.elements]
   },
 }
