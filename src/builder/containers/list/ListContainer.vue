@@ -82,22 +82,20 @@ const onSelect = (child: any) => {
       </n-button-group>
     </div>
 
-    <div ref="containerRef" class="p-2">
-      <n-list
-        bordered
-        class="rounded-lg"
-        :class="items.length === 0 ? 'border border-dashed border-border/40' : ''"
-      >
-        <n-list-item
-          v-for="(child, idx) in items"
-          :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
-          class="cursor-grab"
-          @pointerdown.capture.stop="onSelect(child)"
-        >
-          <n-thing>
-            <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />
-          </n-thing>
-        </n-list-item>
+    <div class="p-2">
+      <n-list bordered class="rounded-lg" :class="items.length === 0 ? 'border border-dashed border-border/40' : ''">
+        <div ref="containerRef">
+          <n-list-item
+            v-for="(child, idx) in items"
+            :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
+            class="cursor-grab"
+            @pointerdown.capture.stop="onSelect(child)"
+          >
+            <n-thing>
+              <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />
+            </n-thing>
+          </n-list-item>
+        </div>
       </n-list>
     </div>
   </div>
