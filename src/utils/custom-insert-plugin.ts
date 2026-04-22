@@ -53,6 +53,18 @@ const generateKey = () => {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`
 }
 
+const findSchemaByKey = (schema: any[], key: string): any | undefined => {
+  for (const node of schema) {
+    if (node && typeof node === 'object' && (node as any).__key === key) return node
+    const children = (node as any)?.children
+    if (Array.isArray(children)) {
+      const found = findSchemaByKey(children, key)
+      if (found) return found
+    }
+  }
+  return undefined
+}
+
 const toSafeName = (input: unknown) => {
   const raw = typeof input === 'string' ? input : ''
   let name = raw.trim().toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '')
@@ -706,7 +718,9 @@ function positionInsertPoint<T>(
     const latestValues = parent.data.getValues(parent.el) as any
     const latestValue =
       Array.isArray(latestValues) && typeof node.data.index === 'number' ? latestValues[node.data.index] : undefined
-    const targetRowSpan = getRowSpan(latestValue ?? node.data.value)
+    const targetKey = (node.data.value as any)?.__key
+    const schemaValue = typeof targetKey === 'string' && targetKey ? findSchemaByKey(formSchema.value as any[], targetKey) : undefined
+    const targetRowSpan = getRowSpan(schemaValue ?? latestValue ?? node.data.value)
     const draggedRowSpan = (insertState as any).draggedRowSpan ?? 1
     const shouldSegment = targetRowSpan > 1 && draggedRowSpan === 1
 
