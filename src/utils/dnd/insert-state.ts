@@ -10,6 +10,7 @@ export type InsertStateEx<T> = InsertState<T> & {
   explicitIndex?: number
   // 对 row-span>1 的目标元素，命中到下半行时会计算出一个更精确的“目标行”
   explicitRow?: number
+  handledEnd?: boolean
 }
 
 export const insertState: InsertStateEx<unknown> = {
@@ -19,4 +20,5 @@ export const insertState: InsertStateEx<unknown> = {
   ascending: false,
   insertPoint: null,
   dragging: false,
+  handledEnd: false,
 }
