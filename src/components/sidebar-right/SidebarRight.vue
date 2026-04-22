@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { NLayoutSider, NScrollbar } from 'naive-ui'
 import FormEditMain from './FormEditMain.vue'
-import { fieldProps } from '../../utils/field-props'
+import { createFieldProps } from '../../utils/field-props'
 import { useFormField } from '../../composables/form-fields'
+import { useFormBuilderI18n } from '../../i18n/context'
 
 const { currentFieldType } = useFormField()
+const { t } = useFormBuilderI18n()
+const fieldProps = computed(() => createFieldProps(t))
 </script>
 
 <template>

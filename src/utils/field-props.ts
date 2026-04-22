@@ -2,269 +2,296 @@ export { defaultFormElements } from './default-form-elements'
 
 export type { FormKitSchemaFormKit } from '@formkit/core'
 
-export const fieldProps = [
+export type FieldCategory = 'fields' | 'structure' | 'static'
+
+type FieldPropDef = {
+  name: string
+  tooltipKey: string
+  icon: string
+  category: FieldCategory
+}
+
+export type FieldProp = {
+  name: string
+  tooltip: string
+  icon: string
+  category: FieldCategory
+}
+
+const defs: FieldPropDef[] = [
   {
     name: 'text',
-    tooltip: 'Allows user to enter text',
+    tooltipKey: 'fieldProps.tooltip.text',
     icon: 'i-lucide-type',
     category: 'fields',
   },
   {
     name: 'email',
-    tooltip: 'Allows user to enter email',
+    tooltipKey: 'fieldProps.tooltip.email',
     icon: 'i-lucide-mail',
     category: 'fields',
   },
   {
     name: 'color',
-    tooltip: 'Allows user to select color',
+    tooltipKey: 'fieldProps.tooltip.color',
     icon: 'i-lucide-pipette',
     category: 'fields',
   },
   {
     name: 'number',
-    tooltip: 'Allows user to enter number',
+    tooltipKey: 'fieldProps.tooltip.number',
     icon: 'i-lucide-hash',
     category: 'fields',
   },
   {
     name: 'checkbox',
-    tooltip: 'Allows user to select multiple options',
+    tooltipKey: 'fieldProps.tooltip.checkbox',
     icon: 'i-lucide-square-check',
     category: 'fields',
   },
   {
     name: 'date',
-    tooltip: 'Allows user to select date',
+    tooltipKey: 'fieldProps.tooltip.date',
     icon: 'i-lucide-calendar',
     category: 'fields',
   },
   {
     name: 'datetime-local',
-    tooltip: 'Allows user to select date and time',
+    tooltipKey: 'fieldProps.tooltip.datetimeLocal',
     icon: 'i-lucide-calendar-clock',
     category: 'fields',
   },
   {
     name: 'date-time',
-    tooltip: 'Allows user to select date and time',
+    tooltipKey: 'fieldProps.tooltip.dateTime',
     icon: 'i-lucide-calendar-clock',
     category: 'fields',
   },
   {
     name: 'file',
-    tooltip: 'Allows user to upload file',
+    tooltipKey: 'fieldProps.tooltip.file',
     icon: 'i-lucide-paperclip',
     category: 'fields',
   },
   {
     name: 'password',
-    tooltip: 'Allows user to enter password',
+    tooltipKey: 'fieldProps.tooltip.password',
     icon: 'i-lucide-lock',
     category: 'fields',
   },
   {
     name: 'radio',
-    tooltip: 'Allows user to select single option',
+    tooltipKey: 'fieldProps.tooltip.radio',
     icon: 'i-lucide-circle-dot',
     category: 'fields',
   },
   {
     name: 'range',
-    tooltip: 'Allows user to select between a range of values',
+    tooltipKey: 'fieldProps.tooltip.range',
     icon: 'i-lucide-sliders-horizontal',
     category: 'fields',
   },
   {
     name: 'select',
-    tooltip: 'Allows user to select from a list of options',
+    tooltipKey: 'fieldProps.tooltip.select',
     icon: 'i-lucide-list',
     category: 'fields',
   },
   {
     name: 'naiveCascader',
-    tooltip: 'Allows user to select from a cascader',
+    tooltipKey: 'fieldProps.tooltip.naiveCascader',
     icon: 'i-lucide-list',
     category: 'fields',
   },
   {
     name: 'naiveTreeSelect',
-    tooltip: 'Allows user to select from a tree',
+    tooltipKey: 'fieldProps.tooltip.naiveTreeSelect',
     icon: 'i-lucide-list-tree',
     category: 'fields',
   },
   {
     name: 'naiveMention',
-    tooltip: 'Allows user to mention options',
+    tooltipKey: 'fieldProps.tooltip.naiveMention',
     icon: 'i-lucide-letter-text',
     category: 'fields',
   },
   {
     name: 'naiveRate',
-    tooltip: 'Allows user to rate with stars',
+    tooltipKey: 'fieldProps.tooltip.naiveRate',
     icon: 'i-lucide-sliders-horizontal',
     category: 'fields',
   },
   {
     name: 'naiveSwitch',
-    tooltip: 'Allows user to toggle a boolean value',
+    tooltipKey: 'fieldProps.tooltip.naiveSwitch',
     icon: 'i-lucide-square-check',
     category: 'fields',
   },
   {
     name: 'naiveCheckbox',
-    tooltip: 'Allows user to toggle a checkbox value',
+    tooltipKey: 'fieldProps.tooltip.naiveCheckbox',
     icon: 'i-lucide-square-check',
     category: 'fields',
   },
   {
     name: 'naiveAvatar',
-    tooltip: 'Avatar display',
+    tooltipKey: 'fieldProps.tooltip.naiveAvatar',
     icon: 'i-stash:user-avatar',
     category: 'fields',
   },
   {
     name: 'naiveImage',
-    tooltip: 'Image display',
+    tooltipKey: 'fieldProps.tooltip.naiveImage',
     icon: 'i-lucide-image',
     category: 'fields',
   },
   {
     name: 'tel',
-    tooltip: 'Allows user to enter telephone number',
+    tooltipKey: 'fieldProps.tooltip.tel',
     icon: 'i-lucide-phone',
     category: 'fields',
   },
   {
     name: 'textarea',
-    tooltip: 'Allows user to enter multiple lines of text',
+    tooltipKey: 'fieldProps.tooltip.textarea',
     icon: 'i-lucide-letter-text',
     category: 'fields',
   },
   {
     name: 'time',
-    tooltip: 'Allows user to select time',
+    tooltipKey: 'fieldProps.tooltip.time',
     icon: 'i-lucide-clock',
     category: 'fields',
   },
   {
     name: 'url',
-    tooltip: 'Allows user to enter url',
+    tooltipKey: 'fieldProps.tooltip.url',
     icon: 'i-lucide-link-2',
     category: 'fields',
   },
   {
     name: 'submit',
-    tooltip: 'Allows user to submit form',
+    tooltipKey: 'fieldProps.tooltip.submit',
     icon: 'i-lucide-send-horizontal',
     category: 'static',
   },
   {
     name: 'naiveButton',
-    tooltip: 'Naive UI button',
+    tooltipKey: 'fieldProps.tooltip.naiveButton',
     icon: 'i-lucide-square-mouse-pointer',
     category: 'static',
   },
   {
     name: 'naiveText',
-    tooltip: 'Typography text',
+    tooltipKey: 'fieldProps.tooltip.naiveText',
     icon: 'i-lucide-letter-text',
     category: 'static',
   },
   {
     name: 'naiveP',
-    tooltip: 'Typography paragraph',
+    tooltipKey: 'fieldProps.tooltip.naiveP',
     icon: 'i-lucide-letter-text',
     category: 'static',
   },
   {
     name: 'naiveA',
-    tooltip: 'Typography link',
+    tooltipKey: 'fieldProps.tooltip.naiveA',
     icon: 'i-lucide-link-2',
     category: 'static',
   },
   {
     name: 'naiveBlockquote',
-    tooltip: 'Typography blockquote',
+    tooltipKey: 'fieldProps.tooltip.naiveBlockquote',
     icon: 'i-lucide-letter-text',
     category: 'static',
   },
   {
     name: 'naiveHr',
-    tooltip: 'Typography divider',
+    tooltipKey: 'fieldProps.tooltip.naiveHr',
     icon: 'i-lucide-sliders-horizontal',
     category: 'static',
   },
   {
     name: 'naiveH1',
-    tooltip: 'Typography H1',
+    tooltipKey: 'fieldProps.tooltip.naiveH1',
     icon: 'i-lucide-heading-1',
     category: 'static',
   },
   {
     name: 'naiveH2',
-    tooltip: 'Typography H2',
+    tooltipKey: 'fieldProps.tooltip.naiveH2',
     icon: 'i-lucide-heading-2',
     category: 'static',
   },
   {
     name: 'naiveH3',
-    tooltip: 'Typography H3',
+    tooltipKey: 'fieldProps.tooltip.naiveH3',
     icon: 'i-lucide-heading-3',
     category: 'static',
   },
   {
     name: 'naiveH4',
-    tooltip: 'Typography H4',
+    tooltipKey: 'fieldProps.tooltip.naiveH4',
     icon: 'i-lucide-heading-4',
     category: 'static',
   },
   {
     name: 'naiveH5',
-    tooltip: 'Typography H5',
+    tooltipKey: 'fieldProps.tooltip.naiveH5',
     icon: 'i-lucide-heading-5',
     category: 'static',
   },
   {
     name: 'naiveH6',
-    tooltip: 'Typography H6',
+    tooltipKey: 'fieldProps.tooltip.naiveH6',
     icon: 'i-lucide-heading-6',
     category: 'static',
   },
   {
     name: 'naiveUl',
-    tooltip: 'Typography unordered list',
+    tooltipKey: 'fieldProps.tooltip.naiveUl',
     icon: 'i-lucide-list',
     category: 'static',
   },
   {
     name: 'naiveOl',
-    tooltip: 'Typography ordered list',
+    tooltipKey: 'fieldProps.tooltip.naiveOl',
     icon: 'i-lucide-list',
     category: 'static',
   },
   {
     name: 'naiveLi',
-    tooltip: 'Typography list item',
+    tooltipKey: 'fieldProps.tooltip.naiveLi',
     icon: 'i-lucide-list',
     category: 'static',
   },
   {
     name: 'naiveDivider',
-    tooltip: 'Naive UI divider',
+    tooltipKey: 'fieldProps.tooltip.naiveDivider',
     icon: 'i-lucide-sliders-horizontal',
     category: 'static',
   },
   {
     name: 'group',
-    tooltip: 'Allows user to group fields together',
+    tooltipKey: 'fieldProps.tooltip.group',
     icon: 'i-lucide-group',
     category: 'structure',
   },
   {
     name: 'list',
-    tooltip: 'Allows user to group fields into an array',
+    tooltipKey: 'fieldProps.tooltip.list',
     icon: 'i-lucide-list-tree',
     category: 'structure',
   },
 ]
+
+export function createFieldProps(t: (key: string) => string): FieldProp[] {
+  return defs.map((d) => ({
+    name: d.name,
+    tooltip: t(d.tooltipKey),
+    icon: d.icon,
+    category: d.category,
+  }))
+}
+
+export const fieldProps = createFieldProps((v) => v)

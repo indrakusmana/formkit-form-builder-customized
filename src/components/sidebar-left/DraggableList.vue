@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { watch, type Ref } from 'vue'
+import { computed, watch, type Ref } from 'vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
-import { fieldProps } from '../../utils/field-props'
+import { createFieldProps } from '../../utils/field-props'
 import type { FormKitSchemaFormKit } from '@formkit/core'
+import { useFormBuilderI18n } from '../../i18n/context'
 
 const props = defineProps<{
   elements: FormKitSchemaFormKit[]
 }>()
+
+const { t } = useFormBuilderI18n()
+const fieldProps = computed(() => createFieldProps(t))
 
 type PointerupData = { targetData: { node: { el: HTMLElement } } }
 type DynamicValuesData = { draggedNodes: Array<{ data: { value: FormKitSchemaFormKit } }> }

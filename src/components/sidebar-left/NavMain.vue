@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { inject, computed, ref } from 'vue'
 import { NTabs, NTabPane, NScrollbar } from 'naive-ui'
-import { fieldProps } from '../../utils/field-props'
+import { createFieldProps } from '../../utils/field-props'
 import { defaultFormElements } from '../../utils/default-form-elements'
 import DraggableList from './DraggableList.vue'
+import { useFormBuilderI18n } from '../../i18n/context'
 
 const searchInput = inject('searchInput', ref(''))
+const { t } = useFormBuilderI18n()
+const fieldProps = computed(() => createFieldProps(t))
 
 const filteredFormElements = computed(() => {
   if (!searchInput.value.trim()) {
@@ -23,11 +26,11 @@ const filteredFormElements = computed(() => {
 
 type ElementCategory = 'fields' | 'structure' | 'static'
 
-const categories: { id: ElementCategory; label: string }[] = [
-  { id: 'fields', label: 'Fields' },
-  { id: 'structure', label: 'Structure' },
-  { id: 'static', label: 'Static' },
-]
+const categories = computed<{ id: ElementCategory; label: string }[]>(() => [
+  { id: 'fields', label: t('fieldProps.category.fields') },
+  { id: 'structure', label: t('fieldProps.category.structure') },
+  { id: 'static', label: t('fieldProps.category.static') },
+])
 
 const groupedElements = computed(() => {
   const groups: Record<ElementCategory, typeof defaultFormElements> = {
@@ -37,7 +40,7 @@ const groupedElements = computed(() => {
   }
 
   filteredFormElements.value.forEach((item) => {
-    const prop = fieldProps.find((p) => p.name === item.$formkit)
+    const prop = fieldProps.value.find((p) => p.name === item.$formkit)
     const category = (prop?.category || 'fields') as ElementCategory
     if (groups[category]) {
       groups[category].push(item)
