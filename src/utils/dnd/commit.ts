@@ -23,6 +23,24 @@ import { getVisualRows, setColSpan, adjustColSpansForInsertAtRow } from './grid'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from './schema'
 import { eq } from '../utils'
 
+function getListKey(el: HTMLElement | null | undefined): string | null {
+  if (!el) return null
+  const raw = el.getAttribute('data-list-key')
+  return raw && raw.trim() ? raw : null
+}
+
+function updateListChildrenByKey(
+  schema: FormKitSchemaFormKit[],
+  listKey: string,
+  nextChildren: FormKitSchemaFormKit[],
+) {
+  const nextSchema = [...schema]
+  const idx = nextSchema.findIndex((n: any) => n?.__key === listKey)
+  if (idx < 0) return null
+  nextSchema[idx] = { ...(nextSchema[idx] as any), children: [...nextChildren] } as any
+  return nextSchema
+}
+
 // 调整横向插入时的 col-span：优先使用 explicitRow（row-span>1 的精确命中），否则回退到“视觉行”算法
 function adjustColSpansForInsert(
   targetParentValues: any[],
@@ -132,6 +150,9 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   if (!draggedNode) return
 
   const insertPoint = insertState.insertPoint
+  const listKey =
+    getListKey(state.currentParent.el as any) ??
+    getListKey(insertState.draggedOverParent?.el as any)
 
   if (!insertState.draggedOverParent) {
     const draggedParentValues = parentValues(state.initialParent.el, state.initialParent.data)
@@ -139,6 +160,37 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     const transferred = state.initialParent.el !== state.currentParent.el
 
     const draggedValues = state.draggedNodes.map((node) => node.data.value)
+
+    if (transferred && listKey) {
+      const currentChildren = parentValues(state.currentParent.el, state.currentParent.data) as any as FormKitSchemaFormKit[]
+      const indexRaw = (state as any).targetIndex as number | undefined
+      const index = typeof indexRaw === 'number' && Number.isFinite(indexRaw)
+        ? Math.max(0, Math.min(currentChildren.length, indexRaw))
+        : currentChildren.length
+
+      const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
+        ? (state.initialParent.data.config.insertConfig.dynamicValues({
+            sourceParent: state.initialParent,
+            targetParent: state.currentParent,
+            draggedNodes: state.draggedNodes,
+            targetNodes: [] as any,
+            targetIndex: index,
+          }) as any as FormKitSchemaFormKit[])
+        : (draggedValues as any as FormKitSchemaFormKit[])
+
+      insertValues.forEach((val: any) => setColSpan(val, 12))
+
+      const newParentValues = (draggedParentValues as any[]).filter((x) => !draggedValues.some((y) => eq(x, y))) as any as FormKitSchemaFormKit[]
+      const nextChildren = [...currentChildren]
+      nextChildren.splice(index, 0, ...(insertValues as any as FormKitSchemaFormKit[]))
+
+      const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
+      if (!nextSchema) return
+
+      setParentValues(state.initialParent.el, state.initialParent.data, [...nextSchema] as any)
+      setParentValues(state.currentParent.el, state.currentParent.data, [...nextChildren] as any)
+      commitSchema(nextSchema, { reason: 'dnd' })
+    } else {
 
     const enabledNodes = [...state.initialParent.data.enabledNodes]
 
@@ -231,6 +283,7 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
       if (state.initialParent.data.config.onTransfer) state.initialParent.data.config.onTransfer(data)
       if (state.currentParent.data.config.onTransfer) state.currentParent.data.config.onTransfer(data)
+    }
     }
   } else if (insertState.draggedOverParent) {
     if (state.currentParent.el.contains(state.initialParent.el)) {

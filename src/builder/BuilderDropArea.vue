@@ -365,6 +365,7 @@ watch(
               <div class="flex-1 w-full">
                 <ListContainer
                   v-if="(field as any)?.$formkit === 'list'"
+                  :list-key="((field as any)?.__key as string | undefined)"
                   :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
                   :show-actions="false"
                   @update:model-value="(v) => updateListChildren(index, v)"

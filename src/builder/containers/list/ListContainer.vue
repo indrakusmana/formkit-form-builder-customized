@@ -8,6 +8,7 @@ import { useFormBuilderI18n } from '../../../i18n/context'
 import { selectedKey } from '../../../utils/default-form-elements'
 
 const props = defineProps<{
+  listKey?: string
   modelValue: FormKitSchemaFormKit[]
   disabled?: boolean
   showActions?: boolean
@@ -37,12 +38,6 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
   accepts: () => true,
   sortable: true,
   draggable: () => true,
-  handleParentDragover(data) {
-    data.e.preventDefault()
-  },
-  handleNodeDragover(data) {
-    data.e.preventDefault()
-  },
   handleNodePointerup(data) {
     data.targetData.node.el.setAttribute('draggable', 'true')
   },
@@ -178,6 +173,7 @@ const deleteChild = (index: number) => {
         <ul
           ref="containerRef"
           class="w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0 min-h-[140px]"
+          :data-list-key="props.listKey"
           @dragstart.capture="isDragging = true"
           @dragend.capture="isDragging = false"
           @drop.capture="isDragging = false"

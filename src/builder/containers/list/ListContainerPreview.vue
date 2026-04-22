@@ -26,6 +26,7 @@ const modelValue = computed(() => (Array.isArray(props.children) ? props.childre
 
 <template>
   <ListContainer
+    :list-key="props.nodeKey"
     :model-value="modelValue"
     :show-actions="true"
     @update:model-value="(v) => updateChildren?.(props.nodeKey, v)"

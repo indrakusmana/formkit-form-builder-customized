@@ -1,6 +1,7 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { computed, ref } from 'vue'
 import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
+import { generateKey } from '../utils/dnd/schema'
 
 type SchemaSnapshot = FormKitSchemaFormKit[]
 
@@ -38,6 +39,9 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
   const visit = (nodes: any[]) => {
     for (const node of nodes) {
       if (!node || typeof node !== 'object') continue
+      if (typeof node.__key !== 'string' || !node.__key) {
+        node.__key = generateKey()
+      }
       if (typeof node.valueExpression === 'string' && typeof node.__raw__valueExpression !== 'string') {
         node.__raw__valueExpression = node.valueExpression
       }
