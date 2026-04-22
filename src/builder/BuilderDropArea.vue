@@ -52,10 +52,29 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
 const updateListChildren = (index: number, children: FormKitSchemaFormKit[]) => {
   const current = formSchema.value[index]
   if (!current) return
+  const existingNames = new Set<string>()
+  collectSchemaNames(formSchema.value as any, existingNames)
+  const ensureIdentity = (node: any): any => {
+    if (!node || typeof node !== 'object') return node
+    if (typeof node.__key === 'string' && node.__key) {
+      if (Array.isArray(node.children)) node.children = node.children.map((c: any) => ensureIdentity(c))
+      return node
+    }
+    const nextKey = generateKey()
+    const base = toSafeName(node.$formkit || node.name || 'field')
+    const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
+    const next: any =
+      node.$formkit === 'submit'
+        ? { ...node, __key: nextKey, outerClass: node.outerClass || 'col-span-12 pt-2' }
+        : { ...node, __key: nextKey, name: nextName, id: `field_${nextKey}`, outerClass: node.outerClass || 'col-span-12' }
+    if (Array.isArray(node.children)) next.children = node.children.map((c: any) => ensureIdentity(c))
+    return next
+  }
+  const normalizedChildren = children.map((c: any) => ensureIdentity({ ...c }))
   const nextSchema = [...formSchema.value]
   nextSchema[index] = {
     ...(current as any),
-    children: [...children],
+    children: normalizedChildren,
   } as FormKitSchemaFormKit
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-children', merge: true })
 }

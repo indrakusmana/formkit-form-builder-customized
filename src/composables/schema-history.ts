@@ -48,6 +48,27 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
   visit(schema as any[])
 }
 
+function containsKey(nodes: any[], key: string): boolean {
+  for (const node of nodes) {
+    if (!node || typeof node !== 'object') continue
+    if ((node as any).__key === key) return true
+    const children = (node as any)?.children
+    if (Array.isArray(children) && containsKey(children, key)) return true
+  }
+  return false
+}
+
+function findRootIndexForKey(schema: any[], key: string): number {
+  for (let i = 0; i < schema.length; i++) {
+    const node = schema[i]
+    if (!node || typeof node !== 'object') continue
+    if ((node as any).__key === key) return i
+    const children = (node as any)?.children
+    if (Array.isArray(children) && containsKey(children, key)) return i
+  }
+  return -1
+}
+
 export function commitSchema(
   nextSchema: SchemaSnapshot,
   options?: { reason?: string; merge?: boolean },
@@ -80,9 +101,9 @@ export function commitSchema(
   migrateExpressionKeys(nextSchema)
   formSchema.value = nextSchema
   if (prevSelectedKey) {
-    const nextIndex = nextSchema.findIndex((field: any) => field?.__key === prevSelectedKey)
-    if (nextIndex >= 0) {
-      selectedIndex.value = nextIndex
+    const rootIndex = findRootIndexForKey(nextSchema as any[], prevSelectedKey)
+    if (rootIndex >= 0) {
+      selectedIndex.value = rootIndex
       selectedKey.value = prevSelectedKey
     } else {
       selectedKey.value = null

@@ -91,7 +91,7 @@ provide(
     if (idx < 0) return
     const existingNames = new Set<string>()
     collectSchemaNames(previewSchema.value as any, existingNames)
-    const cloned = cloneNodeWithFreshIdentity(structuredClone(previewSchema.value[idx] as any), existingNames)
+    const cloned = cloneNodeWithFreshIdentity(safeClone(previewSchema.value[idx] as any), existingNames)
     const next = [...previewSchema.value]
     next.splice(idx + 1, 0, cloned)
     previewSchema.value = next
@@ -111,6 +111,14 @@ provide(
 
 const lastComputedValueByName = ref<Record<string, string>>({})
 const lastDepsSigByName = ref<Record<string, string>>({})
+
+const safeClone = <T,>(value: T): T => {
+  try {
+    return structuredClone(value)
+  } catch {
+    return JSON.parse(JSON.stringify(value)) as T
+  }
+}
 
 const eachField = (schema: FormKitSchemaFormKit[], fn: (field: any) => void) => {
   for (const field of schema) {
@@ -169,7 +177,7 @@ const handleSubmit = async (formData: Record<string, unknown>) => {
 const open = () => {
   isOpen.value = true
   data.value = {}
-  previewSchema.value = structuredClone(formSchema.value)
+  previewSchema.value = safeClone(formSchema.value)
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
 }
