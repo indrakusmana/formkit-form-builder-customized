@@ -440,6 +440,17 @@ export function moveBetween<T>(data: ParentRecord<T>, state: DragState<T>) {
     return
   }
 
+  ;(insertState as any).draggedRowSpan = Math.max(
+    1,
+    ...state.draggedNodes.map((n) => {
+      const outerClass = (n.data as any)?.value?.outerClass
+      if (typeof outerClass !== 'string') return 1
+      const match = outerClass.match(/\brow-span-(\d+)\b/)
+      const parsed = match ? parseInt(match[1]!, 10) : 1
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+    }),
+  )
+
   const values = data.data.getValues(data.el)
   if (values.length === 0) {
     insertState.draggedOverParent = data as ParentRecord<unknown>
@@ -526,6 +537,17 @@ function moveOutside<T>(data: ParentRecord<T>, state: DragState<T>) {
     removeClass([state.currentParent.el], targetConfig.dropZoneClass)
 
     const enabledNodes = data.data.enabledNodes
+
+    ;(insertState as any).draggedRowSpan = Math.max(
+      1,
+      ...state.draggedNodes.map((n) => {
+        const outerClass = (n.data as any)?.value?.outerClass
+        if (typeof outerClass !== 'string') return 1
+        const match = outerClass.match(/\brow-span-(\d+)\b/)
+        const parsed = match ? parseInt(match[1]!, 10) : 1
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+      }),
+    )
 
     const foundRange = findClosest(enabledNodes, state)
 
@@ -646,7 +668,23 @@ function positionInsertPoint<T>(
 
   insertState.insertPoint.el.style.display = 'block'
 
+  const insertPointEl = insertState.insertPoint.el
+
+  const resetInsertPointSegments = () => {
+    if (insertPointEl.childElementCount) insertPointEl.replaceChildren()
+    insertPointEl.style.backgroundColor = ''
+  }
+
+  const getRowSpan = (item: any): number => {
+    const outerClass = item?.outerClass
+    if (typeof outerClass !== 'string') return 1
+    const match = outerClass.match(/\brow-span-(\d+)\b/)
+    const parsed = match ? parseInt(match[1]!, 10) : 1
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+  }
+
   if (position.vertical) {
+    resetInsertPointSegments()
     const insertPointHeight = insertState.insertPoint.el.getBoundingClientRect().height || 4
     const targetY = position.y[ascending ? 1 : 0]!
     const topPosition = targetY - insertPointHeight / 2
@@ -663,12 +701,42 @@ function positionInsertPoint<T>(
     const insertPointWidth = insertState.insertPoint.el.getBoundingClientRect().width || 4
     const targetX = position.x[ascending ? 1 : 0]!
     const leftPosition = targetX - insertPointWidth / 2
+    const targetHeight = position.y[1]! - position.y[0]!
+
+    const targetRowSpan = getRowSpan(node.data.value)
+    const draggedRowSpan = (insertState as any).draggedRowSpan ?? 1
+    const shouldSegment = targetRowSpan > 1 && draggedRowSpan === 1
+
+    if (shouldSegment) {
+      const gapPx = 8
+      const segmentHeight = (targetHeight - gapPx * (targetRowSpan - 1)) / targetRowSpan
+      const bg = getComputedStyle(insertPointEl).backgroundColor
+
+      insertPointEl.style.backgroundColor = 'transparent'
+      insertPointEl.replaceChildren()
+
+      for (let i = 0; i < targetRowSpan; i++) {
+        const seg = document.createElement('div')
+        Object.assign(seg.style, {
+          position: 'absolute',
+          left: '0px',
+          top: `${i * (segmentHeight + gapPx)}px`,
+          width: '4px',
+          height: `${Math.max(0, segmentHeight)}px`,
+          backgroundColor: bg,
+          borderRadius: '2px',
+        })
+        insertPointEl.appendChild(seg)
+      }
+    } else {
+      resetInsertPointSegments()
+    }
 
     Object.assign(insertState.insertPoint.el.style, {
       left: `${leftPosition}px`,
       top: `${position.y[0]!}px`,
-      bottom: `${position.y[1]!}px`,
-      height: `${position.y[1]! - position.y[0]!}px`,
+      bottom: '',
+      height: `${targetHeight}px`,
       width: '4px',
       right: '',
     })
