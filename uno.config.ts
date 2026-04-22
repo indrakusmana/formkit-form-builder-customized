@@ -1,6 +1,8 @@
 import { defineConfig, presetWind3 } from 'unocss'
 import presetIcons from 'unocss/preset-icons'
 import { presetTwAnimate } from 'unocss-tw-animate-css'
+import lucide from '@iconify/json/json/lucide.json'
+import stash from '@iconify/json/json/stash.json'
 
 export default defineConfig({
   safelist: [
@@ -59,6 +61,10 @@ export default defineConfig({
   presets: [
     presetWind3(),
     presetIcons({
+      collections: {
+        lucide: lucide as any,
+        stash: stash as any,
+      },
       scale: 1.2,
       warn: true,
     }),
