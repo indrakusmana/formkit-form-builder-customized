@@ -28,6 +28,7 @@ export default defineConfig({
     'i-lucide-pipette',
     'i-lucide-send-horizontal',
     'i-lucide-square-mouse-pointer',
+    'i-stash:user-avatar',
     'i-lucide-group',
     'i-lucide-list-tree',
     'i-lucide-heading-1',

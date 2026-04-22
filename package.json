@@ -86,7 +86,7 @@
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-vue-devtools": "^8.1.1",
     "vue-tsc": "^3.2.6",
-    "@iconify-json/lucide": "^1.2.58",
+    "@iconify/json": "^2.2.371",
     "unocss": "^66.6.8",
     "unocss-tw-animate-css": "^0.1.1",
     "naive-ui": "^2.44.1",

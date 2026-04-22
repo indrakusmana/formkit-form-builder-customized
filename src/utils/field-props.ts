@@ -120,7 +120,7 @@ export const fieldProps = [
   {
     name: 'naiveAvatar',
     tooltip: 'Avatar display',
-    icon: 'i-lucide-square-mouse-pointer',
+    icon: 'i-stash:user-avatar',
     category: 'fields',
   },
   {
