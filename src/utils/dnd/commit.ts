@@ -162,12 +162,14 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     const draggedValues = state.draggedNodes.map((node) => node.data.value)
 
     if (transferred && listKey) {
-      const currentChildren = parentValues(state.currentParent.el, state.currentParent.data) as any as FormKitSchemaFormKit[]
+      const listParent = insertState.draggedOverParent ?? state.currentParent
+      const currentChildren = parentValues(listParent.el, listParent.data) as any as FormKitSchemaFormKit[]
       const indexRaw = (state as any).targetIndex as number | undefined
       const index = typeof indexRaw === 'number' && Number.isFinite(indexRaw)
         ? Math.max(0, Math.min(currentChildren.length, indexRaw))
         : currentChildren.length
 
+      const isSource = state.initialParent.el.getAttribute('data-is-source') === 'true'
       const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
         ? (state.initialParent.data.config.insertConfig.dynamicValues({
             sourceParent: state.initialParent,
@@ -180,15 +182,20 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
       insertValues.forEach((val: any) => setColSpan(val, 12))
 
-      const newParentValues = (draggedParentValues as any[]).filter((x) => !draggedValues.some((y) => eq(x, y))) as any as FormKitSchemaFormKit[]
+      const baseSchema = formSchema.value as any as FormKitSchemaFormKit[]
+      const newParentValues = isSource
+        ? baseSchema
+        : (baseSchema as any[]).filter((x) => !draggedValues.some((y) => eq(x, y))) as any as FormKitSchemaFormKit[]
       const nextChildren = [...currentChildren]
       nextChildren.splice(index, 0, ...(insertValues as any as FormKitSchemaFormKit[]))
 
       const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
       if (!nextSchema) return
 
-      setParentValues(state.initialParent.el, state.initialParent.data, [...nextSchema] as any)
-      setParentValues(state.currentParent.el, state.currentParent.data, [...nextChildren] as any)
+      if (!isSource) {
+        setParentValues(state.initialParent.el, state.initialParent.data, [...nextSchema] as any)
+      }
+      setParentValues(listParent.el, listParent.data, [...nextChildren] as any)
       commitSchema(nextSchema, { reason: 'dnd' })
     } else {
 

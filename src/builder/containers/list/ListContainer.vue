@@ -6,6 +6,7 @@ import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import { NButton, NButtonGroup, NTooltip } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 import { selectedKey } from '../../../utils/default-form-elements'
+import { eq } from '../../../utils/utils'
 
 const props = defineProps<{
   listKey?: string
@@ -43,10 +44,18 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
   },
 })
 
+const syncingFromProps = ref(false)
+
 watch(
   () => props.modelValue,
   (next) => {
-    if (Array.isArray(next) && next !== items.value) items.value = [...next]
+    if (!Array.isArray(next)) return
+    if (eq(next, items.value)) return
+    syncingFromProps.value = true
+    items.value = [...next]
+    queueMicrotask(() => {
+      syncingFromProps.value = false
+    })
   },
   { deep: true },
 )
@@ -54,6 +63,8 @@ watch(
 watch(
   items,
   (next) => {
+    if (syncingFromProps.value) return
+    if (eq(next, props.modelValue)) return
     emit('update:modelValue', [...next])
   },
   { deep: true },
