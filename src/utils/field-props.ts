@@ -1,4 +1,4 @@
-export { defaultFormElements } from './default-form-elements'
+export { defaultFormElements, createDefaultFormElements } from './default-form-elements'
 
 export type { FormKitSchemaFormKit } from '@formkit/core'
 

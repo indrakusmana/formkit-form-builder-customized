@@ -2,21 +2,23 @@
 import { inject, computed, ref } from 'vue'
 import { NTabs, NTabPane, NScrollbar } from 'naive-ui'
 import { createFieldProps } from '../../utils/field-props'
-import { defaultFormElements } from '../../utils/default-form-elements'
+import { createDefaultFormElements } from '../../utils/default-form-elements'
 import DraggableList from './DraggableList.vue'
 import { useFormBuilderI18n } from '../../i18n/context'
+import type { FormKitSchemaFormKit } from '@formkit/core'
 
 const searchInput = inject('searchInput', ref(''))
 const { t } = useFormBuilderI18n()
 const fieldProps = computed(() => createFieldProps(t))
+const defaultFormElements = computed(() => createDefaultFormElements(t))
 
 const filteredFormElements = computed(() => {
   if (!searchInput.value.trim()) {
-    return defaultFormElements // Return all elements if the search is empty
+    return defaultFormElements.value
   }
 
   const query = searchInput.value.toLowerCase()
-  return defaultFormElements.filter(
+  return defaultFormElements.value.filter(
     (element) =>
       element.name.toLowerCase().includes(query) ||
       element.description.toLowerCase().includes(query) ||
@@ -33,7 +35,7 @@ const categories = computed<{ id: ElementCategory; label: string }[]>(() => [
 ])
 
 const groupedElements = computed(() => {
-  const groups: Record<ElementCategory, typeof defaultFormElements> = {
+  const groups: Record<ElementCategory, FormKitSchemaFormKit[]> = {
     fields: [],
     structure: [],
     static: [],
