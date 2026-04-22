@@ -57,6 +57,7 @@ export default defineConfig({
     'i-lucide-circle-help',
     'i-lucide-move-right',
     'i-lucide-upload',
+    'i-lucide-plus',
   ],
   presets: [
     presetWind3(),

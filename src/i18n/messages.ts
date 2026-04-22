@@ -25,6 +25,9 @@ export const messages = {
       previewDescription: '预览表单并测试其功能。',
       formDataTitle: '表单数据：',
       formSubmitted: '表单已提交！',
+      listContainer: '列表容器',
+      listAdd: '添加一项',
+      listRemove: '删除容器',
     },
     importExport: {
       title: '导入 / 导出 Schema',
@@ -247,6 +250,9 @@ export const messages = {
       previewDescription: 'Preview your form and test its functionality.',
       formDataTitle: 'Form Data:',
       formSubmitted: 'Form submitted!',
+      listContainer: 'List container',
+      listAdd: 'Add item',
+      listRemove: 'Remove container',
     },
     importExport: {
       title: 'Import / Export Schema',

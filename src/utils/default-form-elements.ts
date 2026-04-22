@@ -607,6 +607,7 @@ const defs: DefaultElementDef[] = [
     id: 'list_field',
     outerClass: 'col-span-12',
     descriptionKey: 'elements.list.description',
+    children: [],
   },
 ]
 

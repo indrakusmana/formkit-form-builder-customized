@@ -13,6 +13,8 @@ import { cn } from '../utils/utils'
 import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
+import ListContainer from './ListContainer.vue'
+import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 
 const { validationStringLength } = useFormField()
 const { t } = useFormBuilderI18n()
@@ -25,6 +27,51 @@ const deleteField = (index: number) => {
   const nextSchema = formSchema.value.filter((_: unknown, i: number) => i !== index)
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'delete' })
   fields.value = fields.value.filter((_, i) => i !== index)
+}
+
+const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
+  if (!node || typeof node !== 'object') return node
+  const nextKey = generateKey()
+  const base = toSafeName(node.name || node.$formkit || 'field')
+  const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
+  const next: any = {
+    ...node,
+    __key: nextKey,
+  }
+  if (node.$formkit !== 'submit') {
+    next.name = nextName
+    next.id = `field_${nextKey}`
+  }
+  if (Array.isArray(node.children)) {
+    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames))
+  }
+  return next
+}
+
+const updateListChildren = (index: number, children: FormKitSchemaFormKit[]) => {
+  const current = formSchema.value[index]
+  if (!current) return
+  const nextSchema = [...formSchema.value]
+  nextSchema[index] = {
+    ...(current as any),
+    children: [...children],
+  } as FormKitSchemaFormKit
+  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-children', merge: true })
+}
+
+const duplicateListContainer = (index: number) => {
+  const current = formSchema.value[index] as any
+  if (!current) return
+  const existingNames = new Set<string>()
+  collectSchemaNames(formSchema.value as any, existingNames)
+  const cloned = cloneNodeWithFreshIdentity(structuredClone(current), existingNames)
+  const nextSchema = [...formSchema.value]
+  nextSchema.splice(index + 1, 0, cloned)
+  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-duplicate' })
+}
+
+const removeListContainer = (index: number) => {
+  deleteField(index)
 }
 
 // 从 outerClass 中提取 col-span 数值，默认 12
@@ -287,7 +334,15 @@ watch(
             <!-- Field content -->
             <div class="flex gap-1.5 p-1 w-full pb-2">
               <div class="flex-1 w-full">
+                <ListContainer
+                  v-if="(field as any)?.$formkit === 'list'"
+                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
+                  @update:model-value="(v) => updateListChildren(index, v)"
+                  @duplicate="() => duplicateListContainer(index)"
+                  @remove="() => removeListContainer(index)"
+                />
                 <FormKitSchema
+                  v-else
                   :schema="[field as FormKitSchemaFormKit]"
                   :key="`form-item-${index}`"
                 />
