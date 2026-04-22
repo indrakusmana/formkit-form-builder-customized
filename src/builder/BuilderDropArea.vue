@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
 import { FormKitSchema } from '@formkit/vue'
-import { Trash2, Monitor, Tablet, Smartphone, CodeXml, MoreVertical } from 'lucide-vue-next'
 import { useFormBuilderI18n } from '../i18n/context'
 import { useRuntimeLocale } from '../i18n/runtime-locale'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
@@ -199,7 +198,7 @@ watch(
               size="small"
               class="w-8 h-8"
             >
-              <template #icon><Monitor class="h-3.5 w-3.5" /></template>
+              <template #icon><span class="i-lucide-monitor h-3.5 w-3.5"></span></template>
             </n-button>
           </template>
           {{ t('builder.desktopView') }}
@@ -213,7 +212,7 @@ watch(
               size="small"
               class="w-8 h-8"
             >
-              <template #icon><Tablet class="h-3.5 w-3.5" /></template>
+              <template #icon><span class="i-lucide-tablet h-3.5 w-3.5"></span></template>
             </n-button>
           </template>
           {{ t('builder.tabletView') }}
@@ -227,7 +226,7 @@ watch(
               size="small"
               class="w-8 h-8"
             >
-              <template #icon><Smartphone class="h-3.5 w-3.5" /></template>
+              <template #icon><span class="i-lucide-smartphone h-3.5 w-3.5"></span></template>
             </n-button>
           </template>
           {{ t('builder.mobileView') }}
@@ -316,7 +315,7 @@ watch(
                       dark:hover:!bg-red-950/50 dark:hover:!text-red-400
                       transition-all duration-150"
               >
-                <template #icon><Trash2 class="!h-[13px] !w-[13px]" /></template>
+                <template #icon><span class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
               </n-button>
             </div>
 
@@ -338,7 +337,7 @@ watch(
               @keydown.right.stop.prevent="nudgeResize(index, 2)"
             >
               <template #icon>
-                <MoreVertical class="h-5 w-5" />
+                <span class="i-lucide-more-vertical h-5 w-5"></span>
               </template>
             </n-button>
 
@@ -368,7 +367,7 @@ watch(
                 :aria-label="t('builder.importExportSchema')"
                 class="w-8 h-8"
               >
-                <template #icon><CodeXml class="h-3.5 w-3.5" /></template>
+                <template #icon><span class="i-lucide-code-xml h-3.5 w-3.5"></span></template>
               </n-button>
             </template>
             {{ t('builder.importExportSchema') }}

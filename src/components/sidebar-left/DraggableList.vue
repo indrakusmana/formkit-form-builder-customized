@@ -51,9 +51,9 @@ watch(() => props.elements, (newElements) => {
       ]"
     >
       <component
-        :is="fieldProps.find((prop) => prop.name === item.$formkit)?.icon"
-        class="h-4 w-4 shrink-0"
-      />
+        is="span"
+        :class="`${fieldProps.find((prop) => prop.name === item.$formkit)?.icon ?? ''} h-4 w-4 shrink-0`"
+      ></component>
       <div class="ml-3 flex flex-col justify-center overflow-hidden">
         <span class="text-[11px] text-secondary-foreground/80 font-medium">{{ item.name }}</span>
         <span class="text-[9px] text-muted-foreground truncate">{{ item.description }}</span>

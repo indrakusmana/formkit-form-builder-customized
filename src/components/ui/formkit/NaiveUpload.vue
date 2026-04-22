@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FormKitFrameworkContext } from '@formkit/core'
-import { Upload } from 'lucide-vue-next'
 import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
 import { NUpload } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
@@ -97,9 +96,7 @@ function customRequest(options: UploadCustomRequestOptions) {
   >
     <n-upload-dragger>
       <div class="flex justify-center mb-3">
-        <n-icon size="48" :depth="3" class="">
-          <Upload />
-        </n-icon>
+        <span class="i-lucide-upload text-[48px] text-muted-foreground"></span>
       </div>
       <n-text style="font-size: 16px">
         点击或者拖动文件到该区域来上传
