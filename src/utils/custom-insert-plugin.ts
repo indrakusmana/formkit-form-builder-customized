@@ -573,13 +573,6 @@ let lastCoordinates = { x: 0, y: 0 }
 function findClosest<T>(enabledNodes: NodeRecord<T>[], state: DragState<T>) {
   if (state.coordinates?.x === undefined || state.coordinates?.y === undefined) return null
 
-  // Return cached result if coordinates haven't changed significantly
-  const deltaX = Math.abs(state.coordinates.x - lastCoordinates.x)
-  const deltaY = Math.abs(state.coordinates.y - lastCoordinates.y)
-  if (lastFoundRange && deltaX < 5 && deltaY < 5) {
-    return lastFoundRange
-  }
-
   // Search through enabled nodes to find closest match
   let foundRange: [NodeRecord<T>, string] | null = null
 
@@ -682,6 +675,9 @@ function positionInsertPoint<T>(
 
   const insertPointEl = insertState.insertPoint.el
 
+  ;(insertState as any).explicitIndex = undefined
+  ;(insertState as any).explicitRow = undefined
+
   const resetInsertPointSegments = () => {
     if (insertPointEl.childElementCount) insertPointEl.replaceChildren()
     insertPointEl.style.backgroundColor = ''
@@ -723,6 +719,33 @@ function positionInsertPoint<T>(
     const targetRowSpan = getRowSpan(schemaValue ?? latestValue ?? node.data.value)
     const draggedRowSpan = (insertState as any).draggedRowSpan ?? 1
     const shouldSegment = targetRowSpan > 1 && draggedRowSpan === 1
+
+    ;(insertState as any).explicitIndex = undefined
+    ;(insertState as any).explicitRow = undefined
+    const coords = (state as any).coordinates as { x?: number; y?: number } | undefined
+    if (targetRowSpan > 1 && typeof node.data.index === 'number' && coords?.y !== undefined) {
+      const nodeCoords = getRealCoords(node.el)
+      const relY = coords.y - nodeCoords.top
+      const segmentHeight = nodeCoords.height / targetRowSpan
+      const segment = Math.max(1, Math.min(targetRowSpan, Math.floor(relY / segmentHeight) + 1))
+      if (segment > 1) {
+        const valuesForPlacement = Array.isArray(latestValues)
+          ? latestValues.map((v: any) => {
+              const k = v?.__key
+              if (typeof k === 'string' && k) return findSchemaByKey(formSchema.value as any[], k) ?? v
+              return v
+            })
+          : []
+        const placements = computePlacements(valuesForPlacement)
+        const p = placements[node.data.index]
+        if (p) {
+          const desiredRow = p.row + (segment - 1)
+          const desiredCol = ascending ? p.col + p.colSpan : p.col
+          ;(insertState as any).explicitRow = desiredRow
+          ;(insertState as any).explicitIndex = findInsertIndexForCell(placements, desiredRow, desiredCol)
+        }
+      }
+    }
 
     if (shouldSegment) {
       const gapPx = 8
@@ -781,6 +804,102 @@ function setColSpan(item: any, span: number) {
   item.outerClass = classes
 }
 
+function getRowSpanFromValue(item: any): number {
+  const outerClass = item?.outerClass
+  if (typeof outerClass !== 'string') return 1
+  const match = outerClass.match(/\brow-span-(\d+)\b/)
+  const parsed = match ? parseInt(match[1]!, 10) : 1
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+}
+
+function findSchemaItemByKey(schema: any[], key: string): any | undefined {
+  for (const node of schema) {
+    if (node && typeof node === 'object' && (node as any).__key === key) return node
+    const children = (node as any)?.children
+    if (Array.isArray(children)) {
+      const found = findSchemaItemByKey(children, key)
+      if (found) return found
+    }
+  }
+  return undefined
+}
+
+type Placement = { index: number; row: number; col: number; rowSpan: number; colSpan: number }
+
+function computePlacements(values: any[]): Placement[] {
+  const placements: Placement[] = []
+  const occupied = new Set<string>()
+  const keyOf = (r: number, c: number) => `${r}:${c}`
+  const canPlace = (r: number, c: number, rSpan: number, cSpan: number) => {
+    for (let rr = r; rr < r + rSpan; rr++) {
+      for (let cc = c; cc < c + cSpan; cc++) {
+        if (occupied.has(keyOf(rr, cc))) return false
+      }
+    }
+    return true
+  }
+  const occupy = (r: number, c: number, rSpan: number, cSpan: number) => {
+    for (let rr = r; rr < r + rSpan; rr++) {
+      for (let cc = c; cc < c + cSpan; cc++) {
+        occupied.add(keyOf(rr, cc))
+      }
+    }
+  }
+
+  for (let i = 0; i < values.length; i++) {
+    const item = values[i]
+    const colSpan = Math.max(1, Math.min(12, getColSpan(item)))
+    const rowSpan = Math.max(1, Math.min(6, getRowSpanFromValue(item)))
+    let placed = false
+    for (let row = 1; row <= 200 && !placed; row++) {
+      for (let col = 1; col <= 12 - colSpan + 1; col++) {
+        if (canPlace(row, col, rowSpan, colSpan)) {
+          occupy(row, col, rowSpan, colSpan)
+          placements.push({ index: i, row, col, rowSpan, colSpan })
+          placed = true
+          break
+        }
+      }
+    }
+    if (!placed) {
+      placements.push({ index: i, row: 1, col: 1, rowSpan, colSpan })
+    }
+  }
+
+  return placements
+}
+
+function cellKey(row: number, col: number) {
+  return row * 100 + col
+}
+
+function findInsertIndexForCell(placements: Placement[], row: number, col: number) {
+  const target = cellKey(row, col)
+  for (let i = 0; i < placements.length; i++) {
+    const p = placements[i]!
+    if (cellKey(p.row, p.col) >= target) return i
+  }
+  return placements.length
+}
+
+function adjustColSpansForInsertAtRow(targetParentValues: any[], row: number, insertValues: any[]) {
+  const placements = computePlacements(targetParentValues)
+  const rowIndices = placements
+    .filter((p) => row >= p.row && row < p.row + p.rowSpan)
+    .map((p) => p.index)
+  const rowItems = rowIndices.map((i) => targetParentValues[i]).filter(Boolean)
+  const totalCount = rowItems.length + insertValues.length
+  if (totalCount <= 0) return
+
+  if (totalCount <= 4) {
+    const newSpan = 12 / totalCount
+    rowItems.forEach((item) => setColSpan(item, newSpan))
+    insertValues.forEach((val) => setColSpan(val, newSpan))
+  } else {
+    insertValues.forEach((val) => setColSpan(val, 3))
+  }
+}
+
 function getVisualRows(values: any[]) {
   const rows: { startIndex: number; endIndex: number; items: any[]; totalSpan: number }[] = []
   let currentRow: { startIndex: number; endIndex: number; items: any[]; totalSpan: number } = { startIndex: 0, endIndex: 0, items: [], totalSpan: 0 }
@@ -811,6 +930,12 @@ function adjustColSpansForInsert(
 ) {
   if (isVertical) {
     insertValues.forEach(val => setColSpan(val, 12))
+    return
+  }
+
+  const explicitRow = (insertState as any).explicitRow as number | undefined
+  if (typeof explicitRow === 'number' && Number.isFinite(explicitRow)) {
+    adjustColSpansForInsertAtRow(targetParentValues, explicitRow, insertValues)
     return
   }
 
@@ -885,7 +1010,9 @@ function insertItemsIntoParentFromOutside<T>(
   }
 
   // Insert the processed values
-  targetParentValues.splice(index, 0, ...processedInsertValues)
+  const explicitIndex = (insertState as any).explicitIndex as number | undefined
+  const insertIndex = typeof explicitIndex === 'number' && Number.isFinite(explicitIndex) ? explicitIndex : index
+  targetParentValues.splice(insertIndex, 0, ...processedInsertValues)
 
   setParentValues(state.currentParent.el, state.currentParent.data, [...targetParentValues])
 
@@ -921,25 +1048,24 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     const draggedOverNode = insertState.draggedOverNodes[0]
 
     if (!transferred && draggedOverNode && draggedOverNode.el !== draggedNode.el) {
-      // this is where it gets sorted
-      const newParentValues: any = draggedParentValues.filter(
-        (x) => !draggedValues.some((y) => eq(x, y)),
-      )
+      const newParentValues: any = draggedParentValues.filter((x) => !draggedValues.some((y) => eq(x, y)))
 
       let index = draggedOverNode.data.index
+      const explicitIndex = (insertState as any).explicitIndex as number | undefined
+      const usedExplicitIndex = typeof explicitIndex === 'number' && Number.isFinite(explicitIndex)
 
-      if (insertState.targetIndex > draggedNode.data.index && !insertState.ascending) {
-        index--
-      } else if (insertState.targetIndex < draggedNode.data.index && insertState.ascending) {
-        index++
+      if (usedExplicitIndex) {
+        const removedBefore = state.draggedNodes.filter((n) => n.data.index < explicitIndex).length
+        index = Math.max(0, explicitIndex - removedBefore)
+      } else {
+        if (insertState.targetIndex > draggedNode.data.index && !insertState.ascending) {
+          index--
+        } else if (insertState.targetIndex < draggedNode.data.index && insertState.ascending) {
+          index++
+        }
       }
 
-      adjustColSpansForInsert(
-        newParentValues,
-        draggedOverNode.data.value,
-        draggedValues,
-        insertState.verticalInsert ?? false
-      )
+      adjustColSpansForInsert(newParentValues, draggedOverNode.data.value, draggedValues, insertState.verticalInsert ?? false)
 
       newParentValues.splice(index, 0, ...draggedValues)
 
@@ -971,8 +1097,13 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
       // For the time being, we will not be removing the value of the original dragged parent.
       let index = draggedOverNode?.data.index || 0
+      const explicitIndex = (insertState as any).explicitIndex as number | undefined
+      const usedExplicitIndex = typeof explicitIndex === 'number' && Number.isFinite(explicitIndex)
+      if (usedExplicitIndex) {
+        index = explicitIndex
+      }
 
-      if (insertState.ascending) index++
+      if (!usedExplicitIndex && insertState.ascending) index++
 
       const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
         ? state.initialParent.data.config.insertConfig.dynamicValues({
