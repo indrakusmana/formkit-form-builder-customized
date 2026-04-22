@@ -4,8 +4,7 @@ import type { FormKitSchemaFormKit } from '@formkit/core'
 export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]> | undefined) {
   return computed(() => {
     if (!fields) return []
-    // Transform fields to remove unwanted elements and update IDs
-    return fields?.value.map((field, index) => {
+    const formatOne = (field: FormKitSchemaFormKit, index: number): any => {
       const key = (field as any)?.__key as string | undefined
       const {
         $formkit,
@@ -30,7 +29,22 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         accept,
       } = field
 
-      // Create a clean field object with only necessary properties
+      if ($formkit === 'list') {
+        const children = Array.isArray((field as any)?.children)
+          ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
+          : []
+        return {
+          $el: 'div',
+          attrs: { class: outerClass || 'col-span-12' },
+          children: [
+            {
+              $cmp: 'ListContainerPreview',
+              props: { nodeKey: key, children },
+            },
+          ],
+        }
+      }
+
       const cleanField: FormKitSchemaFormKit = {
         $formkit,
         name: field.name || (key ? `field_${key}` : `field_${index}`),
@@ -56,12 +70,10 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         accept,
       }
 
-      // Add options if they exist (for select, radio, etc.)
-      if (options) {
-        cleanField.options = options
-      }
-
+      if (options) cleanField.options = options
       return cleanField
-    })
+    }
+
+    return fields.value.map((field, index) => formatOne(field, index))
   })
 }

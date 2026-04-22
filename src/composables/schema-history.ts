@@ -1,6 +1,6 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { computed, ref } from 'vue'
-import { formSchema, selectedIndex } from '../utils/default-form-elements'
+import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 
 type SchemaSnapshot = FormKitSchemaFormKit[]
 
@@ -22,6 +22,7 @@ function cloneSchema(schema: SchemaSnapshot): SchemaSnapshot {
 function clampSelectedIndex(schemaLength: number) {
   if (schemaLength <= 0) {
     selectedIndex.value = 0
+    selectedKey.value = null
     return
   }
 
@@ -53,7 +54,7 @@ export function commitSchema(
 ) {
   const now = Date.now()
   const currentSchema = formSchema.value
-  const selectedKey = (formSchema.value[selectedIndex.value] as any)?.__key as string | undefined
+  const prevSelectedKey = selectedKey.value ?? ((formSchema.value[selectedIndex.value] as any)?.__key as string | undefined)
   const selectedRef = formSchema.value[selectedIndex.value]
 
   if (currentSchema === nextSchema) return
@@ -78,12 +79,14 @@ export function commitSchema(
 
   migrateExpressionKeys(nextSchema)
   formSchema.value = nextSchema
-  if (options?.reason === 'dnd' && selectedKey) {
-    const nextIndex = nextSchema.findIndex((field: any) => field?.__key === selectedKey)
-    if (nextIndex >= 0) selectedIndex.value = nextIndex
-  } else if (options?.reason === 'dnd' && selectedRef) {
-    const nextIndex = nextSchema.findIndex((field) => field === selectedRef)
-    if (nextIndex >= 0) selectedIndex.value = nextIndex
+  if (prevSelectedKey) {
+    const nextIndex = nextSchema.findIndex((field: any) => field?.__key === prevSelectedKey)
+    if (nextIndex >= 0) {
+      selectedIndex.value = nextIndex
+      selectedKey.value = prevSelectedKey
+    } else {
+      selectedKey.value = null
+    }
   }
   clampSelectedIndex(formSchema.value.length)
 }

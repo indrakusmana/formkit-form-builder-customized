@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { computed, watch, type Ref } from 'vue'
+import { computed, watch } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { FormKitSchema } from '@formkit/vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
-import { NButton, NButtonGroup, NTooltip } from 'naive-ui'
-import { useFormBuilderI18n } from '../i18n/context'
+import { NButton, NButtonGroup, NList, NListItem, NThing, NTooltip } from 'naive-ui'
+import { useFormBuilderI18n } from '../../../i18n/context'
 
 const props = defineProps<{
   modelValue: FormKitSchemaFormKit[]
   disabled?: boolean
+  showActions?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: FormKitSchemaFormKit[]): void
   (e: 'duplicate'): void
   (e: 'remove'): void
+  (e: 'select', key: string): void
 }>()
 
 const { t } = useFormBuilderI18n()
@@ -47,13 +49,20 @@ watch(
   },
   { deep: true },
 )
+
+const showActions = computed(() => props.showActions === true)
+
+const onSelect = (child: any) => {
+  const key = child?.__key as string | undefined
+  if (key) emit('select', key)
+}
 </script>
 
 <template>
   <div class="w-full rounded-xl border border-border/50 bg-card/50">
     <div class="flex items-center justify-between px-3 py-2 border-b border-border/50">
       <div class="text-xs text-muted-foreground">{{ t('builder.listContainer') }}</div>
-      <n-button-group>
+      <n-button-group v-if="showActions">
         <n-tooltip placement="top">
           <template #trigger>
             <n-button quaternary size="small" :disabled="disabled" @click.stop="emit('duplicate')">
@@ -73,18 +82,23 @@ watch(
       </n-button-group>
     </div>
 
-    <ul
-      ref="containerRef"
-      class="grid grid-cols-12 gap-x-4 gap-y-2 list-none p-3 m-0 min-h-[60px]"
-      :class="items.length === 0 ? 'border border-dashed border-border/40 rounded-lg' : ''"
-    >
-      <li
-        v-for="(child, idx) in items"
-        :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
-        class="col-span-12 rounded-lg border border-border/40 bg-background/50 p-2 cursor-grab"
+    <div ref="containerRef" class="p-2">
+      <n-list
+        bordered
+        class="rounded-lg"
+        :class="items.length === 0 ? 'border border-dashed border-border/40' : ''"
       >
-        <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />
-      </li>
-    </ul>
+        <n-list-item
+          v-for="(child, idx) in items"
+          :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
+          class="cursor-grab"
+          @pointerdown.capture.stop="onSelect(child)"
+        >
+          <n-thing>
+            <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />
+          </n-thing>
+        </n-list-item>
+      </n-list>
+    </div>
   </div>
 </template>

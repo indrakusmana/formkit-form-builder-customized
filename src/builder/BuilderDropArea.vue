@@ -5,7 +5,7 @@ import { FormKitSchema } from '@formkit/vue'
 import { useFormBuilderI18n } from '../i18n/context'
 import { useRuntimeLocale } from '../i18n/runtime-locale'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
-import { formSchema, selectedIndex } from '../utils/default-form-elements'
+import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { isLoading, canvasView } from '../composables/form-fields'
@@ -13,8 +13,9 @@ import { cn } from '../utils/utils'
 import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
-import ListContainer from './ListContainer.vue'
+import { ListContainer } from './containers'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
+import { findSchemaNodeByKey } from '../composables/form-fields'
 
 const { validationStringLength } = useFormField()
 const { t } = useFormBuilderI18n()
@@ -184,6 +185,15 @@ const nudgeResize = (index: number, deltaSpan: number) => {
 
 const clickedField = (index: number) => {
   selectedIndex.value = index
+  const key = (formSchema.value[index] as any)?.__key as string | undefined
+  selectedKey.value = key ?? null
+}
+
+const selectByKey = (key: string) => {
+  const found = findSchemaNodeByKey(formSchema.value as any[], key)
+  if (!found) return
+  selectedIndex.value = found.rootIndex
+  selectedKey.value = key
 }
 
 const pluralize = (count: number, noun: string, suffix = 's') => {
@@ -318,7 +328,7 @@ watch(
             'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
             'p-1 !cursor-grab h-full !z-20 relative border-[1.5px]',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
-            selectedIndex === index
+            ((field as any)?.__key && (field as any).__key === selectedKey) || selectedIndex === index
               ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
               : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
           )"
@@ -337,9 +347,9 @@ watch(
                 <ListContainer
                   v-if="(field as any)?.$formkit === 'list'"
                   :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
+                  :show-actions="false"
                   @update:model-value="(v) => updateListChildren(index, v)"
-                  @duplicate="() => duplicateListContainer(index)"
-                  @remove="() => removeListContainer(index)"
+                  @select="selectByKey"
                 />
                 <FormKitSchema
                   v-else

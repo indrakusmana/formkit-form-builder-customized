@@ -11,6 +11,7 @@ export const formSchema = ref<FormKitSchemaFormKit[]>([
   },
 ])
 export const selectedIndex = ref(0)
+export const selectedKey = ref<string | null>(null)
 
 type DefaultElementDef = Omit<
   FormKitSchemaFormKit,

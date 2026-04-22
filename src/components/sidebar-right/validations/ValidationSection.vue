@@ -2,11 +2,12 @@
 import SingleValueValidation from './SingleValueValidation.vue'
 import SingleParamValidation from './SingleParamValidation.vue'
 import DoubleParamValidation from './DoubleParamValidation.vue'
-import { selectedIndex, formSchema } from '../../../utils/default-form-elements'
 import { computed } from 'vue'
 import { useFormBuilderI18n } from '../../../i18n/context'
+import { useFormField, selectedField } from '../../../composables/form-fields'
 
 const { t } = useFormBuilderI18n()
+const { currentFieldType } = useFormField()
 
 const validations = computed(() => ({
   singleValue: [
@@ -149,13 +150,6 @@ const validations = computed(() => ({
   ],
 }))
 
-const currentFieldType = computed(() => {
-  if (selectedIndex.value !== null && formSchema.value[selectedIndex.value]) {
-    return formSchema?.value[selectedIndex.value]?.$formkit || null
-  }
-  return null
-})
-
 const showForFieldType = (validationType: string, fieldType: string | null) => {
   const validationMap: Record<string, string[]> = {
     required: [
@@ -210,20 +204,20 @@ const showForFieldType = (validationType: string, fieldType: string | null) => {
 const visibleValidations = computed(() => {
   return {
     singleValue: validations.value.singleValue.filter((validation) =>
-      showForFieldType(validation.value, currentFieldType.value),
+      showForFieldType(validation.value, currentFieldType.value ?? null),
     ),
     singleParam: validations.value.singleParam.filter((validation) =>
-      showForFieldType(validation.value, currentFieldType.value),
+      showForFieldType(validation.value, currentFieldType.value ?? null),
     ),
     doubleParam: validations.value.doubleParam.filter((validation) =>
-      showForFieldType(validation.value, currentFieldType.value),
+      showForFieldType(validation.value, currentFieldType.value ?? null),
     ),
   }
 })
 </script>
 
 <template>
-  <div v-if="formSchema[selectedIndex]?.$formkit !== 'submit'">
+  <div v-if="(selectedField as any)?.$formkit !== 'submit'">
     <span class="text-sm">{{ t('validation.rulesTitle') }}</span>
   </div>
 
