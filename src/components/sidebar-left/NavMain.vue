@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed, ref } from 'vue'
+import { inject, computed, ref, type Ref } from 'vue'
 import { NTabs, NTabPane, NScrollbar } from 'naive-ui'
 import { createFieldProps } from '../../utils/field-props'
 import { createDefaultFormElements } from '../../utils/default-form-elements'
@@ -8,6 +8,7 @@ import { useFormBuilderI18n } from '../../i18n/context'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 
 const searchInput = inject('searchInput', ref(''))
+const collapsed = inject('sidebarCollapsed', ref(false)) as Ref<boolean>
 const { t } = useFormBuilderI18n()
 const fieldProps = computed(() => createFieldProps(t))
 const defaultFormElements = computed(() => createDefaultFormElements(t))
@@ -55,13 +56,17 @@ const groupedElements = computed(() => {
 
 <template>
   <div class="h-full flex flex-col overflow-hidden">
-    <n-tabs type="line" justify-content="space-evenly" class="h-full flex flex-col" pane-class="flex-1 overflow-hidden">
-      <n-tab-pane
-        v-for="category in categories"
-        :key="category.id"
-        :name="category.id"
-        :tab="category.label"
-      >
+    <n-scrollbar v-if="collapsed" class="h-full sidebar-scrollbar" content-class="py-2 px-1">
+      <DraggableList :elements="filteredFormElements" />
+    </n-scrollbar>
+    <n-tabs
+      v-else
+      type="line"
+      justify-content="space-evenly"
+      class="h-full flex flex-col"
+      pane-class="flex-1 overflow-hidden"
+    >
+      <n-tab-pane v-for="category in categories" :key="category.id" :name="category.id" :tab="category.label">
         <n-scrollbar class="h-full sidebar-scrollbar" content-class="pb-4 px-2">
           <DraggableList :elements="groupedElements[category.id]" />
         </n-scrollbar>

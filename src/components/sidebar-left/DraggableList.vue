@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, type Ref } from 'vue'
+import { computed, inject, ref, watch, type Ref } from 'vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import { createFieldProps } from '../../utils/field-props'
 import type { FormKitSchemaFormKit } from '@formkit/core'
@@ -11,6 +11,7 @@ const props = defineProps<{
 
 const { t } = useFormBuilderI18n()
 const fieldProps = computed(() => createFieldProps(t))
+const collapsed = inject('sidebarCollapsed', ref(false))
 
 type PointerupData = { targetData: { node: { el: HTMLElement } } }
 type DynamicValuesData = { draggedNodes: Array<{ data: { value: FormKitSchemaFormKit } }> }
@@ -45,20 +46,32 @@ watch(() => props.elements, (newElements) => {
 </script>
 
 <template>
-  <div ref="parentRef" data-is-source="true" class="flex flex-col gap-1 p-2 min-h-[50px]">
+  <div
+    ref="parentRef"
+    data-is-source="true"
+    :class="collapsed ? 'grid grid-cols-1 gap-2 p-2 min-h-[50px]' : 'flex flex-col gap-1 p-2 min-h-[50px]'"
+  >
     <div
       v-for="item in items"
       :key="item.name"
       :class="[
-        'p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-grab flex items-center border border-transparent hover:border-gray-200 dark:hover:border-gray-700',
+        collapsed
+          ? 'h-12 w-12 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-grab flex items-center justify-center border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+          : 'p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-grab flex items-center border border-transparent hover:border-gray-200 dark:hover:border-gray-700',
         item.name.trim().replace(/\s+/g, '-').toLowerCase(),
       ]"
     >
-      <component
-        is="span"
+      <div
+        v-if="collapsed"
+        class="h-10 w-10 rounded-md bg-ring/20 flex items-center justify-center"
+      >
+        <span :class="`${fieldProps.find((prop) => prop.name === item.$formkit)?.icon ?? ''} h-6 w-6`"></span>
+      </div>
+      <span
+        v-else
         :class="`${fieldProps.find((prop) => prop.name === item.$formkit)?.icon ?? ''} h-4 w-4 shrink-0`"
-      ></component>
-      <div class="ml-3 flex flex-col justify-center overflow-hidden">
+      ></span>
+      <div v-if="!collapsed" class="ml-3 flex flex-col justify-center overflow-hidden">
         <span class="text-[11px] text-secondary-foreground/80 font-medium">{{ item.name }}</span>
         <span class="text-[9px] text-muted-foreground truncate">{{ item.description }}</span>
       </div>
