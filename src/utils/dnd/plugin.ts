@@ -358,15 +358,6 @@ export function customInsertPlugin<T>(insertConfig: InsertConfig<T>) {
           defineRanges(parent)
         })
 
-        state.on('dragEnded', () => {
-          if (
-            insertState.draggedOverParent &&
-            insertState.draggedOverParent.data.getValues(insertState.draggedOverParent.el).length === 0
-          ) {
-            insertParentConfig.handleEnd(state as any)
-          }
-        })
-
         const firstScrollableParent = findFirstOverflowingParent(parent)
         if (firstScrollableParent) firstScrollableParent.addEventListener('scroll', defineRanges.bind(null, parent))
 
