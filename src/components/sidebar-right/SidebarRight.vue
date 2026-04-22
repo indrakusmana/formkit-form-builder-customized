@@ -25,7 +25,7 @@ const { currentFieldType } = useFormField()
         />
       </div>
     </div>
-    <n-scrollbar class="flex-1 sidebar-scrollbar" content-class="p-4">
+    <n-scrollbar class="flex-1 sidebar-scrollbar">
       <FormEditMain />
     </n-scrollbar>
   </n-layout-sider>
