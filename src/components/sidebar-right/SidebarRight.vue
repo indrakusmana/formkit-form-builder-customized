@@ -24,7 +24,7 @@ const currentProp = computed(() =>
     content-style="display: flex; flex-direction: column; height: 100%;"
     class="sidebar-sider"
   >
-    <div class="p-4 border-b">
+    <div class="p-3 border-b">
       <div class="flex flex-col items-start gap-2 rounded-lg backdrop-blur-2xl">
         <div class="h-10 w-10 rounded-md bg-ring/20 p-1.5 flex items-center justify-center">
           <span
