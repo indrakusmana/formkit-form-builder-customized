@@ -764,6 +764,28 @@ function setColSpan(item: any, span: number) {
   item.outerClass = classes
 }
 
+function getRowSpan(item: any): number {
+  const outerClass = item?.outerClass
+  if (typeof outerClass !== 'string') return 1
+  const match = outerClass.match(/\brow-span-(\d+)\b/)
+  const parsed = match ? parseInt(match[1]!, 10) : 1
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+}
+
+function setRowSpan(item: any, span: number) {
+  if (!item) return
+  const nextSpan = Math.max(1, Math.min(6, Math.round(span)))
+  let classes = item.outerClass || ''
+  if (nextSpan === 1) {
+    classes = classes.replace(/\brow-span-\d+\b/g, '').replace(/\s+/g, ' ').trim()
+  } else if (/\brow-span-\d+\b/.test(classes)) {
+    classes = classes.replace(/\brow-span-\d+\b/g, `row-span-${nextSpan}`).replace(/\s+/g, ' ').trim()
+  } else {
+    classes = `${classes} row-span-${nextSpan}`.replace(/\s+/g, ' ').trim()
+  }
+  item.outerClass = classes
+}
+
 function getVisualRows(values: any[]) {
   const rows: { startIndex: number; endIndex: number; items: any[]; totalSpan: number }[] = []
   let currentRow: { startIndex: number; endIndex: number; items: any[]; totalSpan: number } = { startIndex: 0, endIndex: 0, items: [], totalSpan: 0 }
@@ -815,6 +837,14 @@ function adjustColSpansForInsert(
     insertValues.forEach(val => setColSpan(val, newSpan))
   } else {
     insertValues.forEach(val => setColSpan(val, 3))
+  }
+
+  const targetMaxRowSpan = Math.max(...targetRow.items.map(getRowSpan))
+  const insertMaxRowSpan = Math.max(...insertValues.map(getRowSpan))
+  const maxRowSpan = Math.max(targetMaxRowSpan, insertMaxRowSpan)
+  if (maxRowSpan > 1) {
+    targetRow.items.forEach(item => setRowSpan(item, maxRowSpan))
+    insertValues.forEach(val => setRowSpan(val, maxRowSpan))
   }
 }
 
