@@ -356,7 +356,7 @@ watch(
             gridRow: `span ${getRowSpan(field, index)} / span ${getRowSpan(field, index)}`,
           }"
           tabindex="0"
-          @pointerdown.capture="clickedField(index)"
+          @pointerdown="clickedField(index)"
           @keydown.enter.stop.prevent="clickedField(index)"
           @keydown.space.stop.prevent="clickedField(index)"
           >

@@ -29,6 +29,12 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
   accepts: () => true,
   sortable: true,
   draggable: () => true,
+  handleParentDragover(data) {
+    data.e.preventDefault()
+  },
+  handleNodeDragover(data) {
+    data.e.preventDefault()
+  },
   handleNodePointerup(data) {
     data.targetData.node.el.setAttribute('draggable', 'true')
   },
@@ -83,13 +89,23 @@ const onSelect = (child: any) => {
     </div>
 
     <div class="p-2">
-      <n-list bordered class="rounded-lg" :class="items.length === 0 ? 'border border-dashed border-border/40' : ''">
+      <div
+        v-if="items.length === 0"
+        ref="containerRef"
+        class="min-h-[96px] rounded-lg border-2 border-dashed border-border/50 bg-muted/20 flex items-center justify-center"
+      >
+        <div class="flex flex-col items-center gap-1 text-muted-foreground">
+          <span class="i-lucide-list h-5 w-5 opacity-70"></span>
+          <div class="text-xs">{{ t('builder.listDropHere') }}</div>
+        </div>
+      </div>
+      <n-list v-else bordered class="rounded-lg">
         <div ref="containerRef">
           <n-list-item
             v-for="(child, idx) in items"
             :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
             class="cursor-grab"
-            @pointerdown.capture.stop="onSelect(child)"
+            @pointerdown.stop="onSelect(child)"
           >
             <n-thing>
               <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />

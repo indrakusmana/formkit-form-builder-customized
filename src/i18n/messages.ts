@@ -28,6 +28,7 @@ export const messages = {
       listContainer: '列表容器',
       listAdd: '添加一项',
       listRemove: '删除容器',
+      listDropHere: '拖拽字段到这里',
     },
     importExport: {
       title: '导入 / 导出 Schema',
@@ -253,6 +254,7 @@ export const messages = {
       listContainer: 'List container',
       listAdd: 'Add item',
       listRemove: 'Remove container',
+      listDropHere: 'Drag fields here',
     },
     importExport: {
       title: 'Import / Export Schema',
