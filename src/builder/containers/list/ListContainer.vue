@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { FormKitSchema } from '@formkit/vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
-import { NButton, NButtonGroup, NList, NListItem, NThing, NTooltip } from 'naive-ui'
+import { NButton, NButtonGroup, NTooltip } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 import { selectedKey } from '../../../utils/default-form-elements'
 
@@ -174,45 +174,36 @@ const deleteChild = (index: number) => {
     </div>
 
     <div class="p-2">
-      <n-list bordered class="rounded-lg">
-        <div
+      <div class="relative">
+        <ul
           ref="containerRef"
-          class="grid grid-cols-12 gap-x-4 gap-y-2 p-2 min-h-[140px] relative"
+          class="w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0 min-h-[140px]"
           @dragstart.capture="isDragging = true"
           @dragend.capture="isDragging = false"
           @drop.capture="isDragging = false"
           :class="items.length === 0 ? 'border-2 border-dashed border-border/50 bg-muted/20 rounded-lg' : ''"
         >
-          <div
-            v-if="items.length === 0"
-            class="absolute inset-0 flex items-center justify-center pointer-events-none"
-          >
-            <div class="flex flex-col items-center gap-1 text-muted-foreground">
-              <span class="i-lucide-list h-5 w-5 opacity-70"></span>
-              <div class="text-xs">{{ t('builder.listDropHere') }}</div>
-            </div>
-          </div>
-
-          <n-list-item
+          <li
             v-for="(child, idx) in items"
             :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
-            :style="{
-              gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
-              gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
-            }"
             :class="[
-              'col-span-12 group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
+              'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
               'p-1 !cursor-grab h-full !z-20 relative border-[1.5px]',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
               ((child as any)?.__key && (child as any).__key === selectedKey)
                 ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
                 : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
             ]"
+            :style="{
+              gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
+              gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
+            }"
+            tabindex="0"
             @pointerdown.stop="onSelect(child)"
           >
-            <n-thing class="p-1 w-full">
+            <div class="p-1 w-full">
               <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />
-            </n-thing>
+            </div>
 
             <div class="absolute bottom-1 right-1 flex flex-row z-40">
               <div
@@ -265,9 +256,19 @@ const deleteChild = (index: number) => {
                 {{ (getColSpan(child) / 12 * 100).toFixed(0) }}%
               </span>
             </div>
-          </n-list-item>
+          </li>
+        </ul>
+
+        <div
+          v-if="items.length === 0"
+          class="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div class="flex flex-col items-center gap-1 text-muted-foreground">
+            <span class="i-lucide-list h-5 w-5 opacity-70"></span>
+            <div class="text-xs">{{ t('builder.listDropHere') }}</div>
+          </div>
         </div>
-      </n-list>
+      </div>
     </div>
   </div>
 </template>
