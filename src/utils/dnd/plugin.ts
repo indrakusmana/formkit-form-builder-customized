@@ -124,6 +124,8 @@ function processParentDragEvent<T>(
     if (state.coordinates.y > rect.top && state.coordinates.y < rect.bottom) realTargetParent = nestedParent
   }
 
+  defineRanges(realTargetParent.el)
+
   if (realTargetParent.el === state.currentParent?.el) {
     throttledMoveBetween(realTargetParent, state)
   } else {
