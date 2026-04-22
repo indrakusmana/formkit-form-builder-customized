@@ -25,6 +25,7 @@ import {
   Heading4,
   Heading5,
   Heading6,
+  Image,
 } from 'lucide-vue-next'
 
 export { defaultFormElements } from './default-form-elements'
@@ -150,6 +151,12 @@ export const fieldProps = [
     name: 'naiveAvatar',
     tooltip: 'Avatar display',
     icon: SquareMousePointer,
+    category: 'fields',
+  },
+  {
+    name: 'naiveImage',
+    tooltip: 'Image display',
+    icon: Image,
     category: 'fields',
   },
   {

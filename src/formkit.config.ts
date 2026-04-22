@@ -14,6 +14,7 @@ import NaiveRadioGroup from './components/ui/formkit/NaiveRadioGroup.vue'
 import NaiveSlider from './components/ui/formkit/NaiveSlider.vue'
 import NaiveColorPicker from './components/ui/formkit/NaiveColorPicker.vue'
 import NaiveAvatar from './components/ui/formkit/NaiveAvatar.vue'
+import NaiveImage from './components/ui/formkit/NaiveImage.vue'
 import NaiveCascader from './components/ui/formkit/NaiveCascader.vue'
 import NaiveCheckbox from './components/ui/formkit/NaiveCheckbox.vue'
 import NaiveMention from './components/ui/formkit/NaiveMention.vue'
@@ -91,6 +92,7 @@ export default defaultConfig({
     file: createNaiveInput('NaiveUpload', NaiveUpload),
     color: createNaiveInput('NaiveColorPicker', NaiveColorPicker),
     naiveAvatar: createNaiveInput('NaiveAvatar', NaiveAvatar),
+    naiveImage: createNaiveInput('NaiveImage', NaiveImage),
     naiveCascader: createNaiveInput('NaiveCascader', NaiveCascader),
     naiveCheckbox: createNaiveInput('NaiveCheckbox', NaiveCheckbox),
     naiveMention: createNaiveInput('NaiveMention', NaiveMention),

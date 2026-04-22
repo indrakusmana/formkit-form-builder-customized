@@ -363,6 +363,26 @@ export const defaultFormElements: FormKitSchemaFormKit[] = [
     description: 'Avatar display',
   },
   {
+    $formkit: 'naiveImage',
+    label: 'Image',
+    help: 'This is help text',
+    outerClass: 'col-span-12',
+    naiveProps: {
+      src: '',
+      alt: '',
+      width: 240,
+      height: 160,
+      objectFit: 'cover',
+      previewDisabled: false,
+      lazy: false,
+    },
+    name: 'Naive Image',
+    id: 'naive_image_field',
+    validation: '',
+    validationVisibility: 'live',
+    description: 'Image display',
+  },
+  {
     $formkit: 'naiveText',
     outerClass: 'col-span-12',
     naiveProps: {

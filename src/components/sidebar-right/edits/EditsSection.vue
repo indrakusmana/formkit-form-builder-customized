@@ -10,6 +10,7 @@ import DateTimeEditor from './editors/DateTimeEditor.vue'
 import FileEditor from './editors/FileEditor.vue'
 import GroupEditor from './editors/GroupEditor.vue'
 import NaiveAvatarEditor from './editors/NaiveAvatarEditor.vue'
+import NaiveImageEditor from './editors/NaiveImageEditor.vue'
 import NaiveBlockquoteEditor from './editors/NaiveBlockquoteEditor.vue'
 import NaiveButtonEditor from './editors/NaiveButtonEditor.vue'
 import NaiveCascaderEditor from './editors/NaiveCascaderEditor.vue'
@@ -64,6 +65,7 @@ const editorComponent = computed(() => {
   if (type === 'naiveSwitch') return NaiveSwitchEditor
   if (type === 'naiveCheckbox') return NaiveCheckboxEditor
   if (type === 'naiveAvatar') return NaiveAvatarEditor
+  if (type === 'naiveImage') return NaiveImageEditor
   if (type === 'naiveButton') return NaiveButtonEditor
 
   if (type === 'naiveText') return NaiveTextEditor
