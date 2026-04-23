@@ -73,10 +73,10 @@ export function positionInsertPoint<T>(
     Object.assign(insertPointEl.style, {
       top: `${topPosition}px`,
       left: `${position.x[0]!}px`,
-      right: `${position.x[1]!}px`,
       width: `${position.x[1]! - position.x[0]!}px`,
       height: '4px',
       bottom: '',
+      right: '',
     })
   } else {
     const insertPointWidth = insertPointEl.getBoundingClientRect().width || 4

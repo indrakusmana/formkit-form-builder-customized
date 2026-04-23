@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { FormKitSchema } from '@formkit/vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
+import { parents, setParentValues } from '@formkit/drag-and-drop'
 import { customInsertPlugin } from '../../../utils/custom-insert-plugin'
 import { NButton, NButtonGroup, NTooltip } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
@@ -62,7 +63,13 @@ watch(
     if (!Array.isArray(next)) return
     if (eq(next, items.value)) return
     syncingFromProps.value = true
-    items.value = [...next]
+    const el = (containerRef.value as unknown as HTMLElement | null) ?? null
+    const data = el ? parents.get(el) : undefined
+    if (el && data) {
+      setParentValues(el, data, [...next] as any)
+    } else {
+      items.value = [...next]
+    }
     queueMicrotask(() => {
       syncingFromProps.value = false
     })
