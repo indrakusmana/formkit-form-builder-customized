@@ -57,6 +57,22 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
 
 const syncingFromProps = ref(false)
 
+const rootDropAreaEl = () =>
+  document.querySelector('[data-testid="drop-area"]') as HTMLElement | null
+
+const setNestedParentOnRoot = (active: boolean) => {
+  const root = rootDropAreaEl()
+  if (!root) return
+  const el = (containerRef.value as unknown as HTMLElement | null) ?? null
+  const data = el ? parents.get(el) : undefined
+  if (!el || !data) return
+  root.dispatchEvent(
+    new CustomEvent('hasNestedParent', {
+      detail: { parent: active ? ({ el, data } as any) : null },
+    }),
+  )
+}
+
 watch(
   () => props.modelValue,
   (next) => {
@@ -199,9 +215,10 @@ const deleteChild = (index: number) => {
           ref="containerRef"
           class="w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0 min-h-[140px]"
           :data-list-key="props.listKey"
+          @dragover.capture="setNestedParentOnRoot(true)"
           @dragstart.capture="isDragging = true"
-          @dragend.capture="isDragging = false"
-          @drop="isDragging = false"
+          @dragend.capture="isDragging = false; setNestedParentOnRoot(false)"
+          @drop="isDragging = false; setNestedParentOnRoot(false)"
           :class="items.length === 0 ? 'border-2 border-dashed border-border/50 bg-muted/20 rounded-lg' : ''"
         >
           <li
