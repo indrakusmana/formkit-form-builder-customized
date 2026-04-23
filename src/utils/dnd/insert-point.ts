@@ -47,6 +47,8 @@ export function positionInsertPoint<T>(
   }
 
   insertState.draggedOverNodes = [node]
+  insertState.targetIndex = node.data.index
+  insertState.ascending = ascending
 
   if (!insertState.insertPoint) return
 
@@ -155,4 +157,3 @@ export function positionInsertPoint<T>(
   insertState.targetIndex = node.data.index
   insertState.ascending = ascending
 }
-
