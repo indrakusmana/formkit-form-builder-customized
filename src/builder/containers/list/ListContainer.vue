@@ -239,6 +239,8 @@ const deleteChild = (index: number) => {
                 quaternary
                 size="small"
                 :aria-label="t('builder.deleteField')"
+                draggable="false"
+                @pointerdown.stop.prevent
                 @click.stop="deleteChild(idx)"
                 class="!h-[26px] !w-[26px] !rounded-[7px] !text-muted-foreground
                       hover:!bg-red-100 hover:!text-red-600
