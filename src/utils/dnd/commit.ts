@@ -211,19 +211,35 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
       processedInsertValues.forEach((val: any) => setColSpan(val, 12))
 
       const baseSchema = formSchema.value as any as FormKitSchemaFormKit[]
+      const draggedKeys = new Set<string>()
+      for (const v of draggedValues as any[]) {
+        const k = (v as any)?.__key
+        if (typeof k === 'string' && k) draggedKeys.add(k)
+      }
+
       const newParentValues = isSource
         ? baseSchema
-        : (baseSchema as any[]).filter((x) => !draggedValues.some((y) => eq(x, y))) as any as FormKitSchemaFormKit[]
+        : (baseSchema as any[]).filter((node) => {
+            const k = (node as any)?.__key
+            if (typeof k === 'string' && k) return !draggedKeys.has(k)
+            return !draggedValues.some((y) => eq(node, y))
+          }) as any as FormKitSchemaFormKit[]
+
       const nextChildren = [...currentChildren]
-      nextChildren.splice(index, 0, ...(processedInsertValues as any as FormKitSchemaFormKit[]))
+      const toInsert: FormKitSchemaFormKit[] = []
+      for (const v of processedInsertValues as any as FormKitSchemaFormKit[]) {
+        const key = (v as any)?.__key
+        const exists =
+          typeof key === 'string' && key
+            ? nextChildren.some((c: any) => c?.__key === key)
+            : nextChildren.some((c: any) => eq(c, v))
+        if (!exists) toInsert.push(v)
+      }
+      if (toInsert.length) nextChildren.splice(index, 0, ...toInsert)
 
       const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
       if (!nextSchema) return
 
-      if (!isSource) {
-        setParentValues(state.initialParent.el, state.initialParent.data, [...nextSchema] as any)
-      }
-      setParentValues(listParent.el, listParent.data, [...nextChildren] as any)
       commitSchema(nextSchema, { reason: 'dnd' })
     } else {
 
@@ -346,20 +362,35 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
       processedInsertValues.forEach((val: any) => setColSpan(val, 12))
 
       const baseSchema = formSchema.value as any as FormKitSchemaFormKit[]
+      const draggedKeys = new Set<string>()
+      for (const v of draggedValues as any[]) {
+        const k = (v as any)?.__key
+        if (typeof k === 'string' && k) draggedKeys.add(k)
+      }
+
       const newParentValues = isSource
         ? baseSchema
-        : (baseSchema as any[]).filter((x) => !draggedValues.some((y) => eq(x, y))) as any as FormKitSchemaFormKit[]
+        : (baseSchema as any[]).filter((node) => {
+            const k = (node as any)?.__key
+            if (typeof k === 'string' && k) return !draggedKeys.has(k)
+            return !draggedValues.some((y) => eq(node, y))
+          }) as any as FormKitSchemaFormKit[]
 
       const nextChildren = [...currentChildren]
-      nextChildren.splice(index, 0, ...(processedInsertValues as any as FormKitSchemaFormKit[]))
+      const toInsert: FormKitSchemaFormKit[] = []
+      for (const v of processedInsertValues as any as FormKitSchemaFormKit[]) {
+        const key = (v as any)?.__key
+        const exists =
+          typeof key === 'string' && key
+            ? nextChildren.some((c: any) => c?.__key === key)
+            : nextChildren.some((c: any) => eq(c, v))
+        if (!exists) toInsert.push(v)
+      }
+      if (toInsert.length) nextChildren.splice(index, 0, ...toInsert)
 
       const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
       if (!nextSchema) return
 
-      if (!isSource) {
-        setParentValues(state.initialParent.el, state.initialParent.data, [...nextSchema] as any)
-      }
-      setParentValues(listParent.el, listParent.data, [...nextChildren] as any)
       commitSchema(nextSchema, { reason: 'dnd' })
     } else if (state.currentParent.el.contains(state.initialParent.el)) {
       const draggedParentValues = parentValues(state.initialParent.el, state.initialParent.data)
