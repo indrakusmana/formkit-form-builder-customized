@@ -181,6 +181,9 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   const sourceParent = state.initialParent
   const targetParent = (insertState.draggedOverParent as any as ParentRecord<T> | null) ?? state.currentParent
 
+  const sourceListKey = getListKey(sourceParent.el as any)
+  const targetListKey = getListKey(targetParent.el as any)
+
   const draggedValues = state.draggedNodes.map((node) => node.data.value) as any as FormKitSchemaFormKit[]
   const draggedKeys = new Set<string>()
   for (const v of draggedValues as any[]) {
@@ -218,6 +221,9 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
   const insertValues = normalizeInsertValues(insertValuesRaw, isSource)
 
+  let sourceNextValues: FormKitSchemaFormKit[] | null = null
+  let targetNextValues: FormKitSchemaFormKit[] | null = null
+
   if (sourceParent.el === targetParent.el) {
     const remaining = sourceValues.filter((v: any) => {
       const k = v?.__key
@@ -236,6 +242,7 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
     remaining.splice(nextIndex, 0, ...(insertValues as any as FormKitSchemaFormKit[]))
     setParentValues(sourceParent.el, sourceParent.data, [...remaining] as any)
+    sourceNextValues = remaining as any
   } else {
     if (!isSource) {
       const remaining = sourceValues.filter((v: any) => {
@@ -244,6 +251,7 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
         return !draggedValues.some((y) => eq(v, y))
       }) as any as FormKitSchemaFormKit[]
       setParentValues(sourceParent.el, sourceParent.data, [...remaining] as any)
+      sourceNextValues = remaining as any
     }
 
     const nextTargetValues = [...targetValues]
@@ -256,13 +264,16 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
     nextTargetValues.splice(index, 0, ...(insertValues as any as FormKitSchemaFormKit[]))
     setParentValues(targetParent.el, targetParent.data, [...nextTargetValues] as any)
+    targetNextValues = nextTargetValues as any
   }
 
   const rootEl = document.querySelector('[data-testid="drop-area"]') as HTMLElement | null
   const rootData = rootEl ? parents.get(rootEl) : undefined
   if (!rootEl || !rootData) return
 
-  const rootValues = parentValues(rootEl, rootData) as any as FormKitSchemaFormKit[]
+  let rootValues: FormKitSchemaFormKit[] = parentValues(rootEl, rootData) as any
+  if (rootEl === sourceParent.el && sourceNextValues) rootValues = sourceNextValues
+  if (rootEl === targetParent.el && targetNextValues) rootValues = targetNextValues
 
   const listMap = new Map<string, FormKitSchemaFormKit[]>()
   const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key]'))
@@ -271,7 +282,13 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     if (!key) continue
     const data = parents.get(el)
     if (!data) continue
-    const vals = parentValues(el, data) as any as FormKitSchemaFormKit[]
+    let vals = parentValues(el, data) as any as FormKitSchemaFormKit[]
+    if (sourceListKey && key === sourceListKey && sourceNextValues && sourceParent.el !== rootEl) {
+      vals = sourceNextValues as any
+    }
+    if (targetListKey && key === targetListKey && targetNextValues && targetParent.el !== rootEl) {
+      vals = targetNextValues as any
+    }
     const cleaned = vals.map((v: any) => {
       if (v?.$formkit === 'submit' && Array.isArray(v.children)) {
         const next = { ...v }

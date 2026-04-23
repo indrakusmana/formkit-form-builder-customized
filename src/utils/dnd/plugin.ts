@@ -191,9 +191,11 @@ export function moveBetween<T>(data: ParentRecord<T>, state: DragState<T>) {
       Object.assign(insertState.insertPoint.el.style, {
         position: 'absolute',
         display: 'block',
-        top: `${rect.top + rect.height / 2 + scrollTop}px`,
-        left: `${rect.left + rect.width / 2 + scrollLeft}px`,
-        transform: 'translate(-50%, -50%)',
+        top: `${rect.top + rect.height / 2 + scrollTop - 2}px`,
+        left: `${rect.left + scrollLeft}px`,
+        width: `${rect.width}px`,
+        height: '4px',
+        transform: '',
       })
     }
     insertState.targetIndex = 0
