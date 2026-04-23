@@ -121,17 +121,6 @@ const insertAfterAtPath = (schema: any[], path: number[], nextNode: any) => {
   return updateAtPath(schema, path.slice(0, -1), nextParent)
 }
 
-provide(
-  'previewListUpdateChildren',
-  (key: string, children: FormKitSchemaFormKit[]) => {
-    const found = findSchemaNodeByKey(previewSchema.value as any[], key)
-    if (!found) return
-    const current = found.node as any
-    const nextNode = { ...current, children: [...children] } as any
-    previewSchema.value = updateAtPath(previewSchema.value as any[], found.path, nextNode) as any
-  },
-)
-
 const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
