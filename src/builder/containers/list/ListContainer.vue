@@ -226,7 +226,7 @@ const deleteChild = (index: number) => {
             :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
             :class="[
               'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-              'p-1 !cursor-grab h-full !z-20 relative border-[1.5px]',
+              'p-1 pr-3 !cursor-grab h-full !z-20 relative border-[1.5px]',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
               ((child as any)?.__key && (child as any).__key === selectedKey)
                 ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
@@ -239,11 +239,13 @@ const deleteChild = (index: number) => {
             tabindex="0"
             @pointerdown.stop="onSelect(child)"
           >
-            <div class="p-1 w-full">
-              <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />
+            <div class="flex gap-1.5 p-1 w-full pb-2">
+              <div class="flex-1 w-full">
+                <FormKitSchema :schema="[child]" :key="`list-child-${idx}`" />
+              </div>
             </div>
 
-            <div class="absolute bottom-1 right-1 flex flex-row z-40">
+            <div class="absolute bottom-2 right-2 flex flex-row z-40">
               <div
                 v-if="(child as any)?.__key && (child as any).__key === selectedKey"
                 class="px-2 mr-1 border-1 border-ring/40 dark:border-ring/20 rounded-md flex items-center justify-center"
@@ -272,7 +274,7 @@ const deleteChild = (index: number) => {
             <n-button
               text
               size="small"
-              class="absolute top-1/2 -translate-y-1/2 -right-3 z-30
+              class="absolute top-1/2 -translate-y-1/2 right-1 z-30
                     opacity-0 pointer-events-none
                     group-hover:opacity-100 group-hover:pointer-events-auto
                     transition-all duration-150
