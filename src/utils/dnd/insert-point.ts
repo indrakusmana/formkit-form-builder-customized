@@ -41,7 +41,7 @@ export function positionInsertPoint<T>(
   node: NodeRecord<T>,
   insertState: InsertState<T>,
 ) {
-  if (insertState.insertPoint?.el !== parent.el) {
+  if (insertState.insertPoint?.parent.el !== parent.el) {
     removeInsertPoint(insertState)
     createInsertPoint(parent, insertState)
   }
