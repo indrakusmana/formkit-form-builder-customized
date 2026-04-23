@@ -13,6 +13,7 @@ import { eq } from '../../../utils/utils'
 const props = defineProps<{
   listKey?: string
   modelValue: FormKitSchemaFormKit[]
+  label?: string
   disabled?: boolean
   showActions?: boolean
 }>()
@@ -99,6 +100,7 @@ const emitUpdate = () => {
 }
 
 const showActions = computed(() => props.showActions === true)
+const title = computed(() => (typeof props.label === 'string' && props.label.trim() ? props.label : t('builder.listContainer')))
 
 const onSelect = (child: any) => {
   const key = child?.__key as string | undefined
@@ -188,7 +190,7 @@ const deleteChild = (index: number) => {
 <template>
   <div class="w-full rounded-xl border border-border/50 bg-card/50">
     <div class="flex items-center justify-between px-3 py-2 border-b border-border/50">
-      <div class="text-xs text-muted-foreground">{{ t('builder.listContainer') }}</div>
+      <div class="text-xs text-muted-foreground">{{ title }}</div>
       <n-button-group v-if="showActions">
         <n-tooltip placement="top">
           <template #trigger>

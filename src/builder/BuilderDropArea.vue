@@ -390,6 +390,7 @@ watch(
                   v-if="(field as any)?.$formkit === 'list'"
                   :list-key="((field as any)?.__key as string | undefined)"
                   :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
+                  :label="(field as any)?.label"
                   :show-actions="false"
                   @update:model-value="(v) => updateListChildren(((field as any)?.__key as string) ?? '', v)"
                   @select="selectByKey"

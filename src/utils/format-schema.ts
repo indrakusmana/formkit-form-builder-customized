@@ -40,7 +40,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
           children: [
             {
               $cmp: 'ListContainerPreview',
-              props: { nodeKey: key, children, isPlaceholder: isPreviewPlaceholder },
+              props: { nodeKey: key, children, label, isPlaceholder: isPreviewPlaceholder },
             },
           ],
         }
