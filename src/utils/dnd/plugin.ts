@@ -324,6 +324,7 @@ export function customInsertPlugin<T>(insertConfig: InsertConfig<T>) {
         }
 
         parentData.on('dragStarted', () => {
+          ;(state as any).__soloHandledEnd = false
           documentController = addEvents(document, {
             dragover: throttle(checkPosition),
             pointermove: throttle(checkPosition),

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { FormKitSchema } from '@formkit/vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
@@ -39,11 +39,27 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
   accepts: () => true,
   sortable: true,
   draggable: () => true,
-  performTransfer() {},
   handleNodePointerup(data) {
     data.targetData.node.el.setAttribute('draggable', 'true')
   },
 })
+
+const dragActive = ref(false)
+
+const flush = () => {
+  if (syncingFromProps.value) return
+  if (eq(items.value, props.modelValue)) return
+  emit('update:modelValue', [...items.value])
+}
+
+const onGlobalDragStart = () => {
+  dragActive.value = true
+}
+
+const onGlobalDragEnd = () => {
+  dragActive.value = false
+  flush()
+}
 
 const syncingFromProps = ref(false)
 
@@ -65,11 +81,24 @@ watch(
   items,
   (next) => {
     if (syncingFromProps.value) return
+    if (dragActive.value) return
     if (eq(next, props.modelValue)) return
     emit('update:modelValue', [...next])
   },
   { deep: true },
 )
+
+onMounted(() => {
+  window.addEventListener('dragstart', onGlobalDragStart, true)
+  window.addEventListener('dragend', onGlobalDragEnd, true)
+  window.addEventListener('drop', onGlobalDragEnd, true)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('dragstart', onGlobalDragStart, true)
+  window.removeEventListener('dragend', onGlobalDragEnd, true)
+  window.removeEventListener('drop', onGlobalDragEnd, true)
+})
 
 const showActions = computed(() => props.showActions === true)
 
