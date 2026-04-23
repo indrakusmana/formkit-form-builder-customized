@@ -274,7 +274,7 @@ const deleteChild = (index: number) => {
             <n-button
               text
               size="small"
-              class="absolute top-1/2 -translate-y-1/2 right-1 z-30
+              class="absolute top-1/2 -translate-y-1/2 -right-3 z-30
                     opacity-0 pointer-events-none
                     group-hover:opacity-100 group-hover:pointer-events-auto
                     transition-all duration-150

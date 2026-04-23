@@ -169,7 +169,7 @@ provide(
 
     if (!hasOtherList) {
       const current: any = found.node as any
-      const nextNode: any = { ...current, __preview_placeholder: true, children: [] }
+      const nextNode: any = { ...current, __preview_placeholder: true }
       previewSchema.value = updateAtPath(previewSchema.value as any[], found.path, nextNode) as any
       return
     }
