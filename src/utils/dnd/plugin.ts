@@ -234,12 +234,19 @@ function moveOutside<T>(data: ParentRecord<T>, state: DragState<T>) {
   const values = data.data.getValues(data.el)
 
   if (!values.length) {
+    if (insertState.draggedOverParent?.el && insertState.draggedOverParent.el !== data.el) {
+      removeClass([insertState.draggedOverParent.el], insertState.draggedOverParent.data.config.dropZoneClass)
+    }
     addParentClass([data.el], targetConfig.dropZoneClass)
     insertState.draggedOverParent = data as ParentRecord<unknown>
     const insertPoint = insertState.insertPoint
     if (insertPoint) insertPoint.el.style.display = 'none'
   } else {
     removeClass([state.currentParent.el], targetConfig.dropZoneClass)
+    if (insertState.draggedOverParent?.el) {
+      removeClass([insertState.draggedOverParent.el], insertState.draggedOverParent.data.config.dropZoneClass)
+      insertState.draggedOverParent = null
+    }
     insertState.draggedRowSpan = Math.max(
       1,
       ...state.draggedNodes.map((n) => {
@@ -324,7 +331,6 @@ export function customInsertPlugin<T>(insertConfig: InsertConfig<T>) {
         }
 
         parentData.on('dragStarted', () => {
-          ;(state as any).__soloHandledEnd = false
           documentController = addEvents(document, {
             dragover: throttle(checkPosition),
             pointermove: throttle(checkPosition),
@@ -338,18 +344,21 @@ export function customInsertPlugin<T>(insertConfig: InsertConfig<T>) {
         parentData.config = insertParentConfig
 
         state.on('dragStarted', () => {
+          ;(state as any).__soloHandledEnd = false
           defineRanges(parent)
         })
 
-        watch(
-          formSchema,
-          (newSchema) => {
-            if (newSchema) {
-              setParentValues(parent, parentData, [...newSchema])
-            }
-          },
-          { deep: true },
-        )
+        if (parent.getAttribute('data-is-source') !== 'true') {
+          watch(
+            formSchema,
+            (newSchema) => {
+              if (newSchema) {
+                setParentValues(parent, parentData, [...newSchema])
+              }
+            },
+            { deep: true },
+          )
+        }
 
         state.on('scrollStarted', () => {
           if (insertState.insertPoint) insertState.insertPoint.el.style.display = 'none'

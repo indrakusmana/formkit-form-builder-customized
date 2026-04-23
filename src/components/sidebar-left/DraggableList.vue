@@ -4,6 +4,7 @@ import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import { createFieldProps } from '../../utils/field-props'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { useFormBuilderI18n } from '../../i18n/context'
+import { customInsertPlugin } from '../../utils/custom-insert-plugin'
 
 const props = defineProps<{
   elements: FormKitSchemaFormKit[]
@@ -32,6 +33,21 @@ const dragConfig = {
   handleEnd() {
     items.value = [...props.elements]
   },
+  plugins: [
+    customInsertPlugin({
+      insertPoint: () => {
+        const div = document.createElement('div')
+        Object.assign(div.style, {
+          position: 'absolute',
+          width: '0px',
+          height: '0px',
+          pointerEvents: 'none',
+          opacity: '0',
+        })
+        return div
+      },
+    }),
+  ],
 }
 
 const [parentRef, items] = useDragAndDrop(
