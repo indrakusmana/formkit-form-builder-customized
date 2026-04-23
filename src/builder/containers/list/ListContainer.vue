@@ -39,6 +39,7 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
   accepts: () => true,
   sortable: true,
   draggable: () => true,
+  performTransfer() {},
   handleNodePointerup(data) {
     data.targetData.node.el.setAttribute('draggable', 'true')
   },
@@ -64,23 +65,11 @@ watch(
   items,
   (next) => {
     if (syncingFromProps.value) return
-    if (isDragging.value) return
     if (eq(next, props.modelValue)) return
     emit('update:modelValue', [...next])
   },
   { deep: true },
 )
-
-const onDragEnter = () => {
-  isDragging.value = true
-}
-
-const onDrop = () => {
-  isDragging.value = false
-  if (syncingFromProps.value) return
-  if (eq(items.value, props.modelValue)) return
-  emit('update:modelValue', [...items.value])
-}
 
 const showActions = computed(() => props.showActions === true)
 
@@ -197,10 +186,9 @@ const deleteChild = (index: number) => {
           ref="containerRef"
           class="w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0 min-h-[140px]"
           :data-list-key="props.listKey"
-          @dragenter.capture="onDragEnter"
           @dragstart.capture="isDragging = true"
           @dragend.capture="isDragging = false"
-          @drop.capture="onDrop"
+          @drop="isDragging = false"
           :class="items.length === 0 ? 'border-2 border-dashed border-border/50 bg-muted/20 rounded-lg' : ''"
         >
           <li
