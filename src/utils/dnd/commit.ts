@@ -179,7 +179,26 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
   const insertPoint = insertState.insertPoint
   const sourceParent = state.initialParent
-  const targetParent = (insertState.draggedOverParent as any as ParentRecord<T> | null) ?? state.currentParent
+  const resolveTargetParent = (): ParentRecord<T> => {
+    const byInsertState = insertState.draggedOverParent as any as ParentRecord<T> | null
+    if (byInsertState?.el && parents.get(byInsertState.el)) return byInsertState
+
+    const coords = (state as any).coordinates as { x?: number; y?: number } | undefined
+    if (coords?.x === undefined || coords?.y === undefined) return state.currentParent
+    const clientX = coords.x - (window.scrollX || document.documentElement.scrollLeft)
+    const clientY = coords.y - (window.scrollY || document.documentElement.scrollTop)
+
+    const el = document.elementFromPoint(clientX, clientY)
+    let current = el instanceof HTMLElement ? el : null
+    while (current) {
+      const data = parents.get(current)
+      if (data) return { el: current, data } as any as ParentRecord<T>
+      current = current.parentElement
+    }
+    return state.currentParent
+  }
+
+  const targetParent = resolveTargetParent()
 
   const sourceListKey = getListKey(sourceParent.el as any)
   const targetListKey = getListKey(targetParent.el as any)
