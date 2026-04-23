@@ -13,8 +13,14 @@
     size="small"
   >
     <template #header-extra>
-      <div class="text-[11px] text-muted-foreground">
-        {{ t('builder.previewDescription') }}
+      <div class="flex items-center gap-2">
+        <div class="text-[11px] text-muted-foreground">
+          {{ t('builder.previewDescription') }}
+        </div>
+        <n-button size="tiny" secondary @click="addListContainer">
+          <template #icon><span class="i-lucide-plus h-3 w-3"></span></template>
+          {{ t('builder.addListContainer') }}
+        </n-button>
       </div>
     </template>
     <div class="py-4 px-3">
@@ -38,7 +44,7 @@
 
 <script setup lang="ts">
 import { computed, provide, ref, watchEffect } from 'vue'
-import { NModal } from 'naive-ui'
+import { NButton, NModal } from 'naive-ui'
 import { formSchema } from '../utils/default-form-elements'
 import createFormattedSchema from '../utils/format-schema'
 import { canvasView } from '../composables/form-fields'
@@ -58,6 +64,25 @@ const formattedSchema = createFormattedSchema(previewSchema)
 const schemaLibrary = computed(() => ({ ListContainerPreview }))
 
 provide('isPreviewOpen', isOpen)
+
+const addListContainer = () => {
+  const existingNames = new Set<string>()
+  collectSchemaNames(previewSchema.value as any, existingNames)
+  const nextKey = generateKey()
+  const base = toSafeName(t('elements.list.name') || 'list')
+  const nextName = ensureUniqueName(base, existingNames)
+  const next: any = {
+    $formkit: 'list',
+    __key: nextKey,
+    name: nextName,
+    id: `field_${nextKey}`,
+    outerClass: 'col-span-12',
+    label: t('elements.list.label'),
+    description: t('elements.list.description'),
+    children: [],
+  }
+  previewSchema.value = [...previewSchema.value, next] as any
+}
 
 const normalizePath = (path: number[]) => path.filter((p) => p !== -1)
 

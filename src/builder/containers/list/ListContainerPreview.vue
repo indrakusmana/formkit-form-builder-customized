@@ -2,7 +2,7 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { inject, computed } from 'vue'
 import { FormKitSchema } from '@formkit/vue'
-import { NButton, NButtonGroup, NTooltip } from 'naive-ui'
+import { NButton, NButtonGroup, NTooltip, NList, NListItem, NEmpty } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 
 const props = defineProps<{
@@ -49,12 +49,15 @@ const modelValue = computed(() => (Array.isArray(props.children) ? props.childre
     </div>
 
     <div class="p-2">
-      <div
-        class="w-full grid grid-cols-12 gap-x-4 gap-y-2"
-        :class="modelValue.length === 0 ? 'min-h-[140px] border-2 border-dashed border-border/50 bg-muted/20 rounded-lg p-2' : ''"
-      >
-        <FormKitSchema v-if="modelValue.length" :schema="modelValue" />
-      </div>
+      <n-empty v-if="modelValue.length === 0" :description="t('builder.listDropHere')" />
+      <n-list v-else bordered>
+        <n-list-item
+          v-for="(child, idx) in modelValue"
+          :key="(child as any)?.__key || (child as any)?.name || idx"
+        >
+          <FormKitSchema :schema="[child]" />
+        </n-list-item>
+      </n-list>
     </div>
   </div>
 </template>

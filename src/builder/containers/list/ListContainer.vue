@@ -5,7 +5,7 @@ import { FormKitSchema } from '@formkit/vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import { parents, setParentValues } from '@formkit/drag-and-drop'
 import { customInsertPlugin } from '../../../utils/custom-insert-plugin'
-import { NButton, NButtonGroup, NTooltip } from 'naive-ui'
+import { NButton, NButtonGroup, NTooltip, NEmpty } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 import { selectedKey } from '../../../utils/default-form-elements'
 import { eq } from '../../../utils/utils'
@@ -303,10 +303,7 @@ const deleteChild = (index: number) => {
           v-if="items.length === 0"
           class="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
-          <div class="flex flex-col items-center gap-1 text-muted-foreground">
-            <span class="i-lucide-list h-5 w-5 opacity-70"></span>
-            <div class="text-xs">{{ t('builder.listDropHere') }}</div>
-          </div>
+          <n-empty :description="t('builder.listDropHere')" />
         </div>
       </div>
     </div>
