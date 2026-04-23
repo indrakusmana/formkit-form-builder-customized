@@ -1,3 +1,4 @@
+import * as DnD from '@formkit/drag-and-drop'
 import type { InsertState } from '@formkit/drag-and-drop'
 
 // 插入提示线与拖拽插入过程的共享状态（跨事件共享）
@@ -12,11 +13,15 @@ export type InsertStateEx<T> = InsertState<T> & {
   explicitRow?: number
 }
 
-export const insertState: InsertStateEx<unknown> = {
-  draggedOverNodes: [],
-  draggedOverParent: null,
-  targetIndex: 0,
-  ascending: false,
-  insertPoint: null,
-  dragging: false,
-}
+const runtimeInsertState = (DnD as any).insertState as InsertStateEx<unknown> | undefined
+
+export const insertState: InsertStateEx<unknown> =
+  runtimeInsertState ??
+  ({
+    draggedOverNodes: [],
+    draggedOverParent: null,
+    targetIndex: 0,
+    ascending: false,
+    insertPoint: null,
+    dragging: false,
+  } as any)

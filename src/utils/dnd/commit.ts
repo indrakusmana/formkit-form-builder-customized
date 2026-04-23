@@ -177,10 +177,90 @@ function insertItemsIntoParentFromOutside<T>(
 export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragState<T>) {
   if (!isDragState(state) && !isSynthDragState(state)) return
 
+  const insertPoint = insertState.insertPoint
+  const sourceParent = state.initialParent
+  const targetParent = (insertState.draggedOverParent as any as ParentRecord<T> | null) ?? state.currentParent
+
+  const draggedValues = state.draggedNodes.map((node) => node.data.value) as any as FormKitSchemaFormKit[]
+  const draggedKeys = new Set<string>()
+  for (const v of draggedValues as any[]) {
+    const k = v?.__key
+    if (typeof k === 'string' && k) draggedKeys.add(k)
+  }
+
+  const isSource = sourceParent.el.getAttribute('data-is-source') === 'true'
+
+  const sourceValues = parentValues(sourceParent.el, sourceParent.data) as any as FormKitSchemaFormKit[]
+  const targetValues = parentValues(targetParent.el, targetParent.data) as any as FormKitSchemaFormKit[]
+
+  const draggedOverNode = insertState.draggedOverNodes[0] as any as NodeRecord<T> | undefined
+  const explicitIndex = insertState.explicitIndex
+  const usedExplicitIndex = typeof explicitIndex === 'number' && Number.isFinite(explicitIndex)
+
+  let index = targetValues.length
+  if (insertState.draggedOverParent) index = 0
+  if (draggedOverNode) index = draggedOverNode.data.index || 0
+  if (usedExplicitIndex) index = explicitIndex as number
+  if (!usedExplicitIndex && draggedOverNode && insertState.ascending) index++
+
+  index = Math.max(0, Math.min(targetValues.length, index))
+
+  const insertValuesRaw =
+    sourceParent.data.config.insertConfig?.dynamicValues && isSource
+      ? (sourceParent.data.config.insertConfig.dynamicValues({
+          sourceParent,
+          targetParent,
+          draggedNodes: state.draggedNodes,
+          targetNodes: insertState.draggedOverNodes as any,
+          targetIndex: index,
+        }) as any as FormKitSchemaFormKit[])
+      : (draggedValues as any as FormKitSchemaFormKit[])
+
+  const insertValues = normalizeInsertValues(insertValuesRaw, isSource)
+
+  if (sourceParent.el === targetParent.el) {
+    const remaining = sourceValues.filter((v: any) => {
+      const k = v?.__key
+      if (typeof k === 'string' && k) return !draggedKeys.has(k)
+      return !draggedValues.some((y) => eq(v, y))
+    }) as any as FormKitSchemaFormKit[]
+
+    const removedBefore = state.draggedNodes.filter((n) => n.data.index < index).length
+    const nextIndex = Math.max(0, Math.min(remaining.length, index - removedBefore))
+
+    if (draggedOverNode) {
+      adjustColSpansForInsert(remaining as any[], draggedOverNode.data.value, insertValues as any[], insertState.verticalInsert ?? false)
+    } else {
+      insertValues.forEach((val: any) => setColSpan(val, 12))
+    }
+
+    remaining.splice(nextIndex, 0, ...(insertValues as any as FormKitSchemaFormKit[]))
+    setParentValues(sourceParent.el, sourceParent.data, [...remaining] as any)
+  } else {
+    if (!isSource) {
+      const remaining = sourceValues.filter((v: any) => {
+        const k = v?.__key
+        if (typeof k === 'string' && k) return !draggedKeys.has(k)
+        return !draggedValues.some((y) => eq(v, y))
+      }) as any as FormKitSchemaFormKit[]
+      setParentValues(sourceParent.el, sourceParent.data, [...remaining] as any)
+    }
+
+    const nextTargetValues = [...targetValues]
+
+    if (draggedOverNode) {
+      adjustColSpansForInsert(nextTargetValues as any[], draggedOverNode.data.value, insertValues as any[], insertState.verticalInsert ?? false)
+    } else {
+      insertValues.forEach((val: any) => setColSpan(val, 12))
+    }
+
+    nextTargetValues.splice(index, 0, ...(insertValues as any as FormKitSchemaFormKit[]))
+    setParentValues(targetParent.el, targetParent.data, [...nextTargetValues] as any)
+  }
+
   const rootEl = document.querySelector('[data-testid="drop-area"]') as HTMLElement | null
-  if (!rootEl) return
-  const rootData = parents.get(rootEl)
-  if (!rootData) return
+  const rootData = rootEl ? parents.get(rootEl) : undefined
+  if (!rootEl || !rootData) return
 
   const rootValues = parentValues(rootEl, rootData) as any as FormKitSchemaFormKit[]
 
@@ -221,4 +301,20 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   }) as FormKitSchemaFormKit[]
 
   commitSchema(nextSchema, { reason: 'dnd' })
+
+  if (insertPoint) insertPoint.el.style.display = 'none'
+
+  const dropZoneClass = isSynthDragState(state)
+    ? state.initialParent.data.config.synthDropZoneClass
+    : state.initialParent.data.config.dropZoneClass
+
+  removeClass(insertState.draggedOverNodes.map((node) => node.el), dropZoneClass)
+  if (insertState.draggedOverParent) {
+    removeClass([insertState.draggedOverParent.el], insertState.draggedOverParent.data.config.dropZoneClass)
+  }
+
+  insertState.draggedOverNodes = []
+  insertState.draggedOverParent = null
+  insertState.explicitIndex = undefined
+  insertState.explicitRow = undefined
 }
