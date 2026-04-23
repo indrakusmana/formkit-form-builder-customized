@@ -30,7 +30,7 @@ const dragConfig = {
       return data.draggedNodes.map((node) => JSON.parse(JSON.stringify(node.data.value)))
     },
   },
-  handleEnd() {
+  onDragend() {
     items.value = [...props.elements]
   },
   plugins: [

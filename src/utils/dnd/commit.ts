@@ -11,6 +11,7 @@ import type {
 import {
   isDragState,
   isSynthDragState,
+  parents,
   parentValues,
   removeClass,
   setParentValues,
@@ -176,322 +177,48 @@ function insertItemsIntoParentFromOutside<T>(
 export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragState<T>) {
   if (!isDragState(state) && !isSynthDragState(state)) return
 
-  const draggedNode = state.draggedNodes[0]
-  if (!draggedNode) return
+  const rootEl = document.querySelector('[data-testid="drop-area"]') as HTMLElement | null
+  if (!rootEl) return
+  const rootData = parents.get(rootEl)
+  if (!rootData) return
 
-  const insertPoint = insertState.insertPoint
-  const listKey =
-    getListKey(state.currentParent.el as any) ??
-    getListKey(insertState.draggedOverParent?.el as any)
+  const rootValues = parentValues(rootEl, rootData) as any as FormKitSchemaFormKit[]
 
-  if (!insertState.draggedOverParent) {
-    const draggedParentValues = parentValues(state.initialParent.el, state.initialParent.data)
-
-    const transferred = state.initialParent.el !== state.currentParent.el
-
-    const draggedValues = state.draggedNodes.map((node) => node.data.value)
-
-    if (transferred && listKey) {
-      const listParent = insertState.draggedOverParent ?? state.currentParent
-      const currentChildren = parentValues(listParent.el, listParent.data) as any as FormKitSchemaFormKit[]
-      const indexRaw = (state as any).targetIndex as number | undefined
-      const index = typeof indexRaw === 'number' && Number.isFinite(indexRaw)
-        ? Math.max(0, Math.min(currentChildren.length, indexRaw))
-        : currentChildren.length
-
-      const isSource = state.initialParent.el.getAttribute('data-is-source') === 'true'
-      const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
-        ? (state.initialParent.data.config.insertConfig.dynamicValues({
-            sourceParent: state.initialParent,
-            targetParent: state.currentParent,
-            draggedNodes: state.draggedNodes,
-            targetNodes: [] as any,
-            targetIndex: index,
-          }) as any as FormKitSchemaFormKit[])
-        : (draggedValues as any as FormKitSchemaFormKit[])
-
-      const processedInsertValues = normalizeInsertValues(insertValues, isSource)
-      processedInsertValues.forEach((val: any) => setColSpan(val, 12))
-
-      const baseSchema = formSchema.value as any as FormKitSchemaFormKit[]
-      const draggedKeys = new Set<string>()
-      for (const v of draggedValues as any[]) {
-        const k = (v as any)?.__key
-        if (typeof k === 'string' && k) draggedKeys.add(k)
+  const listMap = new Map<string, FormKitSchemaFormKit[]>()
+  const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key]'))
+  for (const el of listEls) {
+    const key = getListKey(el)
+    if (!key) continue
+    const data = parents.get(el)
+    if (!data) continue
+    const vals = parentValues(el, data) as any as FormKitSchemaFormKit[]
+    const cleaned = vals.map((v: any) => {
+      if (v?.$formkit === 'submit' && Array.isArray(v.children)) {
+        const next = { ...v }
+        delete next.children
+        return next
       }
-
-      const newParentValues = isSource
-        ? baseSchema
-        : (baseSchema as any[]).filter((node) => {
-            const k = (node as any)?.__key
-            if (typeof k === 'string' && k) return !draggedKeys.has(k)
-            return !draggedValues.some((y) => eq(node, y))
-          }) as any as FormKitSchemaFormKit[]
-
-      const nextChildren = [...currentChildren]
-      const toInsert: FormKitSchemaFormKit[] = []
-      for (const v of processedInsertValues as any as FormKitSchemaFormKit[]) {
-        const key = (v as any)?.__key
-        const exists =
-          typeof key === 'string' && key
-            ? nextChildren.some((c: any) => c?.__key === key)
-            : nextChildren.some((c: any) => eq(c, v))
-        if (!exists) toInsert.push(v)
-      }
-      if (toInsert.length) nextChildren.splice(index, 0, ...toInsert)
-
-      const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
-      if (!nextSchema) return
-
-      commitSchema(nextSchema, { reason: 'dnd' })
-    } else {
-
-    const enabledNodes = [...state.initialParent.data.enabledNodes]
-
-    const originalIndex = draggedNode.data.index
-
-    const targetIndex = insertState.targetIndex
-
-    const draggedOverNode = insertState.draggedOverNodes[0]
-
-    if (!transferred && draggedOverNode && draggedOverNode.el !== draggedNode.el) {
-      const newParentValues: any = draggedParentValues.filter((x) => !draggedValues.some((y) => eq(x, y)))
-
-      let index = draggedOverNode.data.index
-      const explicitIndex = insertState.explicitIndex
-      const usedExplicitIndex = typeof explicitIndex === 'number' && Number.isFinite(explicitIndex)
-
-      if (usedExplicitIndex) {
-        const removedBefore = state.draggedNodes.filter((n) => n.data.index < explicitIndex).length
-        index = Math.max(0, explicitIndex - removedBefore)
-      } else {
-        if (insertState.targetIndex > draggedNode.data.index && !insertState.ascending) {
-          index--
-        } else if (insertState.targetIndex < draggedNode.data.index && insertState.ascending) {
-          index++
-        }
-      }
-
-      adjustColSpansForInsert(newParentValues, draggedOverNode.data.value, draggedValues, insertState.verticalInsert ?? false)
-
-      newParentValues.splice(index, 0, ...draggedValues)
-
-      commitSchema([...(newParentValues as FormKitSchemaFormKit[])], { reason: 'dnd' })
-
-      setParentValues(state.initialParent.el, state.initialParent.data, [...newParentValues])
-
-      if (state.initialParent.data.config.onSort) {
-        const sortEventData = {
-          parent: {
-            el: state.initialParent.el,
-            data: state.initialParent.data,
-          } as ParentRecord<unknown>,
-          previousValues: [...draggedParentValues],
-          previousNodes: [...enabledNodes],
-          nodes: [...state.initialParent.data.enabledNodes],
-          values: [...newParentValues],
-          draggedNodes: state.draggedNodes,
-          targetNodes: insertState.draggedOverNodes,
-          previousPosition: originalIndex,
-          position: index,
-          state: state as DragState<unknown>,
-        }
-
-        state.initialParent.data.config.onSort(sortEventData)
-      }
-    } else if (transferred && insertState.draggedOverNodes.length) {
-      const draggedParentValues = parentValues(state.initialParent.el, state.initialParent.data)
-
-      let index = draggedOverNode?.data.index || 0
-      const explicitIndex = insertState.explicitIndex
-      const usedExplicitIndex = typeof explicitIndex === 'number' && Number.isFinite(explicitIndex)
-      if (usedExplicitIndex) {
-        index = explicitIndex
-      }
-
-      if (!usedExplicitIndex && insertState.ascending) index++
-
-      const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
-        ? state.initialParent.data.config.insertConfig.dynamicValues({
-            sourceParent: state.initialParent,
-            targetParent: state.currentParent,
-            draggedNodes: state.draggedNodes,
-            targetNodes: insertState.draggedOverNodes as NodeRecord<T>[],
-            targetIndex: index,
-          })
-        : draggedValues
-
-      const newParentValues = draggedParentValues.filter((x) => !draggedValues.some((y) => eq(x, y)))
-
-      insertItemsIntoParentFromOutside(state as any, newParentValues, index, insertValues, draggedOverNode)
-
-      const data = {
-        sourceParent: state.initialParent,
-        targetParent: state.currentParent,
-        initialParent: state.initialParent,
-        draggedNodes: state.draggedNodes,
-        targetIndex,
-        targetNodes: insertState.draggedOverNodes as NodeRecord<T>[],
-        state,
-      }
-
-      if (state.initialParent.data.config.onTransfer) state.initialParent.data.config.onTransfer(data)
-      if (state.currentParent.data.config.onTransfer) state.currentParent.data.config.onTransfer(data)
-    }
-    }
-  } else if (insertState.draggedOverParent) {
-    if (listKey) {
-      const listParent = insertState.draggedOverParent
-      const currentChildren = parentValues(listParent.el, listParent.data) as any as FormKitSchemaFormKit[]
-      const indexRaw = (state as any).targetIndex as number | undefined
-      const index =
-        typeof indexRaw === 'number' && Number.isFinite(indexRaw)
-          ? Math.max(0, Math.min(currentChildren.length, indexRaw))
-          : currentChildren.length
-
-      const draggedValues = state.draggedNodes.map((node) => node.data.value) as any as FormKitSchemaFormKit[]
-      const isSource = state.initialParent.el.getAttribute('data-is-source') === 'true'
-      const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
-        ? (state.initialParent.data.config.insertConfig.dynamicValues({
-            sourceParent: state.initialParent,
-            targetParent: state.currentParent,
-            draggedNodes: state.draggedNodes,
-            targetNodes: insertState.draggedOverNodes as NodeRecord<T>[],
-            targetIndex: index,
-          }) as any as FormKitSchemaFormKit[])
-        : draggedValues
-
-      const processedInsertValues = normalizeInsertValues(insertValues as any, isSource)
-      processedInsertValues.forEach((val: any) => setColSpan(val, 12))
-
-      const baseSchema = formSchema.value as any as FormKitSchemaFormKit[]
-      const draggedKeys = new Set<string>()
-      for (const v of draggedValues as any[]) {
-        const k = (v as any)?.__key
-        if (typeof k === 'string' && k) draggedKeys.add(k)
-      }
-
-      const newParentValues = isSource
-        ? baseSchema
-        : (baseSchema as any[]).filter((node) => {
-            const k = (node as any)?.__key
-            if (typeof k === 'string' && k) return !draggedKeys.has(k)
-            return !draggedValues.some((y) => eq(node, y))
-          }) as any as FormKitSchemaFormKit[]
-
-      const nextChildren = [...currentChildren]
-      const toInsert: FormKitSchemaFormKit[] = []
-      for (const v of processedInsertValues as any as FormKitSchemaFormKit[]) {
-        const key = (v as any)?.__key
-        const exists =
-          typeof key === 'string' && key
-            ? nextChildren.some((c: any) => c?.__key === key)
-            : nextChildren.some((c: any) => eq(c, v))
-        if (!exists) toInsert.push(v)
-      }
-      if (toInsert.length) nextChildren.splice(index, 0, ...toInsert)
-
-      const nextSchema = updateListChildrenByKey(newParentValues, listKey, nextChildren)
-      if (!nextSchema) return
-
-      commitSchema(nextSchema, { reason: 'dnd' })
-    } else if (state.currentParent.el.contains(state.initialParent.el)) {
-      const draggedParentValues = parentValues(state.initialParent.el, state.initialParent.data)
-
-      const draggedOverParentValues = parentValues(insertState.draggedOverParent.el, insertState.draggedOverParent.data)
-
-      const draggedValues = state.draggedNodes.map((node) => node.data.value)
-
-      const newParentValues = draggedParentValues.filter((x) => !draggedValues.some((y) => eq(x, y)))
-
-      setParentValues(state.initialParent.el, state.initialParent.data, [...newParentValues])
-
-      const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
-        ? state.initialParent.data.config.insertConfig.dynamicValues({
-            sourceParent: state.initialParent,
-            targetParent: state.currentParent,
-            draggedNodes: state.draggedNodes,
-            targetNodes: insertState.draggedOverNodes as NodeRecord<T>[],
-          })
-        : draggedValues
-
-      insertValues.forEach((val: any) => setColSpan(val, 12))
-
-      draggedOverParentValues.push(...insertValues)
-
-      setParentValues(insertState.draggedOverParent.el, insertState.draggedOverParent.data, [...draggedOverParentValues])
-
-      commitSchema([...(draggedOverParentValues as FormKitSchemaFormKit[])], { reason: 'dnd' })
-    } else {
-      const draggedValues = state.draggedNodes.map((node) => node.data.value)
-
-      const draggedOverParentValues = parentValues(insertState.draggedOverParent.el, insertState.draggedOverParent.data)
-
-      const insertValues = state.initialParent.data.config.insertConfig?.dynamicValues
-        ? state.initialParent.data.config.insertConfig.dynamicValues({
-            sourceParent: state.initialParent,
-            targetParent: state.currentParent,
-            draggedNodes: state.draggedNodes,
-            targetNodes: insertState.draggedOverNodes as NodeRecord<T>[],
-          })
-        : draggedValues
-
-      const isSource = state.initialParent.el.getAttribute('data-is-source') === 'true'
-      const processedInsertValues = insertValues.map((value) => {
-        const valObj = isSource ? JSON.parse(JSON.stringify(value)) : value
-        if (typeof valObj === 'object' && valObj !== null) {
-          const val = valObj as any
-          if (val.$formkit === 'submit') return { ...valObj, outerClass: 'col-span-12 pt-2' }
-          return { ...valObj, outerClass: val.outerClass || 'col-span-12' }
-        }
-        return valObj
-      })
-
-      processedInsertValues.forEach((val) => setColSpan(val, 12))
-
-      draggedOverParentValues.push(...processedInsertValues)
-
-      setParentValues(insertState.draggedOverParent.el, insertState.draggedOverParent.data, [...draggedOverParentValues])
-
-      if (!isSource) {
-        const draggedParentValues = parentValues(state.initialParent.el, state.initialParent.data)
-
-        const newParentValues = draggedParentValues.filter((x) => !draggedValues.some((y) => eq(x, y)))
-
-        setParentValues(state.initialParent.el, state.initialParent.data, [...newParentValues])
-      }
-
-      commitSchema([...(draggedOverParentValues as FormKitSchemaFormKit[])], { reason: 'dnd' })
-    }
-
-    const data: InsertEvent<T> = {
-      sourceParent: state.initialParent,
-      targetParent: state.currentParent,
-      draggedNodes: state.draggedNodes,
-      targetNodes: insertState.draggedOverNodes as NodeRecord<T>[],
-      state,
-    }
-
-    if (state.initialParent.data.config.insertConfig?.insertEvent) state.initialParent.data.config.insertConfig.insertEvent(data)
-    if (state.currentParent.data.config.insertConfig?.insertEvent) state.currentParent.data.config.insertConfig.insertEvent(data)
-
-    removeClass([insertState.draggedOverParent.el], insertState.draggedOverParent.data.config.dropZoneClass)
+      return v
+    })
+    listMap.set(key, cleaned)
   }
 
-  if (insertPoint) insertPoint.el.style.display = 'none'
+  const nextSchema = rootValues.map((node: any) => {
+    if (!node || typeof node !== 'object') return node
+    if (node.$formkit === 'submit' && Array.isArray(node.children)) {
+      const next = { ...node }
+      delete next.children
+      return next
+    }
+    const key = node.__key
+    if (typeof key === 'string' && key && listMap.has(key)) {
+      return { ...node, children: listMap.get(key) ?? [] }
+    }
+    if (node.$formkit === 'list' && !Array.isArray(node.children)) {
+      return { ...node, children: [] }
+    }
+    return node
+  }) as FormKitSchemaFormKit[]
 
-  const dropZoneClass = isSynthDragState(state)
-    ? state.initialParent.data.config.synthDropZoneClass
-    : state.initialParent.data.config.dropZoneClass
-
-  removeClass(insertState.draggedOverNodes.map((node) => node.el), dropZoneClass)
-
-  const dragPlaceholderClass = state.initialParent.data.config.dragPlaceholderClass
-
-  removeClass(state.draggedNodes.map((node) => node.el), dragPlaceholderClass)
-
-  insertState.draggedOverNodes = []
-  insertState.draggedOverParent = null
-  insertState.explicitIndex = undefined
-  insertState.explicitRow = undefined
+  commitSchema(nextSchema, { reason: 'dnd' })
 }

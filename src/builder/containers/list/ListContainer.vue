@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { FormKitSchema } from '@formkit/vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
+import { customInsertPlugin } from '../../../utils/custom-insert-plugin'
 import { NButton, NButtonGroup, NTooltip } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 import { selectedKey } from '../../../utils/default-form-elements'
@@ -39,27 +40,19 @@ const [containerRef, items] = useDragAndDrop<FormKitSchemaFormKit>(initial.value
   accepts: () => true,
   sortable: true,
   draggable: () => true,
+  plugins: [
+    customInsertPlugin({
+      insertPoint: () => {
+        const div = document.createElement('div')
+        div.classList.add('absolute', 'bg-green-500', 'z-[2000]', 'rounded-sm', 'pointer-events-none', 'opacity-90')
+        return div
+      },
+    }),
+  ],
   handleNodePointerup(data) {
     data.targetData.node.el.setAttribute('draggable', 'true')
   },
 })
-
-const dragActive = ref(false)
-
-const flush = () => {
-  if (syncingFromProps.value) return
-  if (eq(items.value, props.modelValue)) return
-  emit('update:modelValue', [...items.value])
-}
-
-const onGlobalDragStart = () => {
-  dragActive.value = true
-}
-
-const onGlobalDragEnd = () => {
-  dragActive.value = false
-  flush()
-}
 
 const syncingFromProps = ref(false)
 
@@ -77,28 +70,10 @@ watch(
   { deep: true },
 )
 
-watch(
-  items,
-  (next) => {
-    if (syncingFromProps.value) return
-    if (dragActive.value) return
-    if (eq(next, props.modelValue)) return
-    emit('update:modelValue', [...next])
-  },
-  { deep: true },
-)
-
-onMounted(() => {
-  window.addEventListener('dragstart', onGlobalDragStart, true)
-  window.addEventListener('dragend', onGlobalDragEnd, true)
-  window.addEventListener('drop', onGlobalDragEnd, true)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('dragstart', onGlobalDragStart, true)
-  window.removeEventListener('dragend', onGlobalDragEnd, true)
-  window.removeEventListener('drop', onGlobalDragEnd, true)
-})
+const emitUpdate = () => {
+  if (syncingFromProps.value) return
+  emit('update:modelValue', [...items.value])
+}
 
 const showActions = computed(() => props.showActions === true)
 
@@ -170,6 +145,7 @@ const onPointerUp = (e: PointerEvent) => {
   window.removeEventListener('pointermove', onPointerMove)
   window.removeEventListener('pointerup', onPointerUp)
   window.removeEventListener('pointercancel', onPointerUp)
+  emitUpdate()
 }
 
 const validationCount = (field: any) => {
@@ -182,6 +158,7 @@ const validationCount = (field: any) => {
 const deleteChild = (index: number) => {
   const next = items.value.filter((_, i) => i !== index)
   items.value = next
+  emitUpdate()
 }
 </script>
 
