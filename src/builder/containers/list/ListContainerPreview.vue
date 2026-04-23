@@ -2,12 +2,13 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { inject, computed } from 'vue'
 import { FormKitSchema } from '@formkit/vue'
-import { NButton, NButtonGroup, NTooltip, NList, NListItem, NEmpty } from 'naive-ui'
+import { NButton, NButtonGroup, NTooltip, NEmpty } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 
 const props = defineProps<{
   nodeKey: string
   children: FormKitSchemaFormKit[]
+  isPlaceholder?: boolean
 }>()
 
 const duplicate = inject(
@@ -16,6 +17,10 @@ const duplicate = inject(
 )
 const remove = inject(
   'previewListRemove',
+  null as unknown as ((key: string) => void) | null,
+)
+const restore = inject(
+  'previewListRestore',
   null as unknown as ((key: string) => void) | null,
 )
 
@@ -28,7 +33,7 @@ const modelValue = computed(() => (Array.isArray(props.children) ? props.childre
   <div class="w-full rounded-xl border border-border/50 bg-card/50">
     <div class="flex items-center justify-between px-3 py-2 border-b border-border/50">
       <div class="text-xs text-muted-foreground">{{ t('builder.listContainer') }}</div>
-      <n-button-group class="shrink-0">
+      <n-button-group v-if="props.isPlaceholder !== true" class="shrink-0">
         <n-tooltip placement="top">
           <template #trigger>
             <n-button quaternary size="small" @click.stop="duplicate?.(props.nodeKey)">
@@ -49,15 +54,19 @@ const modelValue = computed(() => (Array.isArray(props.children) ? props.childre
     </div>
 
     <div class="p-2">
-      <n-empty v-if="modelValue.length === 0" :description="t('builder.listDropHere')" />
-      <n-list v-else bordered>
-        <n-list-item
-          v-for="(child, idx) in modelValue"
-          :key="(child as any)?.__key || (child as any)?.name || idx"
-        >
-          <FormKitSchema :schema="[child]" />
-        </n-list-item>
-      </n-list>
+      <div v-if="props.isPlaceholder === true" class="min-h-[140px] flex items-center justify-center">
+        <div class="flex flex-col items-center gap-3">
+          <n-empty :description="t('builder.listRemove')" />
+          <n-button secondary @click="restore?.(props.nodeKey)">
+            <template #icon><span class="i-lucide-plus h-4 w-4"></span></template>
+            {{ t('builder.addListContainer') }}
+          </n-button>
+        </div>
+      </div>
+      <div v-else class="w-full grid grid-cols-12 gap-x-4 gap-y-2">
+        <FormKitSchema v-if="modelValue.length" :schema="modelValue" />
+        <n-empty v-else :description="t('builder.listDropHere')" />
+      </div>
     </div>
   </div>
 </template>

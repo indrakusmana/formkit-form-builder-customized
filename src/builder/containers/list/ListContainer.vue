@@ -219,7 +219,7 @@ const deleteChild = (index: number) => {
           @dragstart.capture="isDragging = true"
           @dragend.capture="isDragging = false; setNestedParentOnRoot(false)"
           @drop="isDragging = false; setNestedParentOnRoot(false)"
-          :class="items.length === 0 ? 'border-2 border-dashed border-border/50 bg-muted/20 rounded-lg' : ''"
+          :class="items.length === 0 ? 'bg-muted/20 rounded-lg' : ''"
         >
           <li
             v-for="(child, idx) in items"

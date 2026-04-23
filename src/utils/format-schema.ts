@@ -6,6 +6,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
     if (!fields) return []
     const formatOne = (field: FormKitSchemaFormKit, index: number): any => {
       const key = (field as any)?.__key as string | undefined
+      const isPreviewPlaceholder = (field as any)?.__preview_placeholder === true
       const {
         $formkit,
         label,
@@ -39,7 +40,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
           children: [
             {
               $cmp: 'ListContainerPreview',
-              props: { nodeKey: key, children },
+              props: { nodeKey: key, children, isPlaceholder: isPreviewPlaceholder },
             },
           ],
         }

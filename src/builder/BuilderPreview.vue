@@ -13,14 +13,8 @@
     size="small"
   >
     <template #header-extra>
-      <div class="flex items-center gap-2">
-        <div class="text-[11px] text-muted-foreground">
-          {{ t('builder.previewDescription') }}
-        </div>
-        <n-button size="tiny" secondary @click="addListContainer">
-          <template #icon><span class="i-lucide-plus h-3 w-3"></span></template>
-          {{ t('builder.addListContainer') }}
-        </n-button>
+      <div class="text-[11px] text-muted-foreground">
+        {{ t('builder.previewDescription') }}
       </div>
     </template>
     <div class="py-4 px-3">
@@ -44,7 +38,7 @@
 
 <script setup lang="ts">
 import { computed, provide, ref, watchEffect } from 'vue'
-import { NButton, NModal } from 'naive-ui'
+import { NModal } from 'naive-ui'
 import { formSchema } from '../utils/default-form-elements'
 import createFormattedSchema from '../utils/format-schema'
 import { canvasView } from '../composables/form-fields'
@@ -64,25 +58,6 @@ const formattedSchema = createFormattedSchema(previewSchema)
 const schemaLibrary = computed(() => ({ ListContainerPreview }))
 
 provide('isPreviewOpen', isOpen)
-
-const addListContainer = () => {
-  const existingNames = new Set<string>()
-  collectSchemaNames(previewSchema.value as any, existingNames)
-  const nextKey = generateKey()
-  const base = toSafeName(t('elements.list.name') || 'list')
-  const nextName = ensureUniqueName(base, existingNames)
-  const next: any = {
-    $formkit: 'list',
-    __key: nextKey,
-    name: nextName,
-    id: `field_${nextKey}`,
-    outerClass: 'col-span-12',
-    label: t('elements.list.label'),
-    description: t('elements.list.description'),
-    children: [],
-  }
-  previewSchema.value = [...previewSchema.value, next] as any
-}
 
 const normalizePath = (path: number[]) => path.filter((p) => p !== -1)
 
@@ -179,7 +154,39 @@ provide(
   (key: string) => {
     const found = findSchemaNodeByKey(previewSchema.value as any[], key)
     if (!found) return
+    const hasOtherList = (() => {
+      const walk = (nodes: any[]): boolean => {
+        for (const node of nodes) {
+          if (!node || typeof node !== 'object') continue
+          if (node.$formkit === 'list' && node.__key !== key && (node as any).__preview_placeholder !== true) return true
+          const children = (node as any)?.children
+          if (Array.isArray(children) && walk(children)) return true
+        }
+        return false
+      }
+      return walk(previewSchema.value as any[])
+    })()
+
+    if (!hasOtherList) {
+      const current: any = found.node as any
+      const nextNode: any = { ...current, __preview_placeholder: true, children: [] }
+      previewSchema.value = updateAtPath(previewSchema.value as any[], found.path, nextNode) as any
+      return
+    }
+
     previewSchema.value = removeAtPath(previewSchema.value as any[], found.path) as any
+  },
+)
+
+provide(
+  'previewListRestore',
+  (key: string) => {
+    const found = findSchemaNodeByKey(previewSchema.value as any[], key)
+    if (!found) return
+    const current: any = found.node as any
+    const { __preview_placeholder, ...rest } = current
+    const nextNode: any = { ...rest, children: Array.isArray(current.children) ? current.children : [] }
+    previewSchema.value = updateAtPath(previewSchema.value as any[], found.path, nextNode) as any
   },
 )
 
