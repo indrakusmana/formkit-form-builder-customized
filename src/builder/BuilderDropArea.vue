@@ -368,7 +368,7 @@ watch(
             :key="(field as any)?.__key || (field as FormKitSchemaFormKit)?.name || (field as FormKitSchemaFormKit)?.$formkit + index"
             :class="cn(
             'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-            'p-1 !cursor-grab h-full !z-20 relative border-[1.5px]',
+            'p-2 !cursor-grab h-full !z-20 relative border-[1.5px]',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
             ((field as any)?.__key && (field as any).__key === selectedKey) || selectedIndex === index
               ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
@@ -384,7 +384,7 @@ watch(
           @keydown.space.stop.prevent="clickedField(index)"
           >
             <!-- Field content -->
-            <div class="flex gap-1.5 p-1 w-full pb-2">
+            <div class="flex gap-1.5 w-full pb-2">
               <div class="flex-1 w-full">
                 <ListContainer
                   v-if="(field as any)?.$formkit === 'list'"
