@@ -348,7 +348,7 @@ export function customInsertPlugin<T>(insertConfig: InsertConfig<T>) {
           defineRanges(parent)
         })
 
-        if (parent.getAttribute('data-is-source') !== 'true') {
+        if (parent.getAttribute('data-testid') === 'drop-area') {
           watch(
             formSchema,
             (newSchema) => {
