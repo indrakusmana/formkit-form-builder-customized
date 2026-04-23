@@ -6,14 +6,15 @@ import ValidationSection from './validations/ValidationSection.vue'
 import { useFormField } from '../../composables/form-fields'
 import EditsSection from './edits/EditsSection.vue'
 import ExpressionEditor from './edits/ExpressionEditor.vue'
-import { fieldProps } from '../../utils/field-props'
+import { createFieldProps } from '../../utils/field-props'
 
 const { hasField, currentFieldType } = useFormField()
 const { t } = useFormBuilderI18n()
+const fieldProps = computed(() => createFieldProps(t))
 
 const isFieldsCategory = computed(() => {
   if (!currentFieldType.value) return false
-  const prop = fieldProps.find((p) => p.name === currentFieldType.value)
+  const prop = fieldProps.value.find((p) => p.name === currentFieldType.value)
   return (prop?.category || 'fields') === 'fields'
 })
 </script>

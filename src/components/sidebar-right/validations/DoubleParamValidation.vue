@@ -3,7 +3,6 @@ import { useFormField } from '../../../composables/form-fields'
 import { getValueParts } from '../../../utils/utils'
 import { NInput, NDatePicker } from 'naive-ui'
 import { computed } from 'vue'
-import { MoveRight } from 'lucide-vue-next'
 import { ValidationCard, ValidationSwitch } from '../../ui/validation-card'
 import { useFormBuilderI18n } from '../../../i18n/context'
 
@@ -120,7 +119,7 @@ const toggleSwitch = () => {
           class="text-[10px]"
         />
       </div>
-      <MoveRight class="mt-5" />
+      <span class="i-lucide-move-right mt-5 h-4 w-4"></span>
       <div class="flex flex-col gap-1">
         <span class="text-xs">{{ props.labelTwo }}</span>
         <n-input

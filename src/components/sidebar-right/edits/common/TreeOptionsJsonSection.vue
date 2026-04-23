@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { selectedIndex } from '../../../../utils/default-form-elements'
+import { selectedIndex, selectedKey } from '../../../../utils/default-form-elements'
 import { useFormField } from '../../../../composables/form-fields'
 import JsonTextarea from './JsonTextarea.vue'
 
@@ -8,6 +8,8 @@ const { optionsRaw } = useFormField()
 
 const draft = ref('')
 const error = ref('')
+
+const selectionToken = computed(() => selectedKey.value ?? String(selectedIndex.value))
 
 const model = computed({
   get: () => draft.value,
@@ -33,7 +35,7 @@ const model = computed({
 })
 
 watch(
-  selectedIndex,
+  selectionToken,
   () => {
     draft.value = JSON.stringify(optionsRaw.value ?? [], null, 2)
     error.value = ''
@@ -51,4 +53,3 @@ watch(
     @update:value="(v) => (model = v)"
   />
 </template>
-

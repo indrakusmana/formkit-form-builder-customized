@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { BotMessageSquare, SendHorizonal } from 'lucide-vue-next'
 import OpenAI from 'openai'
 import instructions from './Instructions.txt?raw'
 import { ref } from 'vue'
@@ -81,7 +80,7 @@ const isFocused = () => {
     "
   >
     <span class="start-0 inset-y-0 flex items-center justify-center px-2">
-      <BotMessageSquare :class="cn('size-6 text-muted-foreground')" />
+      <span :class="cn('i-lucide-bot-message-square size-6 text-muted-foreground')"></span>
     </span>
     <n-input
       type="textarea"
@@ -101,7 +100,7 @@ const isFocused = () => {
       :disabled="isLoading"
     >
       <template #icon>
-        <SendHorizonal />
+        <span class="i-lucide-send-horizontal h-4 w-4"></span>
       </template>
     </n-button>
   </div>
@@ -119,7 +118,7 @@ const isFocused = () => {
             @click="isOpen = !isOpen"
           >
             <template #icon>
-              <BotMessageSquare />
+              <span class="i-lucide-bot-message-square h-4 w-4"></span>
             </template>
           </n-button>
         </template>
@@ -138,7 +137,7 @@ const isFocused = () => {
       "
     >
       <span class="start-0 inset-y-0 flex items-center justify-center px-2">
-        <BotMessageSquare :class="cn('size-6 text-muted-foreground')" />
+        <span :class="cn('i-lucide-bot-message-square size-6 text-muted-foreground')"></span>
       </span>
       <n-input
         type="textarea"
@@ -158,7 +157,7 @@ const isFocused = () => {
         :disabled="isLoading"
       >
         <template #icon>
-          <SendHorizonal />
+          <span class="i-lucide-send-horizontal h-4 w-4"></span>
         </template>
       </n-button>
     </div>

@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { NSwitch, NInput, NAlert } from 'naive-ui'
 import { useFormField } from '../../../composables/form-fields'
-import { selectedIndex } from '../../../utils/default-form-elements'
+import { selectedIndex, selectedKey } from '../../../utils/default-form-elements'
 import { evalExpression } from '../../../utils/expression-eval'
 import { useFormBuilderI18n } from '../../../i18n/context'
 
@@ -12,9 +12,11 @@ const { t } = useFormBuilderI18n()
 const isExpression = ref(false)
 const expressionDraft = ref('')
 
+const selectionToken = computed(() => selectedKey.value ?? String(selectedIndex.value))
+
 // Reset switch state when selecting a different field
 watch(
-  selectedIndex,
+  selectionToken,
   () => {
     const legacy = fieldValue.value.trim()
     if (!useExpressionValue.value && !valueExpression.value && legacy.startsWith('$')) {

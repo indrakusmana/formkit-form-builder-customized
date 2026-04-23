@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { NModal, NInput, NButton, NSpace } from 'naive-ui'
-import { Download, Save } from 'lucide-vue-next'
 import { formSchema } from '../utils/default-form-elements'
 import { commitSchema } from '../composables/schema-history'
 import type { FormKitSchemaFormKit } from '@formkit/core'
@@ -98,13 +97,13 @@ const handleDownload = () => {
         <n-button @click="handleClose">{{ t('common.cancel') }}</n-button>
         <n-button type="info" @click="handleDownload">
           <template #icon>
-            <Download class="w-4 h-4" />
+            <span class="i-lucide-download w-4 h-4"></span>
           </template>
           {{ t('importExport.downloadJson') }}
         </n-button>
         <n-button type="primary" @click="handleSaveAndImport">
           <template #icon>
-            <Save class="w-4 h-4" />
+            <span class="i-lucide-save w-4 h-4"></span>
           </template>
           {{ t('importExport.saveAndImport') }}
         </n-button>

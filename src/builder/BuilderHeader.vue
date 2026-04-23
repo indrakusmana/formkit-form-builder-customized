@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { NButton, NButtonGroup, NTooltip, NPopconfirm } from 'naive-ui'
-import { Eye, Trash2, Undo2, Redo2 } from 'lucide-vue-next'
 import { useFormBuilderI18n } from '../i18n/context'
 import BuilderPreview from './BuilderPreview.vue'
 import AiPrompt from '../components/ai-prompt/AiPrompt.vue'
@@ -25,7 +24,7 @@ const previewRef = ref<InstanceType<typeof BuilderPreview>>()
             <n-tooltip>
               <template #trigger>
                 <n-button secondary circle size="small" class="h-5 w-5 !p-2">
-                  <template #icon><Trash2 class="dark:text-green-200" /></template>
+                  <template #icon><span class="i-lucide-trash-2 h-4 w-4 dark:text-green-200"></span></template>
                 </n-button>
               </template>
               {{ t('builder.clearForm') }}
@@ -43,7 +42,7 @@ const previewRef = ref<InstanceType<typeof BuilderPreview>>()
               @click="previewRef?.open()"
               class="h-5 w-5 !p-2"
             >
-              <template #icon><Eye class="dark:text-green-200" /></template>
+              <template #icon><span class="i-lucide-eye h-4 w-4 dark:text-green-200"></span></template>
             </n-button>
           </template>
           {{ t('builder.previewForm') }}
@@ -69,7 +68,7 @@ const previewRef = ref<InstanceType<typeof BuilderPreview>>()
                 :disabled="!canUndo"
                 @click="undo"
               >
-                <template #icon><Undo2 class="dark:text-green-200" /></template>
+                <template #icon><span class="i-lucide-undo-2 h-4 w-4 dark:text-green-200"></span></template>
               </n-button>
             </template>
             {{ t('builder.undo') }}
@@ -84,7 +83,7 @@ const previewRef = ref<InstanceType<typeof BuilderPreview>>()
                 :disabled="!canRedo"
                 @click="redo"
               >
-                <template #icon><Redo2 class="dark:text-green-200" /></template>
+                <template #icon><span class="i-lucide-redo-2 h-4 w-4 dark:text-green-200"></span></template>
               </n-button>
             </template>
             {{ t('builder.redo') }}

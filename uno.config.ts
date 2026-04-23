@@ -1,5 +1,8 @@
 import { defineConfig, presetWind3 } from 'unocss'
+import presetIcons from 'unocss/preset-icons'
 import { presetTwAnimate } from 'unocss-tw-animate-css'
+import lucide from '@iconify-json/lucide/icons.json'
+import stash from '@iconify-json/stash/icons.json'
 
 export default defineConfig({
   safelist: [
@@ -9,9 +12,63 @@ export default defineConfig({
     'dark:text-red-400',
     'text-[11px]',
     '[line-height:1.15]',
+    'i-lucide-calendar',
+    'i-lucide-calendar-clock',
+    'i-lucide-circle-dot',
+    'i-lucide-clock',
+    'i-lucide-hash',
+    'i-lucide-letter-text',
+    'i-lucide-link-2',
+    'i-lucide-list',
+    'i-lucide-lock',
+    'i-lucide-mail',
+    'i-lucide-paperclip',
+    'i-lucide-phone',
+    'i-lucide-sliders-horizontal',
+    'i-lucide-square-check',
+    'i-lucide-type',
+    'i-lucide-pipette',
+    'i-lucide-send-horizontal',
+    'i-lucide-square-mouse-pointer',
+    'i-stash:user-avatar',
+    'i-lucide-group',
+    'i-lucide-list-tree',
+    'i-lucide-heading-1',
+    'i-lucide-heading-2',
+    'i-lucide-heading-3',
+    'i-lucide-heading-4',
+    'i-lucide-heading-5',
+    'i-lucide-heading-6',
+    'i-lucide-image',
+    'i-lucide-trash-2',
+    'i-lucide-eye',
+    'i-lucide-undo-2',
+    'i-lucide-redo-2',
+    'i-lucide-monitor',
+    'i-lucide-tablet',
+    'i-lucide-smartphone',
+    'i-lucide-code-xml',
+    'i-lucide-more-vertical',
+    'i-lucide-download',
+    'i-lucide-save',
+    'i-lucide-bot-message-square',
+    'i-lucide-sun',
+    'i-lucide-moon',
+    'i-lucide-circle-help',
+    'i-lucide-move-right',
+    'i-lucide-upload',
+    'i-lucide-plus',
   ],
   presets: [
     presetWind3(),
+    presetIcons({
+      collections: {
+        lucide: lucide as any,
+        stash: stash as any,
+      },
+      scale: 1.2,
+      warn: true,
+    }),
     presetTwAnimate(),
   ],
   content: {

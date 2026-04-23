@@ -43,16 +43,15 @@ provideFormBuilderI18n({
   >
     <n-layout has-sider class="h-screen w-full">
       <SidebarLeft />
-      <n-layout
-        class="relative"
-        :native-scrollbar="false"
-      >
-        <div class="p-4 h-full flex flex-col">
-          <BuilderHeader />
-          <BuilderDropArea />
-        </div>
+      <n-layout has-sider sider-placement="right" class="flex-1">
+        <n-layout class="relative" :native-scrollbar="false">
+          <div class="p-4 h-full flex flex-col">
+            <BuilderHeader />
+            <BuilderDropArea />
+          </div>
+        </n-layout>
+        <SidebarRight />
       </n-layout>
-      <SidebarRight />
     </n-layout>
   </n-config-provider>
 </template>

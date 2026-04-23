@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { NInputNumber } from 'naive-ui'
-import { MoveRight } from 'lucide-vue-next'
 import EditsLayout from './EditsLayout.vue'
 
 const props = defineProps<{
@@ -44,7 +43,7 @@ const modelValueTwo = computed({
         :placeholder="props.placeholderOne"
       />
     </div>
-    <MoveRight class="pt-4" />
+    <span class="i-lucide-move-right pt-4 h-4 w-4"></span>
     <div class="flex flex-col gap-1">
       <label for="maxInput" class="text-xs text-foreground/80">{{ props.labelTwo }}</label>
       <n-input-number
@@ -56,4 +55,3 @@ const modelValueTwo = computed({
     </div>
   </EditsLayout>
 </template>
-

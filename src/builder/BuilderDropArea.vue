@@ -2,11 +2,10 @@
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
 import { FormKitSchema } from '@formkit/vue'
-import { Trash2, Monitor, Tablet, Smartphone, CodeXml, MoreVertical } from 'lucide-vue-next'
 import { useFormBuilderI18n } from '../i18n/context'
 import { useRuntimeLocale } from '../i18n/runtime-locale'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
-import { formSchema, selectedIndex } from '../utils/default-form-elements'
+import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { isLoading, canvasView } from '../composables/form-fields'
@@ -14,6 +13,9 @@ import { cn } from '../utils/utils'
 import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
+import { ListContainer } from './containers'
+import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
+import { findSchemaNodeByKey } from '../composables/form-fields'
 
 const { validationStringLength } = useFormField()
 const { t } = useFormBuilderI18n()
@@ -28,12 +30,106 @@ const deleteField = (index: number) => {
   fields.value = fields.value.filter((_, i) => i !== index)
 }
 
+const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
+  if (!node || typeof node !== 'object') return node
+  const nextKey = generateKey()
+  const base = toSafeName(node.name || node.$formkit || 'field')
+  const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
+  const next: any = {
+    ...node,
+    __key: nextKey,
+  }
+  if (node.$formkit !== 'submit') {
+    next.name = nextName
+    next.id = `field_${nextKey}`
+  }
+  if (Array.isArray(node.children)) {
+    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames))
+  }
+  return next
+}
+
+const updateListChildren = (listKey: string, children: FormKitSchemaFormKit[]) => {
+  const currentIndex = formSchema.value.findIndex((n: any) => n?.__key === listKey)
+  if (currentIndex < 0) return
+  const current = formSchema.value[currentIndex]
+  if (!current) return
+  const existingNames = new Set<string>()
+  collectSchemaNames(formSchema.value as any, existingNames)
+  const ensureIdentity = (node: any): any => {
+    if (!node || typeof node !== 'object') return node
+    if (node.$formkit === 'submit' && Array.isArray(node.children)) {
+      delete node.children
+    }
+    if (typeof node.__key === 'string' && node.__key) {
+      if (Array.isArray(node.children)) node.children = node.children.map((c: any) => ensureIdentity(c))
+      return node
+    }
+    const nextKey = generateKey()
+    const base = toSafeName(node.$formkit || node.name || 'field')
+    const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
+    const next: any =
+      node.$formkit === 'submit'
+        ? { ...node, __key: nextKey, outerClass: node.outerClass || 'col-span-12 pt-2' }
+        : { ...node, __key: nextKey, name: nextName, id: `field_${nextKey}`, outerClass: node.outerClass || 'col-span-12' }
+    if (Array.isArray(node.children)) next.children = node.children.map((c: any) => ensureIdentity(c))
+    return next
+  }
+  const normalizedChildren = children.map((c: any) => ensureIdentity({ ...c }))
+  const childKeys = new Set<string>()
+  for (const child of normalizedChildren as any[]) {
+    const k = child?.__key
+    if (typeof k === 'string' && k) childKeys.add(k)
+  }
+
+  const prunedSchema = (formSchema.value as any[]).filter((node) => {
+    const k = node?.__key
+    if (typeof k === 'string' && k) {
+      if (k === listKey) return true
+      return !childKeys.has(k)
+    }
+    return true
+  })
+
+  const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
+  const nextIndex = nextSchema.findIndex((n: any) => n?.__key === listKey)
+  if (nextIndex < 0) return
+  nextSchema[nextIndex] = {
+    ...(current as any),
+    children: normalizedChildren,
+  } as FormKitSchemaFormKit
+
+  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-children', merge: true })
+}
+
+const duplicateListContainer = (index: number) => {
+  const current = formSchema.value[index] as any
+  if (!current) return
+  const existingNames = new Set<string>()
+  collectSchemaNames(formSchema.value as any, existingNames)
+  const cloned = cloneNodeWithFreshIdentity(structuredClone(current), existingNames)
+  const nextSchema = [...formSchema.value]
+  nextSchema.splice(index + 1, 0, cloned)
+  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-duplicate' })
+}
+
+const removeListContainer = (index: number) => {
+  deleteField(index)
+}
+
 // 从 outerClass 中提取 col-span 数值，默认 12
 const getColSpan = (field: unknown, index: number): number => {
   const outerClass =
     (field as FormKitSchemaFormKit)?.outerClass || formSchema.value[index]?.outerClass || ''
   const match = outerClass.match(/col-span-(\d+)/)
   return match ? parseInt(match[1], 10) : 12
+}
+
+const getRowSpan = (field: unknown, index: number): number => {
+  const outerClass =
+    (field as FormKitSchemaFormKit)?.outerClass || formSchema.value[index]?.outerClass || ''
+  const match = outerClass.match(/row-span-(\d+)/)
+  return match ? parseInt(match[1], 10) : 1
 }
 
 const resizingIndex = ref<number | null>(null)
@@ -48,7 +144,8 @@ const isDragging = ref(false)
 const safelistClasses = [
   'col-span-1', 'col-span-2', 'col-span-3', 'col-span-4',
   'col-span-5', 'col-span-6', 'col-span-7', 'col-span-8',
-  'col-span-9', 'col-span-10', 'col-span-11', 'col-span-12'
+  'col-span-9', 'col-span-10', 'col-span-11', 'col-span-12',
+  'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4', 'row-span-5', 'row-span-6'
 ]
 
 const startResize = (e: PointerEvent, index: number) => {
@@ -130,6 +227,15 @@ const nudgeResize = (index: number, deltaSpan: number) => {
 
 const clickedField = (index: number) => {
   selectedIndex.value = index
+  const key = (formSchema.value[index] as any)?.__key as string | undefined
+  selectedKey.value = key ?? null
+}
+
+const selectByKey = (key: string) => {
+  const found = findSchemaNodeByKey(formSchema.value as any[], key)
+  if (!found) return
+  selectedIndex.value = found.rootIndex
+  selectedKey.value = key
 }
 
 const pluralize = (count: number, noun: string, suffix = 's') => {
@@ -191,7 +297,7 @@ watch(
               size="small"
               class="w-8 h-8"
             >
-              <template #icon><Monitor class="h-3.5 w-3.5" /></template>
+              <template #icon><span class="i-lucide-monitor h-3.5 w-3.5"></span></template>
             </n-button>
           </template>
           {{ t('builder.desktopView') }}
@@ -205,7 +311,7 @@ watch(
               size="small"
               class="w-8 h-8"
             >
-              <template #icon><Tablet class="h-3.5 w-3.5" /></template>
+              <template #icon><span class="i-lucide-tablet h-3.5 w-3.5"></span></template>
             </n-button>
           </template>
           {{ t('builder.tabletView') }}
@@ -219,7 +325,7 @@ watch(
               size="small"
               class="w-8 h-8"
             >
-              <template #icon><Smartphone class="h-3.5 w-3.5" /></template>
+              <template #icon><span class="i-lucide-smartphone h-3.5 w-3.5"></span></template>
             </n-button>
           </template>
           {{ t('builder.mobileView') }}
@@ -262,22 +368,35 @@ watch(
             :key="(field as any)?.__key || (field as FormKitSchemaFormKit)?.name || (field as FormKitSchemaFormKit)?.$formkit + index"
             :class="cn(
             'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-            'p-1 !cursor-grab h-full !z-20 relative border-[1.5px]',
+            'p-2 !cursor-grab h-full !z-20 relative border-[1.5px]',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
-            selectedIndex === index
+            ((field as any)?.__key && (field as any).__key === selectedKey) || selectedIndex === index
               ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
               : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
           )"
-          :style="{ gridColumn: `span ${getColSpan(field, index)} / span ${getColSpan(field, index)}` }"
+          :style="{
+            gridColumn: `span ${getColSpan(field, index)} / span ${getColSpan(field, index)}`,
+            gridRow: `span ${getRowSpan(field, index)} / span ${getRowSpan(field, index)}`,
+          }"
           tabindex="0"
-          @pointerdown.capture="clickedField(index)"
+          @pointerdown="clickedField(index)"
           @keydown.enter.stop.prevent="clickedField(index)"
           @keydown.space.stop.prevent="clickedField(index)"
           >
             <!-- Field content -->
-            <div class="flex gap-1.5 p-1 w-full pb-2">
+            <div class="flex gap-1.5 w-full pb-2">
               <div class="flex-1 w-full">
+                <ListContainer
+                  v-if="(field as any)?.$formkit === 'list'"
+                  :list-key="((field as any)?.__key as string | undefined)"
+                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
+                  :label="(field as any)?.label"
+                  :show-actions="false"
+                  @update:model-value="(v) => updateListChildren(((field as any)?.__key as string) ?? '', v)"
+                  @select="selectByKey"
+                />
                 <FormKitSchema
+                  v-else
                   :schema="[field as FormKitSchemaFormKit]"
                   :key="`form-item-${index}`"
                 />
@@ -305,7 +424,7 @@ watch(
                       dark:hover:!bg-red-950/50 dark:hover:!text-red-400
                       transition-all duration-150"
               >
-                <template #icon><Trash2 class="!h-[13px] !w-[13px]" /></template>
+                <template #icon><span class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
               </n-button>
             </div>
 
@@ -327,7 +446,7 @@ watch(
               @keydown.right.stop.prevent="nudgeResize(index, 2)"
             >
               <template #icon>
-                <MoreVertical class="h-5 w-5" />
+                <span class="i-lucide-more-vertical h-5 w-5"></span>
               </template>
             </n-button>
 
@@ -357,7 +476,7 @@ watch(
                 :aria-label="t('builder.importExportSchema')"
                 class="w-8 h-8"
               >
-                <template #icon><CodeXml class="h-3.5 w-3.5" /></template>
+                <template #icon><span class="i-lucide-code-xml h-3.5 w-3.5"></span></template>
               </n-button>
             </template>
             {{ t('builder.importExportSchema') }}

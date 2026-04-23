@@ -1,6 +1,7 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { computed, ref } from 'vue'
-import { formSchema, selectedIndex } from '../utils/default-form-elements'
+import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
+import { generateKey } from '../utils/dnd/schema'
 
 type SchemaSnapshot = FormKitSchemaFormKit[]
 
@@ -22,6 +23,7 @@ function cloneSchema(schema: SchemaSnapshot): SchemaSnapshot {
 function clampSelectedIndex(schemaLength: number) {
   if (schemaLength <= 0) {
     selectedIndex.value = 0
+    selectedKey.value = null
     return
   }
 
@@ -37,6 +39,9 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
   const visit = (nodes: any[]) => {
     for (const node of nodes) {
       if (!node || typeof node !== 'object') continue
+      if (typeof node.__key !== 'string' || !node.__key) {
+        node.__key = generateKey()
+      }
       if (typeof node.valueExpression === 'string' && typeof node.__raw__valueExpression !== 'string') {
         node.__raw__valueExpression = node.valueExpression
       }
@@ -47,13 +52,34 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
   visit(schema as any[])
 }
 
+function containsKey(nodes: any[], key: string): boolean {
+  for (const node of nodes) {
+    if (!node || typeof node !== 'object') continue
+    if ((node as any).__key === key) return true
+    const children = (node as any)?.children
+    if (Array.isArray(children) && containsKey(children, key)) return true
+  }
+  return false
+}
+
+function findRootIndexForKey(schema: any[], key: string): number {
+  for (let i = 0; i < schema.length; i++) {
+    const node = schema[i]
+    if (!node || typeof node !== 'object') continue
+    if ((node as any).__key === key) return i
+    const children = (node as any)?.children
+    if (Array.isArray(children) && containsKey(children, key)) return i
+  }
+  return -1
+}
+
 export function commitSchema(
   nextSchema: SchemaSnapshot,
   options?: { reason?: string; merge?: boolean },
 ) {
   const now = Date.now()
   const currentSchema = formSchema.value
-  const selectedKey = (formSchema.value[selectedIndex.value] as any)?.__key as string | undefined
+  const prevSelectedKey = selectedKey.value ?? ((formSchema.value[selectedIndex.value] as any)?.__key as string | undefined)
   const selectedRef = formSchema.value[selectedIndex.value]
 
   if (currentSchema === nextSchema) return
@@ -78,12 +104,14 @@ export function commitSchema(
 
   migrateExpressionKeys(nextSchema)
   formSchema.value = nextSchema
-  if (options?.reason === 'dnd' && selectedKey) {
-    const nextIndex = nextSchema.findIndex((field: any) => field?.__key === selectedKey)
-    if (nextIndex >= 0) selectedIndex.value = nextIndex
-  } else if (options?.reason === 'dnd' && selectedRef) {
-    const nextIndex = nextSchema.findIndex((field) => field === selectedRef)
-    if (nextIndex >= 0) selectedIndex.value = nextIndex
+  if (prevSelectedKey) {
+    const rootIndex = findRootIndexForKey(nextSchema as any[], prevSelectedKey)
+    if (rootIndex >= 0) {
+      selectedIndex.value = rootIndex
+      selectedKey.value = prevSelectedKey
+    } else {
+      selectedKey.value = null
+    }
   }
   clampSelectedIndex(formSchema.value.length)
 }

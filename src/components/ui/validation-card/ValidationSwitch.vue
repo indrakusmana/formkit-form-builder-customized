@@ -2,7 +2,6 @@
 import { cn } from '../../../utils/utils'
 import type { HTMLAttributes } from 'vue'
 import { NSwitch, NTooltip } from 'naive-ui'
-import { CircleHelp } from 'lucide-vue-next'
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
@@ -28,7 +27,7 @@ function updateValue(value: boolean) {
       <span class="text-xs">{{ props.label }}</span>
       <n-tooltip trigger="hover" placement="top">
         <template #trigger>
-          <CircleHelp class="h-4 w-4 text-muted-foreground rounded-full" />
+          <span class="i-lucide-circle-help h-4 w-4 text-muted-foreground rounded-full"></span>
         </template>
         {{ props.tooltip }}
       </n-tooltip>
