@@ -49,13 +49,18 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
   return next
 }
 
-const updateListChildren = (index: number, children: FormKitSchemaFormKit[]) => {
-  const current = formSchema.value[index]
+const updateListChildren = (listKey: string, children: FormKitSchemaFormKit[]) => {
+  const currentIndex = formSchema.value.findIndex((n: any) => n?.__key === listKey)
+  if (currentIndex < 0) return
+  const current = formSchema.value[currentIndex]
   if (!current) return
   const existingNames = new Set<string>()
   collectSchemaNames(formSchema.value as any, existingNames)
   const ensureIdentity = (node: any): any => {
     if (!node || typeof node !== 'object') return node
+    if (node.$formkit === 'submit' && Array.isArray(node.children)) {
+      delete node.children
+    }
     if (typeof node.__key === 'string' && node.__key) {
       if (Array.isArray(node.children)) node.children = node.children.map((c: any) => ensureIdentity(c))
       return node
@@ -77,19 +82,17 @@ const updateListChildren = (index: number, children: FormKitSchemaFormKit[]) => 
     if (typeof k === 'string' && k) childKeys.add(k)
   }
 
-  const listKey = (current as any)?.__key as string | undefined
-  const prunedSchema = listKey
-    ? (formSchema.value as any[]).filter((node, i) => {
-        if (i === index) return true
-        const k = node?.__key
-        return !(typeof k === 'string' && k && childKeys.has(k))
-      })
-    : [...formSchema.value]
+  const prunedSchema = (formSchema.value as any[]).filter((node) => {
+    const k = node?.__key
+    if (typeof k === 'string' && k) {
+      if (k === listKey) return true
+      return !childKeys.has(k)
+    }
+    return true
+  })
 
   const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
-  const nextIndex = listKey
-    ? nextSchema.findIndex((n: any) => n?.__key === listKey)
-    : index
+  const nextIndex = nextSchema.findIndex((n: any) => n?.__key === listKey)
   if (nextIndex < 0) return
   nextSchema[nextIndex] = {
     ...(current as any),
@@ -388,7 +391,7 @@ watch(
                   :list-key="((field as any)?.__key as string | undefined)"
                   :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
                   :show-actions="false"
-                  @update:model-value="(v) => updateListChildren(index, v)"
+                  @update:model-value="(v) => updateListChildren(((field as any)?.__key as string) ?? '', v)"
                   @select="selectByKey"
                 />
                 <FormKitSchema

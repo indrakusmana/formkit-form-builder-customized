@@ -52,6 +52,9 @@ function normalizeInsertValues(
     const valObj = JSON.parse(JSON.stringify(value))
     if (typeof valObj === 'object' && valObj !== null) {
       const val = valObj as any
+      if (val.$formkit === 'submit' && Array.isArray(val.children)) {
+        delete val.children
+      }
       const nextKey = typeof val.__key === 'string' && val.__key ? val.__key : generateKey()
       const base = toSafeName(val.name || val.$formkit || 'field')
       const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
