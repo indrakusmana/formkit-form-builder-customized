@@ -71,11 +71,31 @@ const updateListChildren = (index: number, children: FormKitSchemaFormKit[]) => 
     return next
   }
   const normalizedChildren = children.map((c: any) => ensureIdentity({ ...c }))
-  const nextSchema = [...formSchema.value]
-  nextSchema[index] = {
+  const childKeys = new Set<string>()
+  for (const child of normalizedChildren as any[]) {
+    const k = child?.__key
+    if (typeof k === 'string' && k) childKeys.add(k)
+  }
+
+  const listKey = (current as any)?.__key as string | undefined
+  const prunedSchema = listKey
+    ? (formSchema.value as any[]).filter((node, i) => {
+        if (i === index) return true
+        const k = node?.__key
+        return !(typeof k === 'string' && k && childKeys.has(k))
+      })
+    : [...formSchema.value]
+
+  const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
+  const nextIndex = listKey
+    ? nextSchema.findIndex((n: any) => n?.__key === listKey)
+    : index
+  if (nextIndex < 0) return
+  nextSchema[nextIndex] = {
     ...(current as any),
     children: normalizedChildren,
   } as FormKitSchemaFormKit
+
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-children', merge: true })
 }
 
