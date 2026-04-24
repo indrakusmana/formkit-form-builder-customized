@@ -28,6 +28,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         step,
         multiple,
         accept,
+        if: schemaIf,
       } = field
 
       if ($formkit === 'list') {
@@ -36,6 +37,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
           : []
         return {
           $el: 'div',
+          if: schemaIf,
           attrs: { class: outerClass || 'col-span-12' },
           children: [
             {
@@ -52,6 +54,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
           : []
         return {
           $el: 'div',
+          if: schemaIf,
           attrs: { class: outerClass || 'col-span-12' },
           children: [
             {
@@ -85,6 +88,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         step,
         multiple,
         accept,
+        if: schemaIf,
       }
 
       if (options) cleanField.options = options

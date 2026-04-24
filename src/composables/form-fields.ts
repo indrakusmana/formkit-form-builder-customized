@@ -226,6 +226,20 @@ export function useFormField() {
     },
   })
 
+  const ifExpression = computed<string>({
+    get: () => {
+      const current = selectedField.value as any
+      const raw = current?.__raw__ifExpression ?? current?.if
+      if (typeof raw !== 'string') return ''
+      return raw
+    },
+    set: (value: string) => {
+      const next = value.trim()
+      setFieldProp('__raw__ifExpression', next ? next : undefined)
+      setFieldProp('if', next ? next : undefined)
+    },
+  })
+
   const label = computed({
     get: () => selectedField.value?.label || '',
     set: (newLabel: string) => {
@@ -523,6 +537,7 @@ export function useFormField() {
     fieldName,
     useExpressionValue,
     valueExpression,
+    ifExpression,
     label,
     buttonText,
     placeholder,

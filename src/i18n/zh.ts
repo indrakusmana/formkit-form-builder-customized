@@ -47,6 +47,10 @@ export default {
     placeholder: '例如：$my_variable + 1',
     variablesNotFound: '未找到变量：{vars}',
   },
+  condition: {
+    useIf: '条件渲染（if）',
+    placeholder: '例如：$other == \"yes\" && $age >= 18',
+  },
   ai: {
     tooltip: 'AI 助手',
     placeholder: 'AI 助手',
@@ -225,4 +229,3 @@ export default {
     card: { name: '卡片容器', label: '卡片', description: '可包含子字段的卡片容器' },
   },
 } as const
-

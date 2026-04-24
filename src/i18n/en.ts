@@ -47,6 +47,10 @@ export default {
     placeholder: 'e.g. $my_variable + 1',
     variablesNotFound: 'Variables not found: {vars}',
   },
+  condition: {
+    useIf: 'Conditional render (if)',
+    placeholder: 'e.g. $other == \"yes\" && $age >= 18',
+  },
   ai: {
     tooltip: 'AI Assistant',
     placeholder: 'AI Assistant',
@@ -241,4 +245,3 @@ export default {
     card: { name: 'Card', label: 'Card', description: 'Card container with children' },
   },
 } as const
-
