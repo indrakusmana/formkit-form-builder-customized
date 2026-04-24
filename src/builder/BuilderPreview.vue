@@ -46,7 +46,7 @@ import type { FormKitSchemaFormKit } from '@formkit/core'
 import { evalExpression } from '../utils/expression-eval'
 import { useFormBuilderI18n } from '../i18n/context'
 import { CardContainerPreview, ListContainerPreview } from './containers'
-import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
+import { collectSchemaNames, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 
 const { t } = useFormBuilderI18n()
@@ -54,6 +54,7 @@ const { t } = useFormBuilderI18n()
 const isOpen = ref(false)
 const data = ref({})
 const previewSchema = ref<FormKitSchemaFormKit[]>([])
+const previewNameSeq = ref<Record<string, number>>({})
 const formattedSchema = createFormattedSchema(previewSchema)
 const schemaLibrary = computed(() => ({ ListContainerPreview, CardContainerPreview }))
 
@@ -127,18 +128,37 @@ const canonicalBaseName = (value: unknown) => {
   return match?.[1] || safe
 }
 
-const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
+const nextUniqueName = (base: string, existingNames: Set<string>, seq: Record<string, number>) => {
+  const current = seq[base]
+  if (current === undefined) seq[base] = 0
+
+  if (!existingNames.has(base)) {
+    existingNames.add(base)
+    return base
+  }
+
+  seq[base] = (seq[base] ?? 0) + 1
+  let candidate = `${base}_${seq[base]}`
+  while (existingNames.has(candidate)) {
+    seq[base] += 1
+    candidate = `${base}_${seq[base]}`
+  }
+  existingNames.add(candidate)
+  return candidate
+}
+
+const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, seq: Record<string, number>) => {
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
   const base = canonicalBaseName(node.name || node.$formkit || 'field')
-  const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
+  const nextName = node.$formkit === 'submit' ? node.name : nextUniqueName(base, existingNames, seq)
   const next: any = { ...node, __key: nextKey }
   if (node.$formkit !== 'submit') {
     next.name = nextName
     next.id = `field_${nextKey}`
   }
   if (Array.isArray(node.children)) {
-    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames))
+    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames, seq))
   }
   return next
 }
@@ -150,7 +170,7 @@ provide(
     if (!found) return
     const existingNames = new Set<string>()
     collectSchemaNamesSafe(previewSchema.value as any, existingNames)
-    const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames)
+    const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames, previewNameSeq.value)
     previewSchema.value = insertAfterAtPath(previewSchema.value as any[], found.path, cloned) as any
   },
 )
@@ -274,6 +294,7 @@ const open = () => {
   isOpen.value = true
   data.value = {}
   previewSchema.value = safeClone(formSchema.value)
+  previewNameSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
 }
@@ -282,6 +303,7 @@ const close = () => {
   isOpen.value = false
   data.value = {}
   previewSchema.value = []
+  previewNameSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
 }
