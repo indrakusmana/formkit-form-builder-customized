@@ -35,9 +35,8 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         const children = Array.isArray((field as any)?.children)
           ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
           : []
-        return {
+        const nextNode: any = {
           $el: 'div',
-          if: schemaIf,
           attrs: { class: outerClass || 'col-span-12' },
           children: [
             {
@@ -46,15 +45,17 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
             },
           ],
         }
+        if (typeof schemaIf === 'string' && schemaIf.trim()) nextNode.if = schemaIf
+        else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
+        return nextNode
       }
 
       if ($formkit === 'card') {
         const children = Array.isArray((field as any)?.children)
           ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
           : []
-        return {
+        const nextNode: any = {
           $el: 'div',
-          if: schemaIf,
           attrs: { class: outerClass || 'col-span-12' },
           children: [
             {
@@ -63,9 +64,12 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
             },
           ],
         }
+        if (typeof schemaIf === 'string' && schemaIf.trim()) nextNode.if = schemaIf
+        else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
+        return nextNode
       }
 
-      const cleanField: FormKitSchemaFormKit = {
+      const cleanField: any = {
         $formkit,
         name: field.name || (key ? `field_${key}` : `field_${index}`),
         id: field.id || (key ? `preview_field_${key}` : `preview_field_${index}`),
@@ -88,8 +92,9 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         step,
         multiple,
         accept,
-        if: schemaIf,
       }
+      if (typeof schemaIf === 'string' && schemaIf.trim()) cleanField.if = schemaIf
+      else if (typeof schemaIf === 'boolean') cleanField.if = schemaIf
 
       if (options) cleanField.options = options
       return cleanField
