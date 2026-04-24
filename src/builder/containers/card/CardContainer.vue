@@ -224,7 +224,7 @@ const deleteChild = (index: number) => {
             :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
             :class="[
               'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-              'p-2 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px]',
+              'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px]',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
               ((child as any)?.__key && (child as any).__key === selectedKey)
                 ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
