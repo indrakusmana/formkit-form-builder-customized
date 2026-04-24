@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { NConfigProvider, NLayout, darkTheme, type ConfigProviderProps } from 'naive-ui'
-import { useColorMode } from '@vueuse/core'
+import { useColorMode, usePreferredDark } from '@vueuse/core'
 import SidebarLeft from '../components/sidebar-left/SidebarLeft.vue'
 import SidebarRight from '../components/sidebar-right/SidebarRight.vue'
 import BuilderDropArea from './BuilderDropArea.vue'
@@ -14,9 +14,11 @@ import type { FormBuilderConfig } from '../types/env'
 const props = defineProps<ConfigProviderProps>()
 
 const colorMode = useColorMode()
+const preferredDark = usePreferredDark()
+const resolvedIsDark = computed(() => colorMode.value === 'dark' || (colorMode.value === 'auto' && preferredDark.value))
 const activeTheme = computed(() => {
   if (props.theme !== undefined) return props.theme
-  return colorMode.value === 'dark' ? darkTheme : null
+  return resolvedIsDark.value ? darkTheme : null
 })
 
 const cfg = useFormBuilderConfig() as FormBuilderConfig
