@@ -89,6 +89,8 @@ export default defaultConfig({
     'datetime-local': createNaiveInput('NaiveDatePicker', NaiveDatePicker),
     'date-time': createNaiveInput('NaiveDatePicker', NaiveDatePicker),
     time: createNaiveInput('NaiveTimePicker', NaiveTimePicker),
+    naiveDatetimeLocal: createNaiveInput('NaiveDatePicker', NaiveDatePicker),
+    naiveDateTime: createNaiveInput('NaiveDatePicker', NaiveDatePicker),
     file: createNaiveInput('NaiveUpload', NaiveUpload),
     color: createNaiveInput('NaiveColorPicker', NaiveColorPicker),
     naiveAvatar: createNaiveInput('NaiveAvatar', NaiveAvatar),

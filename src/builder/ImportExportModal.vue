@@ -19,11 +19,28 @@ const { t } = useFormBuilderI18n()
 
 const jsonContent = ref('')
 
+type AnyRecord = Record<string, unknown>
+
+const normalizeNaiveDateTimeTypes = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(normalizeNaiveDateTimeTypes)
+  if (!value || typeof value !== 'object') return value
+  const obj = value as AnyRecord
+  const next: AnyRecord = { ...obj }
+  if (typeof next.$formkit === 'string') {
+    if (next.$formkit === 'datetime-local') next.$formkit = 'naiveDatetimeLocal'
+    if (next.$formkit === 'date-time') next.$formkit = 'naiveDateTime'
+  }
+  if (Array.isArray(next.children)) {
+    next.children = next.children.map(normalizeNaiveDateTimeTypes) as unknown as AnyRecord['children']
+  }
+  return next
+}
+
 watch(
   () => props.show,
   (newVal) => {
     if (newVal) {
-      jsonContent.value = JSON.stringify(formSchema.value, null, 2)
+      jsonContent.value = JSON.stringify(normalizeNaiveDateTimeTypes(formSchema.value), null, 2)
     }
   }
 )
@@ -38,7 +55,7 @@ const handleSaveAndImport = () => {
     if (!Array.isArray(parsed)) {
       throw new Error(t('importExport.schemaMustBeArray'))
     }
-    commitSchema(parsed as FormKitSchemaFormKit[], { reason: 'import' })
+    commitSchema(normalizeNaiveDateTimeTypes(parsed) as FormKitSchemaFormKit[], { reason: 'import' })
     toast.success(t('importExport.importSuccess'))
     handleClose()
   } catch (error: unknown) {

@@ -142,7 +142,7 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.time.description',
   },
   {
-    $formkit: 'datetime-local',
+    $formkit: 'naiveDatetimeLocal',
     nameKey: 'elements.datetimeLocal.name',
     labelKey: 'elements.datetimeLocal.label',
     helpKey: 'elements.common.help',
@@ -154,7 +154,7 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.datetimeLocal.description',
   },
   {
-    $formkit: 'date-time',
+    $formkit: 'naiveDateTime',
     nameKey: 'elements.dateTime.name',
     labelKey: 'elements.dateTime.label',
     helpKey: 'elements.common.help',

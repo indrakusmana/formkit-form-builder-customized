@@ -54,8 +54,8 @@ const editorComponent = computed(() => {
   if (type === 'radio') return RadioEditor
   if (type === 'checkbox') return CheckboxEditor
   if (type === 'color') return ColorEditor
-  if (['date', 'datetime-local', 'time'].includes(type)) return DateLikeEditor
-  if (type === 'date-time') return DateTimeEditor
+  if (['date', 'datetime-local', 'naiveDatetimeLocal', 'time'].includes(type)) return DateLikeEditor
+  if (type === 'date-time' || type === 'naiveDateTime') return DateTimeEditor
   if (type === 'submit') return SubmitEditor
 
   if (type === 'naiveCascader') return NaiveCascaderEditor
