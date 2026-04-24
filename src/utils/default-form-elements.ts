@@ -601,6 +601,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.card.label',
     id: 'card_container',
     outerClass: 'col-span-12',
+    naiveProps: { size: 'medium', bordered: true, embedded: false, hoverable: false },
     descriptionKey: 'elements.card.description',
     children: [],
   },
