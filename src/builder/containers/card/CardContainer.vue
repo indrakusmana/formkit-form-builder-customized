@@ -15,6 +15,7 @@ const props = defineProps<{
   modelValue: FormKitSchemaFormKit[]
   label?: string
   disabled?: boolean
+  help?: string
   naiveProps?: Record<string, unknown>
 }>()
 
@@ -98,12 +99,14 @@ const emitUpdate = () => {
 }
 
 const title = computed(() => (typeof props.label === 'string' && props.label.trim() ? props.label.trim() : ''))
+const helpText = computed(() => (typeof props.help === 'string' && props.help.trim() ? props.help.trim() : ''))
 const cardProps = computed<Record<string, unknown>>(() => (props.naiveProps ?? {}) as Record<string, unknown>)
 
 const bordered = computed<boolean>(() => (cardProps.value.bordered as boolean | undefined) ?? true)
 const embedded = computed<boolean>(() => (cardProps.value.embedded as boolean | undefined) ?? false)
 const hoverable = computed<boolean>(() => (cardProps.value.hoverable as boolean | undefined) ?? false)
 const size = computed(() => (cardProps.value.size as string | undefined) ?? 'medium')
+const showHeader = computed(() => Boolean(title.value || helpText.value))
 
 const onSelect = (child: any) => {
   const key = child?.__key as string | undefined
@@ -193,13 +196,18 @@ const deleteChild = (index: number) => {
 <template>
   <n-card
     class="w-full"
-    :title="title || undefined"
     :bordered="bordered"
     :embedded="embedded"
     :hoverable="hoverable"
     :size="size as any"
     content-style="padding: 8px;"
   >
+    <template v-if="showHeader" #header>
+      <div class="flex flex-col gap-0.5">
+        <div v-if="title" class="text-sm font-medium">{{ title }}</div>
+        <div v-if="helpText" class="text-xs text-muted-foreground">{{ helpText }}</div>
+      </div>
+    </template>
     <div class="relative">
         <ul
           ref="containerRef"

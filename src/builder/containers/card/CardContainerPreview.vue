@@ -8,12 +8,14 @@ import { useFormBuilderI18n } from '../../../i18n/context'
 const props = defineProps<{
   children: FormKitSchemaFormKit[]
   label?: string
+  help?: string
   naiveProps?: Record<string, unknown>
 }>()
 
 const { t } = useFormBuilderI18n()
 
 const title = computed(() => (typeof props.label === 'string' && props.label.trim() ? props.label.trim() : ''))
+const helpText = computed(() => (typeof props.help === 'string' && props.help.trim() ? props.help.trim() : ''))
 const modelValue = computed(() => (Array.isArray(props.children) ? props.children : []))
 
 const cardProps = computed<Record<string, unknown>>(() => (props.naiveProps ?? {}) as Record<string, unknown>)
@@ -22,18 +24,24 @@ const bordered = computed<boolean>(() => (cardProps.value.bordered as boolean | 
 const embedded = computed<boolean>(() => (cardProps.value.embedded as boolean | undefined) ?? false)
 const hoverable = computed<boolean>(() => (cardProps.value.hoverable as boolean | undefined) ?? false)
 const size = computed(() => (cardProps.value.size as string | undefined) ?? 'medium')
+const showHeader = computed(() => Boolean(title.value || helpText.value))
 </script>
 
 <template>
   <n-card
     class="w-full"
-    :title="title || undefined"
     :bordered="bordered"
     :embedded="embedded"
     :hoverable="hoverable"
     :size="size as any"
     content-style="padding: 8px;"
   >
+    <template v-if="showHeader" #header>
+      <div class="flex flex-col gap-0.5">
+        <div v-if="title" class="text-sm font-medium">{{ title }}</div>
+        <div v-if="helpText" class="text-xs text-muted-foreground">{{ helpText }}</div>
+      </div>
+    </template>
     <div class="w-full grid grid-cols-12 gap-x-4 gap-y-2">
       <FormKitSchema v-if="modelValue.length" :schema="modelValue" />
       <n-empty v-else :description="t('builder.listDropHere')" />

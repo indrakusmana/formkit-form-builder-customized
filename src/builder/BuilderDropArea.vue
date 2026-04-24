@@ -400,6 +400,7 @@ watch(
                   :card-key="((field as any)?.__key as string | undefined)"
                   :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
                   :label="(field as any)?.label"
+                  :help="(field as any)?.help"
                   :naive-props="((field as any)?.naiveProps as any)"
                   @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
                   @select="selectByKey"

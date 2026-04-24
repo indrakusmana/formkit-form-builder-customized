@@ -56,7 +56,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
           children: [
             {
               $cmp: 'CardContainerPreview',
-              props: { children, label, naiveProps },
+              props: { children, label, help, naiveProps },
             },
           ],
         }
