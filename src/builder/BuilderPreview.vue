@@ -143,7 +143,7 @@ provide(
     const found = findSchemaNodeByKey(previewSchema.value as any[], key)
     if (!found) return
     const existingNames = new Set<string>()
-    collectSchemaNames(previewSchema.value as any, existingNames)
+    collectSchemaNamesSafe(previewSchema.value as any, existingNames)
     const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames)
     previewSchema.value = insertAfterAtPath(previewSchema.value as any[], found.path, cloned) as any
   },
@@ -207,6 +207,15 @@ const eachField = (schema: FormKitSchemaFormKit[], fn: (field: any) => void) => 
     const children = (field as any)?.children
     if (Array.isArray(children)) eachField(children as FormKitSchemaFormKit[], fn)
   }
+}
+
+const collectSchemaNamesSafe = (schema: FormKitSchemaFormKit[], names: Set<string>) => {
+  collectSchemaNames(schema, names)
+  eachField(schema, (field) => {
+    const raw = field?.name
+    if (typeof raw !== 'string' || !raw) return
+    names.add(toSafeName(raw))
+  })
 }
 
 watchEffect(() => {
