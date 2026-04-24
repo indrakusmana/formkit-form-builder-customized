@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
 import { FormKitSchema } from '@formkit/vue'
-import { useI18n } from 'vue-i18n'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
 import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
@@ -15,13 +14,17 @@ import ImportExportModal from './ImportExportModal.vue'
 import { CardContainer, ListContainer } from './containers'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
+import { useFormBuilderI18n } from '@/i18n/context'
+import { useRuntimeLocale } from '@/i18n/runtime-locale'
 
 const { validationStringLength } = useFormField()
-const { t, locale } = useI18n()
-const isZh = computed(() => locale.value === 'zh-CN')
 
 const showImportExportModal = ref(false)
+const { setLocale, locale } = useRuntimeLocale()
 
+const { t } = useFormBuilderI18n()
+
+const isZh = computed(() => locale.value === 'zh-CN')
 const deleteField = (index: number) => {
   const nextSchema = formSchema.value.filter((_: unknown, i: number) => i !== index)
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'delete' })
