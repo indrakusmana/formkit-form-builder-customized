@@ -398,7 +398,7 @@ watch(
                 <FormKitSchema
                   v-else
                   :schema="[field as FormKitSchemaFormKit]"
-                  :key="`form-item-${index}`"
+                  :key="`${(field as any)?.__key ?? (field as FormKitSchemaFormKit)?.name ?? index}-${(field as FormKitSchemaFormKit)?.$formkit ?? 'unknown'}`"
                 />
               </div>
             </div>
