@@ -33,7 +33,7 @@ const placeholder = computed(() => props.context.placeholder as string | undefin
 const valueFormat = computed(() => {
   const configured = naiveProps.value.valueFormat
   if (typeof configured === 'string' && configured.trim()) return configured
-  return 'HH:mm:ss'
+  return undefined
 })
 
 const formattedValue = computed<string | null>({

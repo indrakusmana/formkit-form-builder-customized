@@ -1,6 +1,10 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { ref } from 'vue'
 
+export const DEFAULT_DATE_VALUE_FORMAT = 'yyyy-MM-dd'
+export const DEFAULT_TIME_VALUE_FORMAT = 'HH:mm:ss'
+export const DEFAULT_DATE_TIME_VALUE_FORMAT = 'yyyy-MM-dd HH:mm:ss'
+
 export const formSchema = ref<FormKitSchemaFormKit[]>([
   {
     $formkit: 'submit',
@@ -123,7 +127,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.date.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: 'yyyy-MM-dd' },
+    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_VALUE_FORMAT },
     id: 'date_field',
     validation: '',
     validationVisibility: 'live',
@@ -135,7 +139,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.time.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: 'HH:mm:ss' },
+    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_TIME_VALUE_FORMAT },
     id: 'time_field',
     validation: '',
     validationVisibility: 'live',
@@ -147,7 +151,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.dateTime.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: 'yyyy-MM-dd HH:mm:ss' },
+    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_TIME_VALUE_FORMAT },
     id: 'date_time_field',
     validation: '',
     validationVisibility: 'live',

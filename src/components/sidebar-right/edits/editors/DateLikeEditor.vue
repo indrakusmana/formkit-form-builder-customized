@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useFormField } from '../../../../composables/form-fields'
+import { DEFAULT_DATE_VALUE_FORMAT, DEFAULT_TIME_VALUE_FORMAT } from '../../../../utils/default-form-elements'
 import LabelHelpSection from '../common/LabelHelpSection.vue'
 import PlaceholderSection from '../common/PlaceholderSection.vue'
 import NaiveBasicSection from '../common/NaiveBasicSection.vue'
@@ -9,8 +10,8 @@ import TextInput from '../common/TextInput.vue'
 const { createNaiveProp, currentFieldType } = useFormField()
 
 const defaultValueFormat = computed(() => {
-  if (currentFieldType.value === 'time') return 'HH:mm:ss'
-  return 'yyyy-MM-dd'
+  if (currentFieldType.value === 'time') return DEFAULT_TIME_VALUE_FORMAT
+  return DEFAULT_DATE_VALUE_FORMAT
 })
 
 const naiveValueFormat = createNaiveProp<string>('valueFormat', '')

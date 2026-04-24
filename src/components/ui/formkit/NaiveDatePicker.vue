@@ -37,9 +37,7 @@ const pickerType = computed<DatePickerProps['type']>(() => {
 const valueFormat = computed(() => {
   const configured = naiveProps.value.valueFormat
   if (typeof configured === 'string' && configured.trim()) return configured
-  if (pickerType.value === 'datetime')
-    return 'yyyy-MM-dd HH:mm:ss'
-  return 'yyyy-MM-dd'
+  return undefined
 })
 
 const placeholder = computed(() => props.context.placeholder as string | undefined)
