@@ -56,24 +56,6 @@ const defs: FieldPropDef[] = [
     category: 'fields',
   },
   {
-    name: 'datetime-local',
-    tooltipKey: 'fieldProps.tooltip.datetimeLocal',
-    icon: 'i-lucide-calendar-clock',
-    category: 'fields',
-  },
-  {
-    name: 'naiveDatetimeLocal',
-    tooltipKey: 'fieldProps.tooltip.datetimeLocal',
-    icon: 'i-lucide-calendar-clock',
-    category: 'fields',
-  },
-  {
-    name: 'date-time',
-    tooltipKey: 'fieldProps.tooltip.dateTime',
-    icon: 'i-lucide-calendar-clock',
-    category: 'fields',
-  },
-  {
     name: 'naiveDateTime',
     tooltipKey: 'fieldProps.tooltip.dateTime',
     icon: 'i-lucide-calendar-clock',

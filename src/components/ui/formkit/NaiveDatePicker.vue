@@ -30,7 +30,7 @@ const bordered = computed<boolean>(() => (naiveProps.value.bordered as boolean |
 
 const pickerType = computed<DatePickerProps['type']>(() => {
   const t = props.context.type
-  if (t === 'datetime-local' || t === 'date-time' || t === 'naiveDatetimeLocal' || t === 'naiveDateTime') return 'datetime'
+  if (t === 'naiveDateTime') return 'datetime'
   return 'date'
 })
 

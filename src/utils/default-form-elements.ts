@@ -142,18 +142,6 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.time.description',
   },
   {
-    $formkit: 'naiveDatetimeLocal',
-    nameKey: 'elements.datetimeLocal.name',
-    labelKey: 'elements.datetimeLocal.label',
-    helpKey: 'elements.common.help',
-    outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
-    id: 'datetime_local_field',
-    validation: '',
-    validationVisibility: 'live',
-    descriptionKey: 'elements.datetimeLocal.description',
-  },
-  {
     $formkit: 'naiveDateTime',
     nameKey: 'elements.dateTime.name',
     labelKey: 'elements.dateTime.label',
