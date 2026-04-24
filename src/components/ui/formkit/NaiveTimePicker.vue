@@ -30,6 +30,12 @@ const bordered = computed<boolean>(() => (naiveProps.value.bordered as boolean |
 
 const placeholder = computed(() => props.context.placeholder as string | undefined)
 
+const valueFormat = computed(() => {
+  const configured = naiveProps.value.valueFormat
+  if (typeof configured === 'string' && configured.trim()) return configured
+  return 'HH:mm:ss'
+})
+
 const formattedValue = computed<string | null>({
   get: () => {
     const raw = props.context._value as unknown
@@ -45,7 +51,7 @@ const formattedValue = computed<string | null>({
 <template>
   <NTimePicker
     v-model:formatted-value="formattedValue"
-    value-format="HH:mm"
+    :value-format="valueFormat"
     :size="size"
     :clearable="clearable"
     :disabled="disabled"

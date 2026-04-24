@@ -38,7 +38,7 @@ const valueFormat = computed(() => {
   const configured = naiveProps.value.valueFormat
   if (typeof configured === 'string' && configured.trim()) return configured
   if (pickerType.value === 'datetime')
-    return 'yyyy-MM-dd HH:mm'
+    return 'yyyy-MM-dd HH:mm:ss'
   return 'yyyy-MM-dd'
 })
 
