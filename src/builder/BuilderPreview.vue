@@ -45,8 +45,8 @@ import { canvasView } from '../composables/form-fields'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { evalExpression } from '../utils/expression-eval'
 import { useFormBuilderI18n } from '../i18n/context'
-import { ListContainerPreview } from './containers'
-import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
+import { CardContainerPreview, ListContainerPreview } from './containers'
+import { collectSchemaNames, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 
 const { t } = useFormBuilderI18n()
@@ -54,8 +54,9 @@ const { t } = useFormBuilderI18n()
 const isOpen = ref(false)
 const data = ref({})
 const previewSchema = ref<FormKitSchemaFormKit[]>([])
+const previewListItemSeq = ref<Record<string, number>>({})
 const formattedSchema = createFormattedSchema(previewSchema)
-const schemaLibrary = computed(() => ({ ListContainerPreview }))
+const schemaLibrary = computed(() => ({ ListContainerPreview, CardContainerPreview }))
 
 provide('isPreviewOpen', isOpen)
 
@@ -121,18 +122,48 @@ const insertAfterAtPath = (schema: any[], path: number[], nextNode: any) => {
   return updateAtPath(schema, path.slice(0, -1), nextParent)
 }
 
-const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
+const canonicalBaseName = (value: unknown) => {
+  const safe = toSafeName(value)
+  const match = safe.match(/^(.*_\d+)_\d+$/)
+  return match?.[1] || safe
+}
+
+const isStructureNode = (node: any) => ['list', 'group', 'card'].includes(String(node?.$formkit ?? ''))
+
+const collectLeafBases = (node: any, bases: Set<string>) => {
+  if (!node || typeof node !== 'object') return
+  if (!isStructureNode(node) && node.$formkit !== 'submit') {
+    const rawName = node.name || node.$formkit || 'field'
+    const base = canonicalBaseName(rawName)
+    if (base) bases.add(base)
+  }
+  if (Array.isArray(node.children)) {
+    for (const c of node.children) collectLeafBases(c, bases)
+  }
+}
+
+const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listSuffix: number) => {
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
-  const base = toSafeName(node.name || node.$formkit || 'field')
-  const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
   const next: any = { ...node, __key: nextKey }
   if (node.$formkit !== 'submit') {
-    next.name = nextName
+    if (!isStructureNode(node)) {
+      const rawName = node.name || node.$formkit || 'field'
+      const base = canonicalBaseName(rawName)
+      let candidate = listSuffix > 0 ? `${base}_${listSuffix}` : base
+      let i = 1
+      while (existingNames.has(candidate)) {
+        candidate = `${base}_${listSuffix}_${i}`
+        i++
+      }
+      next.name = candidate
+      existingNames.add(candidate)
+      existingNames.add(toSafeName(candidate))
+    }
     next.id = `field_${nextKey}`
   }
   if (Array.isArray(node.children)) {
-    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames))
+    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames, listSuffix))
   }
   return next
 }
@@ -143,9 +174,35 @@ provide(
     const found = findSchemaNodeByKey(previewSchema.value as any[], key)
     if (!found) return
     const existingNames = new Set<string>()
-    collectSchemaNames(previewSchema.value as any, existingNames)
-    const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames)
+    collectSchemaNamesSafe(previewSchema.value as any, existingNames)
+    const bases = new Set<string>()
+    collectLeafBases(found.node as any, bases)
+    let nextSuffix = (previewListItemSeq.value[key] ?? 0) + 1
+    const isFree = (suffix: number) => {
+      for (const base of bases) {
+        const candidate = `${base}_${suffix}`
+        if (existingNames.has(candidate) || existingNames.has(toSafeName(candidate))) return false
+      }
+      return true
+    }
+    while (!isFree(nextSuffix)) nextSuffix++
+    previewListItemSeq.value = { ...previewListItemSeq.value, [key]: nextSuffix }
+    const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames, nextSuffix)
     previewSchema.value = insertAfterAtPath(previewSchema.value as any[], found.path, cloned) as any
+  },
+)
+
+provide(
+  'previewListIsLast',
+  (key: string) => {
+    const found = findSchemaNodeByKey(previewSchema.value as any[], key)
+    if (!found) return true
+    const info = getParentArrayAtPath(previewSchema.value as any[], found.path)
+    if (!info) return true
+    const { parentArr } = info
+    const last = [...parentArr].reverse().find((n: any) => n?.$formkit === 'list' && (n as any)?.__preview_placeholder !== true)
+    if (!last) return true
+    return (last as any).__key === key
   },
 )
 
@@ -209,6 +266,15 @@ const eachField = (schema: FormKitSchemaFormKit[], fn: (field: any) => void) => 
   }
 }
 
+const collectSchemaNamesSafe = (schema: FormKitSchemaFormKit[], names: Set<string>) => {
+  collectSchemaNames(schema, names)
+  eachField(schema, (field) => {
+    const raw = field?.name
+    if (typeof raw !== 'string' || !raw) return
+    names.add(toSafeName(raw))
+  })
+}
+
 watchEffect(() => {
   const currentData = data.value as Record<string, unknown>
   let nextData: Record<string, unknown> | null = null
@@ -259,6 +325,7 @@ const open = () => {
   isOpen.value = true
   data.value = {}
   previewSchema.value = safeClone(formSchema.value)
+  previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
 }
@@ -267,6 +334,7 @@ const close = () => {
   isOpen.value = false
   data.value = {}
   previewSchema.value = []
+  previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
 }

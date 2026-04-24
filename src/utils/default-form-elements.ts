@@ -1,6 +1,10 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { ref } from 'vue'
 
+export const DEFAULT_DATE_VALUE_FORMAT = 'yyyy-MM-dd'
+export const DEFAULT_TIME_VALUE_FORMAT = 'HH:mm:ss'
+export const DEFAULT_DATE_TIME_VALUE_FORMAT = 'yyyy-MM-dd HH:mm:ss'
+
 export const formSchema = ref<FormKitSchemaFormKit[]>([
   {
     $formkit: 'submit',
@@ -123,7 +127,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.date.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_VALUE_FORMAT },
     id: 'date_field',
     validation: '',
     validationVisibility: 'live',
@@ -135,31 +139,19 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.time.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_TIME_VALUE_FORMAT },
     id: 'time_field',
     validation: '',
     validationVisibility: 'live',
     descriptionKey: 'elements.time.description',
   },
   {
-    $formkit: 'datetime-local',
-    nameKey: 'elements.datetimeLocal.name',
-    labelKey: 'elements.datetimeLocal.label',
-    helpKey: 'elements.common.help',
-    outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
-    id: 'datetime_local_field',
-    validation: '',
-    validationVisibility: 'live',
-    descriptionKey: 'elements.datetimeLocal.description',
-  },
-  {
-    $formkit: 'date-time',
+    $formkit: 'naiveDateTime',
     nameKey: 'elements.dateTime.name',
     labelKey: 'elements.dateTime.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: 'yyyy.MM.dd HH:mm:ss' },
+    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_TIME_VALUE_FORMAT },
     id: 'date_time_field',
     validation: '',
     validationVisibility: 'live',
@@ -447,13 +439,6 @@ const defs: DefaultElementDef[] = [
     id: 'naive_blockquote_static',
   },
   {
-    $formkit: 'naiveHr',
-    outerClass: 'col-span-12',
-    nameKey: 'elements.naiveHr.name',
-    descriptionKey: 'elements.naiveHr.description',
-    id: 'naive_hr_static',
-  },
-  {
     $formkit: 'naiveH1',
     outerClass: 'col-span-12',
     naiveProps: {
@@ -608,6 +593,16 @@ const defs: DefaultElementDef[] = [
     id: 'list_field',
     outerClass: 'col-span-12',
     descriptionKey: 'elements.list.description',
+    children: [],
+  },
+  {
+    $formkit: 'card',
+    nameKey: 'elements.card.name',
+    labelKey: 'elements.card.label',
+    id: 'card_container',
+    outerClass: 'col-span-12',
+    naiveProps: { size: 'medium', bordered: true, embedded: false, hoverable: false },
+    descriptionKey: 'elements.card.description',
     children: [],
   },
 ]

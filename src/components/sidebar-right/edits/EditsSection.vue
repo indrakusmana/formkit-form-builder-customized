@@ -4,6 +4,7 @@ import { useFormField } from '../../../composables/form-fields'
 import { useFormBuilderI18n } from '../../../i18n/context'
 import NameInput from './common/NameInput.vue'
 import CheckboxEditor from './editors/CheckboxEditor.vue'
+import CardEditor from './editors/CardEditor.vue'
 import ColorEditor from './editors/ColorEditor.vue'
 import DateLikeEditor from './editors/DateLikeEditor.vue'
 import DateTimeEditor from './editors/DateTimeEditor.vue'
@@ -54,8 +55,8 @@ const editorComponent = computed(() => {
   if (type === 'radio') return RadioEditor
   if (type === 'checkbox') return CheckboxEditor
   if (type === 'color') return ColorEditor
-  if (['date', 'datetime-local', 'time'].includes(type)) return DateLikeEditor
-  if (type === 'date-time') return DateTimeEditor
+  if (['date', 'time'].includes(type)) return DateLikeEditor
+  if (type === 'naiveDateTime') return DateTimeEditor
   if (type === 'submit') return SubmitEditor
 
   if (type === 'naiveCascader') return NaiveCascaderEditor
@@ -83,6 +84,7 @@ const editorComponent = computed(() => {
   if (type === 'naiveOl') return NaiveOlEditor
   if (type === 'naiveLi') return NaiveLiEditor
 
+  if (type === 'card') return CardEditor
   if (type === 'group' || type === 'list') return GroupEditor
 
   return null

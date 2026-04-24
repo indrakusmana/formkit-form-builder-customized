@@ -1,5 +1,5 @@
 import { computed, inject, provide, type ComputedRef } from 'vue'
-import { messages as defaultMessages } from './messages'
+import defaultMessages from './messages'
 
 type AnyMessages = Record<string, any>
 
@@ -64,4 +64,3 @@ export function useFormBuilderI18n() {
     t: (key) => key,
   })
 }
-

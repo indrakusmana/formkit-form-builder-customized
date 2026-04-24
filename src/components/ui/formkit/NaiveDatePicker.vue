@@ -28,16 +28,16 @@ const disabled = computed<boolean>(() =>
 )
 const bordered = computed<boolean>(() => (naiveProps.value.bordered as boolean | undefined) ?? true)
 
-const pickerType = computed<DatePickerProps['type']>(() =>
-  props.context.type === 'datetime-local' || props.context.type === 'date-time' ? 'datetime' : 'date',
-)
+const pickerType = computed<DatePickerProps['type']>(() => {
+  const t = props.context.type
+  if (t === 'naiveDateTime') return 'datetime'
+  return 'date'
+})
 
 const valueFormat = computed(() => {
   const configured = naiveProps.value.valueFormat
   if (typeof configured === 'string' && configured.trim()) return configured
-  if (props.context.type === 'datetime-local' || props.context.type === 'date-time')
-    return 'yyyy-MM-dd HH:mm'
-  return 'yyyy-MM-dd'
+  return undefined
 })
 
 const placeholder = computed(() => props.context.placeholder as string | undefined)

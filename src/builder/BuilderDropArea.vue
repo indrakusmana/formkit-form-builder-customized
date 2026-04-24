@@ -2,8 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
 import { FormKitSchema } from '@formkit/vue'
-import { useFormBuilderI18n } from '../i18n/context'
-import { useRuntimeLocale } from '../i18n/runtime-locale'
+import { useI18n } from 'vue-i18n'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
 import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
@@ -13,14 +12,13 @@ import { cn } from '../utils/utils'
 import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
-import { ListContainer } from './containers'
+import { CardContainer, ListContainer } from './containers'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 
 const { validationStringLength } = useFormField()
-const { t } = useFormBuilderI18n()
-const { locale: runtimeLocale, setLocale } = useRuntimeLocale()
-const isZh = computed(() => runtimeLocale.value === 'zh-CN')
+const { t, locale } = useI18n()
+const isZh = computed(() => locale.value === 'zh-CN')
 
 const showImportExportModal = ref(false)
 
@@ -30,10 +28,16 @@ const deleteField = (index: number) => {
   fields.value = fields.value.filter((_, i) => i !== index)
 }
 
+const canonicalBaseName = (value: unknown) => {
+  const safe = toSafeName(value)
+  const match = safe.match(/^(.*_\d+)_\d+$/)
+  return match?.[1] || safe
+}
+
 const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
-  const base = toSafeName(node.name || node.$formkit || 'field')
+  const base = canonicalBaseName(node.name || node.$formkit || 'field')
   const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
   const next: any = {
     ...node,
@@ -49,8 +53,8 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
   return next
 }
 
-const updateListChildren = (listKey: string, children: FormKitSchemaFormKit[]) => {
-  const currentIndex = formSchema.value.findIndex((n: any) => n?.__key === listKey)
+const updateContainerChildren = (containerKey: string, children: FormKitSchemaFormKit[]) => {
+  const currentIndex = formSchema.value.findIndex((n: any) => n?.__key === containerKey)
   if (currentIndex < 0) return
   const current = formSchema.value[currentIndex]
   if (!current) return
@@ -85,21 +89,21 @@ const updateListChildren = (listKey: string, children: FormKitSchemaFormKit[]) =
   const prunedSchema = (formSchema.value as any[]).filter((node) => {
     const k = node?.__key
     if (typeof k === 'string' && k) {
-      if (k === listKey) return true
+      if (k === containerKey) return true
       return !childKeys.has(k)
     }
     return true
   })
 
   const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
-  const nextIndex = nextSchema.findIndex((n: any) => n?.__key === listKey)
+  const nextIndex = nextSchema.findIndex((n: any) => n?.__key === containerKey)
   if (nextIndex < 0) return
   nextSchema[nextIndex] = {
     ...(current as any),
     children: normalizedChildren,
   } as FormKitSchemaFormKit
 
-  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-children', merge: true })
+  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'container-children', merge: true })
 }
 
 const duplicateListContainer = (index: number) => {
@@ -392,13 +396,23 @@ watch(
                   :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
                   :label="(field as any)?.label"
                   :show-actions="false"
-                  @update:model-value="(v) => updateListChildren(((field as any)?.__key as string) ?? '', v)"
+                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
+                  @select="selectByKey"
+                />
+                <CardContainer
+                  v-else-if="(field as any)?.$formkit === 'card'"
+                  :card-key="((field as any)?.__key as string | undefined)"
+                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
+                  :label="(field as any)?.label"
+                  :help="(field as any)?.help"
+                  :naive-props="((field as any)?.naiveProps as any)"
+                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
                   @select="selectByKey"
                 />
                 <FormKitSchema
                   v-else
                   :schema="[field as FormKitSchemaFormKit]"
-                  :key="`form-item-${index}`"
+                  :key="`${(field as any)?.__key ?? (field as FormKitSchemaFormKit)?.name ?? index}-${(field as FormKitSchemaFormKit)?.$formkit ?? 'unknown'}`"
                 />
               </div>
             </div>
