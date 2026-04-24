@@ -30,10 +30,16 @@ const deleteField = (index: number) => {
   fields.value = fields.value.filter((_, i) => i !== index)
 }
 
+const canonicalBaseName = (value: unknown) => {
+  const safe = toSafeName(value)
+  const match = safe.match(/^(.*_\d+)_\d+$/)
+  return match?.[1] || safe
+}
+
 const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
-  const base = toSafeName(node.name || node.$formkit || 'field')
+  const base = canonicalBaseName(node.name || node.$formkit || 'field')
   const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
   const next: any = {
     ...node,
