@@ -2,8 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
 import { FormKitSchema } from '@formkit/vue'
-import { useFormBuilderI18n } from '../i18n/context'
-import { useRuntimeLocale } from '../i18n/runtime-locale'
+import { useI18n } from 'vue-i18n'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
 import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
@@ -18,9 +17,8 @@ import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '.
 import { findSchemaNodeByKey } from '../composables/form-fields'
 
 const { validationStringLength } = useFormField()
-const { t } = useFormBuilderI18n()
-const { locale: runtimeLocale, setLocale } = useRuntimeLocale()
-const isZh = computed(() => runtimeLocale.value === 'zh-CN')
+const { t, locale } = useI18n()
+const isZh = computed(() => locale.value === 'zh-CN')
 
 const showImportExportModal = ref(false)
 
