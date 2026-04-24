@@ -200,12 +200,6 @@ const defs: FieldPropDef[] = [
     category: 'static',
   },
   {
-    name: 'naiveHr',
-    tooltipKey: 'fieldProps.tooltip.naiveHr',
-    icon: 'i-lucide-sliders-horizontal',
-    category: 'static',
-  },
-  {
     name: 'naiveH1',
     tooltipKey: 'fieldProps.tooltip.naiveH1',
     icon: 'i-lucide-heading-1',

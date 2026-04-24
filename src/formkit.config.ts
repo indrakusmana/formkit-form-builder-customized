@@ -25,7 +25,6 @@ import NaiveTypographyText from './components/ui/formkit/NaiveTypographyText.vue
 import NaiveTypographyP from './components/ui/formkit/NaiveTypographyP.vue'
 import NaiveTypographyA from './components/ui/formkit/NaiveTypographyA.vue'
 import NaiveTypographyBlockquote from './components/ui/formkit/NaiveTypographyBlockquote.vue'
-import NaiveTypographyHr from './components/ui/formkit/NaiveTypographyHr.vue'
 import NaiveTypographyHeader from './components/ui/formkit/NaiveTypographyHeader.vue'
 import NaiveTypographyUl from './components/ui/formkit/NaiveTypographyUl.vue'
 import NaiveTypographyOl from './components/ui/formkit/NaiveTypographyOl.vue'
@@ -102,7 +101,6 @@ export default defaultConfig({
     naiveP: createNaiveInput('NaiveTypographyP', NaiveTypographyP),
     naiveA: createNaiveInput('NaiveTypographyA', NaiveTypographyA),
     naiveBlockquote: createNaiveInput('NaiveTypographyBlockquote', NaiveTypographyBlockquote),
-    naiveHr: createNaiveInput('NaiveTypographyHr', NaiveTypographyHr),
     naiveH1: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
     naiveH2: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
     naiveH3: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),

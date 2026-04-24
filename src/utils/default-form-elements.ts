@@ -439,13 +439,6 @@ const defs: DefaultElementDef[] = [
     id: 'naive_blockquote_static',
   },
   {
-    $formkit: 'naiveHr',
-    outerClass: 'col-span-12',
-    nameKey: 'elements.naiveHr.name',
-    descriptionKey: 'elements.naiveHr.description',
-    id: 'naive_hr_static',
-  },
-  {
     $formkit: 'naiveH1',
     outerClass: 'col-span-12',
     naiveProps: {
