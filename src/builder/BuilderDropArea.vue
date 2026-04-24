@@ -371,7 +371,7 @@ watch(
             'p-2 !cursor-grab h-full !z-20 relative border-[1.5px]',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
             ((field as any)?.__key && (field as any).__key === selectedKey) || selectedIndex === index
-              ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] ring-2 ring-inset ring-[#a277ff]/30 dark:bg-[#a277ff]/[0.08]'
+              ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
               : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
           )"
           :style="{
