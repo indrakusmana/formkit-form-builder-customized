@@ -167,6 +167,7 @@ export const messages = {
         naiveDivider: '分割线（Naive）',
         group: '分组',
         list: '列表',
+        card: '卡片容器',
       },
     },
     elements: {
@@ -222,6 +223,7 @@ export const messages = {
       submit: { name: '提交按钮', label: '提交', description: '提交表单' },
       group: { name: '分组', label: '分组', description: '字段对象分组' },
       list: { name: '列表', label: '列表', description: '字段数组分组' },
+      card: { name: '卡片容器', label: '卡片', description: '可包含子字段的卡片容器' },
     },
   },
   en: {
@@ -393,6 +395,7 @@ export const messages = {
         naiveDivider: 'Naive UI divider',
         group: 'Allows user to group fields together',
         list: 'Allows user to group fields into an array',
+        card: 'Card container',
       },
     },
     elements: {
@@ -448,6 +451,7 @@ export const messages = {
       submit: { name: 'Submit Button', label: 'Submit', description: 'Allows form submission' },
       group: { name: 'Group', label: 'Group', description: 'Object grouping of fields' },
       list: { name: 'List', label: 'List', description: 'Array grouping of fields' },
+      card: { name: 'Card', label: 'Card', description: 'Card container with children' },
     },
   },
 } as const

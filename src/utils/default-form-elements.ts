@@ -595,6 +595,15 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.list.description',
     children: [],
   },
+  {
+    $formkit: 'card',
+    nameKey: 'elements.card.name',
+    labelKey: 'elements.card.label',
+    id: 'card_container',
+    outerClass: 'col-span-12',
+    descriptionKey: 'elements.card.description',
+    children: [],
+  },
 ]
 
 export function createDefaultFormElements(t: (key: string) => string): FormKitSchemaFormKit[] {

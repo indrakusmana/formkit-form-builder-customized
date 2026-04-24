@@ -46,6 +46,22 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         }
       }
 
+      if ($formkit === 'card') {
+        const children = Array.isArray((field as any)?.children)
+          ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
+          : []
+        return {
+          $el: 'div',
+          attrs: { class: outerClass || 'col-span-12' },
+          children: [
+            {
+              $cmp: 'CardContainerPreview',
+              props: { children, label },
+            },
+          ],
+        }
+      }
+
       const cleanField: FormKitSchemaFormKit = {
         $formkit,
         name: field.name || (key ? `field_${key}` : `field_${index}`),

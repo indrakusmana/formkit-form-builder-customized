@@ -24,9 +24,9 @@ import { getVisualRows, setColSpan, adjustColSpansForInsertAtRow } from './grid'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from './schema'
 import { eq } from '../utils'
 
-function getListKey(el: HTMLElement | null | undefined): string | null {
+function getContainerKey(el: HTMLElement | null | undefined): string | null {
   if (!el) return null
-  const raw = el.getAttribute('data-list-key')
+  const raw = el.getAttribute('data-list-key') || el.getAttribute('data-card-key')
   return raw && raw.trim() ? raw : null
 }
 
@@ -200,8 +200,8 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
   const targetParent = resolveTargetParent()
 
-  const sourceListKey = getListKey(sourceParent.el as any)
-  const targetListKey = getListKey(targetParent.el as any)
+  const sourceListKey = getContainerKey(sourceParent.el as any)
+  const targetListKey = getContainerKey(targetParent.el as any)
 
   const draggedValues = state.draggedNodes.map((node) => node.data.value) as any as FormKitSchemaFormKit[]
   const draggedKeys = new Set<string>()
@@ -295,9 +295,9 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   if (rootEl === targetParent.el && targetNextValues) rootValues = targetNextValues
 
   const listMap = new Map<string, FormKitSchemaFormKit[]>()
-  const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key]'))
+  const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key],[data-card-key]'))
   for (const el of listEls) {
-    const key = getListKey(el)
+    const key = getContainerKey(el)
     if (!key) continue
     const data = parents.get(el)
     if (!data) continue

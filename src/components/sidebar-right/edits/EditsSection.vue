@@ -83,7 +83,7 @@ const editorComponent = computed(() => {
   if (type === 'naiveOl') return NaiveOlEditor
   if (type === 'naiveLi') return NaiveLiEditor
 
-  if (type === 'group' || type === 'list') return GroupEditor
+  if (type === 'group' || type === 'list' || type === 'card') return GroupEditor
 
   return null
 })

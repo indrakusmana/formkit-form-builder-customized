@@ -13,7 +13,7 @@ import { cn } from '../utils/utils'
 import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
-import { ListContainer } from './containers'
+import { CardContainer, ListContainer } from './containers'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 
@@ -49,8 +49,8 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
   return next
 }
 
-const updateListChildren = (listKey: string, children: FormKitSchemaFormKit[]) => {
-  const currentIndex = formSchema.value.findIndex((n: any) => n?.__key === listKey)
+const updateContainerChildren = (containerKey: string, children: FormKitSchemaFormKit[]) => {
+  const currentIndex = formSchema.value.findIndex((n: any) => n?.__key === containerKey)
   if (currentIndex < 0) return
   const current = formSchema.value[currentIndex]
   if (!current) return
@@ -85,21 +85,21 @@ const updateListChildren = (listKey: string, children: FormKitSchemaFormKit[]) =
   const prunedSchema = (formSchema.value as any[]).filter((node) => {
     const k = node?.__key
     if (typeof k === 'string' && k) {
-      if (k === listKey) return true
+      if (k === containerKey) return true
       return !childKeys.has(k)
     }
     return true
   })
 
   const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
-  const nextIndex = nextSchema.findIndex((n: any) => n?.__key === listKey)
+  const nextIndex = nextSchema.findIndex((n: any) => n?.__key === containerKey)
   if (nextIndex < 0) return
   nextSchema[nextIndex] = {
     ...(current as any),
     children: normalizedChildren,
   } as FormKitSchemaFormKit
 
-  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-children', merge: true })
+  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'container-children', merge: true })
 }
 
 const duplicateListContainer = (index: number) => {
@@ -392,7 +392,15 @@ watch(
                   :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
                   :label="(field as any)?.label"
                   :show-actions="false"
-                  @update:model-value="(v) => updateListChildren(((field as any)?.__key as string) ?? '', v)"
+                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
+                  @select="selectByKey"
+                />
+                <CardContainer
+                  v-else-if="(field as any)?.$formkit === 'card'"
+                  :card-key="((field as any)?.__key as string | undefined)"
+                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
+                  :label="(field as any)?.label"
+                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
                   @select="selectByKey"
                 />
                 <FormKitSchema

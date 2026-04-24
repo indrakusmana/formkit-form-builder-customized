@@ -271,6 +271,12 @@ const defs: FieldPropDef[] = [
     icon: 'i-lucide-list-tree',
     category: 'structure',
   },
+  {
+    name: 'card',
+    tooltipKey: 'fieldProps.tooltip.card',
+    icon: 'i-lucide-credit-card',
+    category: 'structure',
+  },
 ]
 
 export function createFieldProps(t: (key: string) => string): FieldProp[] {
