@@ -12,10 +12,13 @@ import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
 import { CardContainer, ListContainer } from './containers'
+import { createDefaultInsertPointElement } from '../utils/dnd/insert-point-element'
+import { getColSpan as parseColSpan, getRowSpan as parseRowSpan } from '../utils/dnd/grid'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 import { useFormBuilderI18n } from '@/i18n/context'
 import { useRuntimeLocale } from '@/i18n/runtime-locale'
+import { pluralize } from '../utils/text'
 
 const { validationStringLength } = useFormField()
 
@@ -124,19 +127,12 @@ const removeListContainer = (index: number) => {
   deleteField(index)
 }
 
-// 从 outerClass 中提取 col-span 数值，默认 12
 const getColSpan = (field: unknown, index: number): number => {
-  const outerClass =
-    (field as FormKitSchemaFormKit)?.outerClass || formSchema.value[index]?.outerClass || ''
-  const match = outerClass.match(/col-span-(\d+)/)
-  return match ? parseInt(match[1], 10) : 12
+  return parseColSpan((field as any) ?? formSchema.value[index])
 }
 
 const getRowSpan = (field: unknown, index: number): number => {
-  const outerClass =
-    (field as FormKitSchemaFormKit)?.outerClass || formSchema.value[index]?.outerClass || ''
-  const match = outerClass.match(/row-span-(\d+)/)
-  return match ? parseInt(match[1], 10) : 1
+  return parseRowSpan((field as any) ?? formSchema.value[index])
 }
 
 const resizingIndex = ref<number | null>(null)
@@ -163,8 +159,7 @@ const startResize = (e: PointerEvent, index: number) => {
   const schemaItem = formSchema.value[index]
   if (!schemaItem) return
 
-  const match = schemaItem.outerClass?.match(/col-span-(\d+)/)
-  startSpan.value = match ? parseInt(match[1], 10) : 12
+  startSpan.value = parseColSpan(schemaItem)
 
   if (formFields.value) {
     const ul = formFields.value as unknown as HTMLElement
@@ -226,8 +221,7 @@ const nudgeResize = (index: number, deltaSpan: number) => {
   const schemaItem = formSchema.value[index]
   if (!schemaItem) return
 
-  const match = schemaItem.outerClass?.match(/col-span-(\d+)/)
-  const currentSpan = match ? parseInt(match[1], 10) : 12
+  const currentSpan = parseColSpan(schemaItem)
   setColSpan(index, currentSpan + deltaSpan)
   commitSchema(formSchema.value, { reason: 'resize' })
 }
@@ -245,19 +239,6 @@ const selectByKey = (key: string) => {
   selectedKey.value = key
 }
 
-const pluralize = (count: number, noun: string, suffix = 's') => {
-  return count === 1 ? noun : noun + suffix
-}
-
-const insertPointClasses = [
-  'absolute',
-  'bg-green-500',
-  'z-[2000]',
-  'rounded-sm',
-  'pointer-events-none',
-  'opacity-90',
-]
-
 const [formFields, fields] = useDragAndDrop<FormKitSchemaFormKit>(formSchema.value, {
   group: 'form-builder',
   nativeDrag: true,
@@ -271,9 +252,7 @@ const [formFields, fields] = useDragAndDrop<FormKitSchemaFormKit>(formSchema.val
   plugins: [
     customInsertPlugin({
       insertPoint: () => {
-        const div = document.createElement('div')
-        for (const cls of insertPointClasses) div.classList.add(cls)
-        return div
+        return createDefaultInsertPointElement()
       },
     }),
   ],
