@@ -19,6 +19,7 @@ import { findSchemaNodeByKey } from '../composables/form-fields'
 import { useFormBuilderI18n } from '@/i18n/context'
 import { useRuntimeLocale } from '@/i18n/runtime-locale'
 import { pluralize } from '../utils/text'
+import { toCanvasSchemaNode } from '../utils/canvas-schema'
 
 const { validationStringLength } = useFormField()
 
@@ -393,7 +394,7 @@ watch(
                 />
                 <FormKitSchema
                   v-else
-                  :schema="[field as FormKitSchemaFormKit]"
+                  :schema="[toCanvasSchemaNode(field as FormKitSchemaFormKit)]"
                   :key="`${(field as any)?.__key ?? (field as FormKitSchemaFormKit)?.name ?? index}-${(field as FormKitSchemaFormKit)?.$formkit ?? 'unknown'}`"
                 />
               </div>

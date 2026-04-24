@@ -4,6 +4,7 @@ import type { FormKitSchemaFormKit } from '@formkit/core'
 import { FormKitSchema } from '@formkit/vue'
 import { NButton, NTooltip, NEmpty } from 'naive-ui'
 import { getColSpan, getRowSpan } from '@/utils/dnd/grid'
+import { toCanvasSchemaNode } from '@/utils/canvas-schema'
 import { pluralize, validationCount } from '@/utils/text'
 import { useGridSpanResize } from '@/builder/composables/use-grid-span-resize'
 
@@ -63,7 +64,7 @@ const { resizingIndex, startResize } = useGridSpanResize({
       >
         <div class="flex gap-1.5 p-1 w-full pb-2">
           <div class="flex-1 w-full">
-            <FormKitSchema :schema="[child]" :key="`container-child-${idx}`" />
+            <FormKitSchema :schema="[toCanvasSchemaNode(child)]" :key="`container-child-${idx}`" />
           </div>
         </div>
 
@@ -151,4 +152,3 @@ const { resizingIndex, startResize } = useGridSpanResize({
     </div>
   </div>
 </template>
-

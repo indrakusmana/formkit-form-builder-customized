@@ -45,6 +45,9 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
       if (typeof node.valueExpression === 'string' && typeof node.__raw__valueExpression !== 'string') {
         node.__raw__valueExpression = node.valueExpression
       }
+      if (typeof node.if === 'string' && typeof node.__raw__ifExpression !== 'string') {
+        node.__raw__ifExpression = node.if
+      }
       if ('valueExpression' in node) delete node.valueExpression
       if (Array.isArray(node.children)) visit(node.children)
     }
