@@ -193,6 +193,20 @@ provide(
 )
 
 provide(
+  'previewListIsLast',
+  (key: string) => {
+    const found = findSchemaNodeByKey(previewSchema.value as any[], key)
+    if (!found) return true
+    const info = getParentArrayAtPath(previewSchema.value as any[], found.path)
+    if (!info) return true
+    const { parentArr } = info
+    const last = [...parentArr].reverse().find((n: any) => n?.$formkit === 'list' && (n as any)?.__preview_placeholder !== true)
+    if (!last) return true
+    return (last as any).__key === key
+  },
+)
+
+provide(
   'previewListRemove',
   (key: string) => {
     const found = findSchemaNodeByKey(previewSchema.value as any[], key)
