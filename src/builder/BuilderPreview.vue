@@ -54,7 +54,7 @@ const { t } = useFormBuilderI18n()
 const isOpen = ref(false)
 const data = ref({})
 const previewSchema = ref<FormKitSchemaFormKit[]>([])
-const previewNameSeq = ref<Record<string, number>>({})
+const previewListItemSeq = ref<Record<string, number>>({})
 const formattedSchema = createFormattedSchema(previewSchema)
 const schemaLibrary = computed(() => ({ ListContainerPreview, CardContainerPreview }))
 
@@ -128,37 +128,42 @@ const canonicalBaseName = (value: unknown) => {
   return match?.[1] || safe
 }
 
-const nextUniqueName = (base: string, existingNames: Set<string>, seq: Record<string, number>) => {
-  const current = seq[base]
-  if (current === undefined) seq[base] = 0
+const isStructureNode = (node: any) => ['list', 'group', 'card'].includes(String(node?.$formkit ?? ''))
 
-  if (!existingNames.has(base)) {
-    existingNames.add(base)
-    return base
+const collectLeafBases = (node: any, bases: Set<string>) => {
+  if (!node || typeof node !== 'object') return
+  if (!isStructureNode(node) && node.$formkit !== 'submit') {
+    const rawName = node.name || node.$formkit || 'field'
+    const base = canonicalBaseName(rawName)
+    if (base) bases.add(base)
   }
-
-  seq[base] = (seq[base] ?? 0) + 1
-  let candidate = `${base}_${seq[base]}`
-  while (existingNames.has(candidate)) {
-    seq[base] += 1
-    candidate = `${base}_${seq[base]}`
+  if (Array.isArray(node.children)) {
+    for (const c of node.children) collectLeafBases(c, bases)
   }
-  existingNames.add(candidate)
-  return candidate
 }
 
-const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, seq: Record<string, number>) => {
+const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listSuffix: number) => {
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
-  const base = canonicalBaseName(node.name || node.$formkit || 'field')
-  const nextName = node.$formkit === 'submit' ? node.name : nextUniqueName(base, existingNames, seq)
   const next: any = { ...node, __key: nextKey }
   if (node.$formkit !== 'submit') {
-    next.name = nextName
+    if (!isStructureNode(node)) {
+      const rawName = node.name || node.$formkit || 'field'
+      const base = canonicalBaseName(rawName)
+      let candidate = listSuffix > 0 ? `${base}_${listSuffix}` : base
+      let i = 1
+      while (existingNames.has(candidate)) {
+        candidate = `${base}_${listSuffix}_${i}`
+        i++
+      }
+      next.name = candidate
+      existingNames.add(candidate)
+      existingNames.add(toSafeName(candidate))
+    }
     next.id = `field_${nextKey}`
   }
   if (Array.isArray(node.children)) {
-    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames, seq))
+    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames, listSuffix))
   }
   return next
 }
@@ -170,7 +175,19 @@ provide(
     if (!found) return
     const existingNames = new Set<string>()
     collectSchemaNamesSafe(previewSchema.value as any, existingNames)
-    const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames, previewNameSeq.value)
+    const bases = new Set<string>()
+    collectLeafBases(found.node as any, bases)
+    let nextSuffix = (previewListItemSeq.value[key] ?? 0) + 1
+    const isFree = (suffix: number) => {
+      for (const base of bases) {
+        const candidate = `${base}_${suffix}`
+        if (existingNames.has(candidate) || existingNames.has(toSafeName(candidate))) return false
+      }
+      return true
+    }
+    while (!isFree(nextSuffix)) nextSuffix++
+    previewListItemSeq.value = { ...previewListItemSeq.value, [key]: nextSuffix }
+    const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames, nextSuffix)
     previewSchema.value = insertAfterAtPath(previewSchema.value as any[], found.path, cloned) as any
   },
 )
@@ -294,7 +311,7 @@ const open = () => {
   isOpen.value = true
   data.value = {}
   previewSchema.value = safeClone(formSchema.value)
-  previewNameSeq.value = {}
+  previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
 }
@@ -303,7 +320,7 @@ const close = () => {
   isOpen.value = false
   data.value = {}
   previewSchema.value = []
-  previewNameSeq.value = {}
+  previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
 }
