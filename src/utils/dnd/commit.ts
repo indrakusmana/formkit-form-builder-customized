@@ -46,11 +46,11 @@ function normalizeInsertValues(
       const base = toSafeName(val.name || val.$formkit || val.$cmp || 'field')
       const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
       if (val.$formkit === 'submit') return { ...valObj, __key: nextKey, outerClass: 'col-span-12 pt-2' }
-      if (val.$cmp === 'list' || val.$cmp === 'ListContainer') {
+      if (val.$cmp === 'list' || val.$formkit === 'list') {
         const props = { ...val.props, listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
         return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
       }
-      if (val.$cmp === 'card' || val.$cmp === 'CardContainer') {
+      if (val.$cmp === 'card' || val.$formkit === 'card') {
         const props = { ...val.props, cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
         return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
       }
@@ -262,8 +262,8 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     if (typeof key === 'string' && key && listMap.has(key)) {
       return { ...node, children: listMap.get(key) ?? [] }
     }
-    const isList = node.$formkit === 'list' || node.$cmp === 'list' || node.$cmp === 'ListContainer'
-    const isCard = node.$formkit === 'card' || node.$cmp === 'card' || node.$cmp === 'CardContainer'
+    const isList = node.$formkit === 'list' || node.$cmp === 'list'
+    const isCard = node.$formkit === 'card' || node.$cmp === 'card'
     if ((isList || isCard) && !Array.isArray(node.children)) {
       const next = { ...node, children: [] } as any
       if (next.$cmp) next.props = { ...next.props, modelValue: [] }

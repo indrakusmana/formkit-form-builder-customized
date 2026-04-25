@@ -17,7 +17,7 @@ import { useFormBuilderI18n } from '@/i18n/context'
 import { useRuntimeLocale } from '@/i18n/runtime-locale'
 import { toCanvasSchemaNode } from '../utils/canvas-schema'
 import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
-import { ensureContainerCmpNode } from '../utils/schema/containers'
+import { normalizeContainerNode } from '@/containers/registry'
 import ContainerChildrenGrid from './containers/shared/ContainerChildrenGrid.vue'
 
 const showImportExportModal = ref(false)
@@ -147,7 +147,7 @@ const schemaLibrary = canvasSchemaLibrary
 
 const renderCanvasSchemaNode = (field: any): any => {
   if (!field || typeof field !== 'object') return field
-  const next = ensureContainerCmpNode(field)
+  const next = normalizeContainerNode(field)
   return toCanvasSchemaNode(next as FormKitSchemaFormKit)
 }
 
