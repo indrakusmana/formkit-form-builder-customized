@@ -21,6 +21,7 @@ import { useRuntimeLocale } from '@/i18n/runtime-locale'
 import { pluralize } from '../utils/text'
 import { toCanvasSchemaNode } from '../utils/canvas-schema'
 import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
+import { ensureContainerCmpNode } from '../utils/schema/containers'
 
 const { validationStringLength } = useFormField()
 
@@ -106,10 +107,14 @@ const updateContainerChildren = (containerKey: string, children: FormKitSchemaFo
   const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
   const nextIndex = nextSchema.findIndex((n: any) => n?.__key === containerKey)
   if (nextIndex < 0) return
-  nextSchema[nextIndex] = {
+  const merged: any = {
     ...(current as any),
     children: normalizedChildren,
-  } as FormKitSchemaFormKit
+  }
+  if (merged.$cmp) {
+    merged.props = { ...(merged.props ?? {}), modelValue: normalizedChildren }
+  }
+  nextSchema[nextIndex] = merged as FormKitSchemaFormKit
 
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'container-children', merge: true })
 }
@@ -270,46 +275,21 @@ watch(
 )
 
 const schemaLibrary = computed(() => ({
-  ListContainerCanvas: ListContainer,
-  CardContainerCanvas: CardContainer,
+  ListContainer: ListContainer,
+  CardContainer: CardContainer,
 }))
 
 const renderCanvasSchemaNode = (field: any): any => {
   if (!field || typeof field !== 'object') return field
-  const key = field.__key as string | undefined
-  if (field.$formkit === 'list') {
-    return {
-      $cmp: 'ListContainerCanvas',
-      props: {
-        listKey: key,
-        modelValue: (Array.isArray(field.children) ? field.children : []) as FormKitSchemaFormKit[],
-        label: field.label,
-        showActions: false,
-        'onUpdate:modelValue': (v: FormKitSchemaFormKit[]) => updateContainerChildren(key ?? '', v),
-        onSelect: selectByKey,
-      },
-    }
-  }
-  if (field.$formkit === 'card') {
-    return {
-      $cmp: 'CardContainerCanvas',
-      props: {
-        cardKey: key,
-        modelValue: (Array.isArray(field.children) ? field.children : []) as FormKitSchemaFormKit[],
-        label: field.label,
-        help: field.help,
-        naiveProps: field.naiveProps,
-        'onUpdate:modelValue': (v: FormKitSchemaFormKit[]) => updateContainerChildren(key ?? '', v),
-        onSelect: selectByKey,
-      },
-    }
-  }
-  return toCanvasSchemaNode(field as FormKitSchemaFormKit)
+  const next = ensureContainerCmpNode(field)
+  return toCanvasSchemaNode(next as FormKitSchemaFormKit)
 }
 
 provideCanvasSchemaContext({
   library: schemaLibrary.value,
   renderNode: renderCanvasSchemaNode,
+  updateContainerChildren,
+  selectByKey,
 })
 </script>
 

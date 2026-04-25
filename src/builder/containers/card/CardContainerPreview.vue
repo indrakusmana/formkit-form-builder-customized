@@ -6,7 +6,8 @@ import { NCard, NEmpty } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 
 const props = defineProps<{
-  children: FormKitSchemaFormKit[]
+  children?: FormKitSchemaFormKit[]
+  modelValue?: FormKitSchemaFormKit[]
   label?: string
   help?: string
   naiveProps?: Record<string, unknown>
@@ -16,7 +17,11 @@ const { t } = useFormBuilderI18n()
 
 const title = computed(() => (typeof props.label === 'string' && props.label.trim() ? props.label.trim() : ''))
 const helpText = computed(() => (typeof props.help === 'string' && props.help.trim() ? props.help.trim() : ''))
-const modelValue = computed(() => (Array.isArray(props.children) ? props.children : []))
+const modelValue = computed(() => {
+  if (Array.isArray(props.modelValue)) return props.modelValue
+  if (Array.isArray(props.children)) return props.children
+  return []
+})
 
 const cardProps = computed<Record<string, unknown>>(() => (props.naiveProps ?? {}) as Record<string, unknown>)
 

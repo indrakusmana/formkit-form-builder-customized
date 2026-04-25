@@ -6,6 +6,7 @@ import { useFormBuilderI18n } from '../../../i18n/context'
 import { selectedKey } from '../../../utils/default-form-elements'
 import { useContainerDragAndDrop } from '@/builder/composables/use-container-drag-and-drop'
 import ContainerChildrenGrid from '../shared/ContainerChildrenGrid.vue'
+import { useCanvasSchemaContext } from '@/builder/composables/canvas-schema-context'
 
 const props = defineProps<{
   listKey?: string
@@ -26,9 +27,15 @@ const { t } = useFormBuilderI18n()
 
 const initial = computed(() => (Array.isArray(props.modelValue) ? props.modelValue : []))
 
+const canvasCtx = useCanvasSchemaContext()
+
 const dnd = useContainerDragAndDrop<FormKitSchemaFormKit>({
   modelValue: initial,
-  onUpdateModelValue: (value) => emit('update:modelValue', value),
+  onUpdateModelValue: (value) => {
+    const k = props.listKey
+    if (k && canvasCtx?.updateContainerChildren) canvasCtx.updateContainerChildren(k, value)
+    else emit('update:modelValue', value)
+  },
 })
 
 const showActions = computed(() => props.showActions === true)
@@ -37,7 +44,9 @@ const showHeader = computed(() => !!title.value || showActions.value)
 
 const onSelect = (child: any) => {
   const key = child?.__key as string | undefined
-  if (key) emit('select', key)
+  if (!key) return
+  if (canvasCtx?.selectByKey) canvasCtx.selectByKey(key)
+  else emit('select', key)
 }
 
 const deleteChild = (index: number) => {

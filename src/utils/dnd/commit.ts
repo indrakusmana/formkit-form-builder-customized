@@ -57,9 +57,17 @@ function normalizeInsertValues(
         delete val.children
       }
       const nextKey = typeof val.__key === 'string' && val.__key ? val.__key : generateKey()
-      const base = toSafeName(val.name || val.$formkit || 'field')
+      const base = toSafeName(val.name || val.$formkit || val.$cmp || 'field')
       const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
       if (val.$formkit === 'submit') return { ...valObj, __key: nextKey, outerClass: 'col-span-12 pt-2' }
+      if (val.$cmp === 'ListContainer') {
+        const props = { ...(val.props ?? {}), listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
+        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
+      }
+      if (val.$cmp === 'CardContainer') {
+        const props = { ...(val.props ?? {}), cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
+        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
+      }
       return {
         ...valObj,
         __key: nextKey,
@@ -132,7 +140,7 @@ function insertItemsIntoParentFromOutside<T>(
     if (typeof valObj === 'object' && valObj !== null) {
       const val = valObj as any
       const nextKey = typeof val.__key === 'string' && val.__key ? val.__key : generateKey()
-      const base = toSafeName(val.name || val.$formkit || 'field')
+      const base = toSafeName(val.name || val.$formkit || val.$cmp || 'field')
       const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
       const next: any =
         val.$formkit === 'submit'
@@ -145,6 +153,16 @@ function insertItemsIntoParentFromOutside<T>(
               outerClass: val.outerClass || 'col-span-12',
             }
       if (val.$formkit === 'submit') return next
+      if (val.$cmp === 'ListContainer') {
+        next.props = { ...(val.props ?? {}), listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
+        next.children = next.props.modelValue
+        return next
+      }
+      if (val.$cmp === 'CardContainer') {
+        next.props = { ...(val.props ?? {}), cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
+        next.children = next.props.modelValue
+        return next
+      }
       return next
     }
     return valObj
@@ -330,8 +348,12 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     if (typeof key === 'string' && key && listMap.has(key)) {
       return { ...node, children: listMap.get(key) ?? [] }
     }
-    if (node.$formkit === 'list' && !Array.isArray(node.children)) {
-      return { ...node, children: [] }
+    const isList = node.$formkit === 'list' || node.$cmp === 'ListContainer'
+    const isCard = node.$formkit === 'card' || node.$cmp === 'CardContainer'
+    if ((isList || isCard) && !Array.isArray(node.children)) {
+      const next = { ...node, children: [] } as any
+      if (next.$cmp) next.props = { ...(next.props ?? {}), modelValue: [] }
+      return next
     }
     return node
   }) as FormKitSchemaFormKit[]

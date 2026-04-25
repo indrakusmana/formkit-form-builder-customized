@@ -6,8 +6,10 @@ import { NButton, NButtonGroup, NTooltip, NEmpty } from 'naive-ui'
 import { useFormBuilderI18n } from '../../../i18n/context'
 
 const props = defineProps<{
-  nodeKey: string
-  children: FormKitSchemaFormKit[]
+  nodeKey?: string
+  listKey?: string
+  children?: FormKitSchemaFormKit[]
+  modelValue?: FormKitSchemaFormKit[]
   label?: string
   isPlaceholder?: boolean
 }>()
@@ -33,8 +35,13 @@ const { t } = useFormBuilderI18n()
 
 const title = computed(() => (typeof props.label === 'string' && props.label.trim() ? props.label.trim() : ''))
 const showHeader = computed(() => !!title.value || props.isPlaceholder !== true)
-const modelValue = computed(() => (Array.isArray(props.children) ? props.children : []))
-const showAddButton = computed(() => props.isPlaceholder !== true && (isLast ? isLast(props.nodeKey) : true))
+const nodeKey = computed(() => props.nodeKey ?? props.listKey ?? '')
+const modelValue = computed(() => {
+  if (Array.isArray(props.modelValue)) return props.modelValue
+  if (Array.isArray(props.children)) return props.children
+  return []
+})
+const showAddButton = computed(() => props.isPlaceholder !== true && (isLast ? isLast(nodeKey.value) : true))
 const wrapperClass = computed(() => (showAddButton.value ? 'p-2 relative pb-10' : 'p-2'))
 </script>
 
@@ -45,7 +52,7 @@ const wrapperClass = computed(() => (showAddButton.value ? 'p-2 relative pb-10' 
       <n-button-group v-if="props.isPlaceholder !== true" class="shrink-0">
         <n-tooltip placement="top">
           <template #trigger>
-            <n-button quaternary size="small" @click.stop="remove?.(props.nodeKey)">
+            <n-button quaternary size="small" @click.stop="remove?.(nodeKey)">
               <template #icon><span class="i-lucide-trash-2 h-4 w-4"></span></template>
             </n-button>
           </template>
@@ -58,7 +65,7 @@ const wrapperClass = computed(() => (showAddButton.value ? 'p-2 relative pb-10' 
       <div v-if="props.isPlaceholder === true" class="min-h-[140px] flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <n-empty :description="t('builder.listRemove')" />
-          <n-button secondary @click="restore?.(props.nodeKey)">
+          <n-button secondary @click="restore?.(nodeKey)">
             <template #icon><span class="i-lucide-plus h-4 w-4"></span></template>
             {{ t('builder.addListContainer') }}
           </n-button>
@@ -71,7 +78,7 @@ const wrapperClass = computed(() => (showAddButton.value ? 'p-2 relative pb-10' 
       <div v-if="showAddButton" class="absolute bottom-2 left-2">
         <n-tooltip placement="top">
           <template #trigger>
-            <n-button quaternary size="small" @click.stop="duplicate?.(props.nodeKey)">
+            <n-button quaternary size="small" @click.stop="duplicate?.(nodeKey)">
               <template #icon><span class="i-lucide-plus h-4 w-4"></span></template>
             </n-button>
           </template>

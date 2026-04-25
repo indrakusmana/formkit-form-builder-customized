@@ -1,5 +1,6 @@
 import { computed, type Ref } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
+import { ensureContainerCmpNode } from './schema/containers'
 
 export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]> | undefined) {
   return computed(() => {
@@ -7,6 +8,56 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
     const formatOne = (field: FormKitSchemaFormKit, index: number): any => {
       const key = (field as any)?.__key as string | undefined
       const isPreviewPlaceholder = (field as any)?.__preview_placeholder === true
+      const normalized: any = ensureContainerCmpNode(field as any)
+      if (normalized?.$cmp === 'ListContainer') {
+        const children = Array.isArray(normalized.children)
+          ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
+          : []
+        const schemaIf = normalized.if
+        const nextNode: any = {
+          $el: 'div',
+          attrs: { class: normalized.outerClass || 'col-span-12' },
+          children: [
+            {
+              $cmp: 'ListContainer',
+              props: {
+                ...(normalized.props ?? {}),
+                listKey: (normalized.props?.listKey as string | undefined) ?? key ?? '',
+                modelValue: children,
+                children,
+                isPlaceholder: isPreviewPlaceholder,
+              },
+            },
+          ],
+        }
+        if (typeof schemaIf === 'string' && schemaIf.trim()) nextNode.if = schemaIf
+        else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
+        return nextNode
+      }
+      if (normalized?.$cmp === 'CardContainer') {
+        const children = Array.isArray(normalized.children)
+          ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
+          : []
+        const schemaIf = normalized.if
+        const nextNode: any = {
+          $el: 'div',
+          attrs: { class: normalized.outerClass || 'col-span-12' },
+          children: [
+            {
+              $cmp: 'CardContainer',
+              props: {
+                ...(normalized.props ?? {}),
+                cardKey: (normalized.props?.cardKey as string | undefined) ?? key ?? '',
+                modelValue: children,
+                children,
+              },
+            },
+          ],
+        }
+        if (typeof schemaIf === 'string' && schemaIf.trim()) nextNode.if = schemaIf
+        else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
+        return nextNode
+      }
       const {
         $formkit,
         label,
@@ -30,44 +81,6 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         accept,
         if: schemaIf,
       } = field
-
-      if ($formkit === 'list') {
-        const children = Array.isArray((field as any)?.children)
-          ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
-          : []
-        const nextNode: any = {
-          $el: 'div',
-          attrs: { class: outerClass || 'col-span-12' },
-          children: [
-            {
-              $cmp: 'ListContainerPreview',
-              props: { nodeKey: key, children, label, isPlaceholder: isPreviewPlaceholder },
-            },
-          ],
-        }
-        if (typeof schemaIf === 'string' && schemaIf.trim()) nextNode.if = schemaIf
-        else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
-        return nextNode
-      }
-
-      if ($formkit === 'card') {
-        const children = Array.isArray((field as any)?.children)
-          ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
-          : []
-        const nextNode: any = {
-          $el: 'div',
-          attrs: { class: outerClass || 'col-span-12' },
-          children: [
-            {
-              $cmp: 'CardContainerPreview',
-              props: { children, label, help, naiveProps },
-            },
-          ],
-        }
-        if (typeof schemaIf === 'string' && schemaIf.trim()) nextNode.if = schemaIf
-        else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
-        return nextNode
-      }
 
       const cleanField: any = {
         $formkit,

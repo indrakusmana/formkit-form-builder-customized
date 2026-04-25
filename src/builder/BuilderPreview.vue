@@ -48,6 +48,7 @@ import { useFormBuilderI18n } from '../i18n/context'
 import { CardContainerPreview, ListContainerPreview } from './containers'
 import { collectSchemaNames, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
+import { getContainerKind } from '../utils/schema/containers'
 
 const { t } = useFormBuilderI18n()
 
@@ -56,7 +57,7 @@ const data = ref({})
 const previewSchema = ref<FormKitSchemaFormKit[]>([])
 const previewListItemSeq = ref<Record<string, number>>({})
 const formattedSchema = createFormattedSchema(previewSchema)
-const schemaLibrary = computed(() => ({ ListContainerPreview, CardContainerPreview }))
+const schemaLibrary = computed(() => ({ ListContainer: ListContainerPreview, CardContainer: CardContainerPreview }))
 
 provide('isPreviewOpen', isOpen)
 
@@ -128,12 +129,16 @@ const canonicalBaseName = (value: unknown) => {
   return match?.[1] || safe
 }
 
-const isStructureNode = (node: any) => ['list', 'group', 'card'].includes(String(node?.$formkit ?? ''))
+const isStructureNode = (node: any) => {
+  const kind = getContainerKind(node)
+  if (kind) return true
+  return ['group'].includes(String(node?.$formkit ?? ''))
+}
 
 const collectLeafBases = (node: any, bases: Set<string>) => {
   if (!node || typeof node !== 'object') return
   if (!isStructureNode(node) && node.$formkit !== 'submit') {
-    const rawName = node.name || node.$formkit || 'field'
+    const rawName = node.name || node.$formkit || node.$cmp || 'field'
     const base = canonicalBaseName(rawName)
     if (base) bases.add(base)
   }
@@ -148,7 +153,7 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listS
   const next: any = { ...node, __key: nextKey }
   if (node.$formkit !== 'submit') {
     if (!isStructureNode(node)) {
-      const rawName = node.name || node.$formkit || 'field'
+      const rawName = node.name || node.$formkit || node.$cmp || 'field'
       const base = canonicalBaseName(rawName)
       let candidate = listSuffix > 0 ? `${base}_${listSuffix}` : base
       let i = 1
@@ -200,7 +205,7 @@ provide(
     const info = getParentArrayAtPath(previewSchema.value as any[], found.path)
     if (!info) return true
     const { parentArr } = info
-    const last = [...parentArr].reverse().find((n: any) => n?.$formkit === 'list' && (n as any)?.__preview_placeholder !== true)
+    const last = [...parentArr].reverse().find((n: any) => getContainerKind(n) === 'list' && (n as any)?.__preview_placeholder !== true)
     if (!last) return true
     return (last as any).__key === key
   },
@@ -215,7 +220,7 @@ provide(
       const walk = (nodes: any[]): boolean => {
         for (const node of nodes) {
           if (!node || typeof node !== 'object') continue
-          if (node.$formkit === 'list' && node.__key !== key && (node as any).__preview_placeholder !== true) return true
+          if (getContainerKind(node) === 'list' && node.__key !== key && (node as any).__preview_placeholder !== true) return true
           const children = (node as any)?.children
           if (Array.isArray(children) && walk(children)) return true
         }

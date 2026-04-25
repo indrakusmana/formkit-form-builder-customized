@@ -587,21 +587,22 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.group.description',
   },
   {
-    $formkit: 'list',
+    $cmp: 'ListContainer',
     nameKey: 'elements.list.name',
     labelKey: 'elements.list.label',
     id: 'list_field',
     outerClass: 'col-span-12',
     descriptionKey: 'elements.list.description',
     children: [],
+    props: { showActions: false, modelValue: [], listKey: '' },
   },
   {
-    $formkit: 'card',
+    $cmp: 'CardContainer',
     nameKey: 'elements.card.name',
     labelKey: 'elements.card.label',
     id: 'card_container',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', bordered: true, embedded: false, hoverable: false },
+    props: { naiveProps: { size: 'medium', bordered: true, embedded: false, hoverable: false }, modelValue: [], cardKey: '' },
     descriptionKey: 'elements.card.description',
     children: [],
   },
@@ -609,14 +610,33 @@ const defs: DefaultElementDef[] = [
 
 export function createDefaultFormElements(t: (key: string) => string): FormKitSchemaFormKit[] {
   return defs.map(({ nameKey, labelKey, placeholderKey, helpKey, descriptionKey, ...rest }) => {
-    const next: FormKitSchemaFormKit = {
+    const next: any = {
       ...(rest as FormKitSchemaFormKit),
       name: t(nameKey),
       description: t(descriptionKey),
     }
-    if (labelKey) (next as any).label = t(labelKey)
-    if (placeholderKey) (next as any).placeholder = t(placeholderKey)
-    if (helpKey) (next as any).help = t(helpKey)
+    const isCmp = typeof next.$cmp === 'string' && next.$cmp
+    if (labelKey) {
+      if (isCmp) {
+        next.props = { ...(next.props ?? {}), label: t(labelKey) }
+      } else {
+        next.label = t(labelKey)
+      }
+    }
+    if (placeholderKey) {
+      if (isCmp) {
+        next.props = { ...(next.props ?? {}), placeholder: t(placeholderKey) }
+      } else {
+        next.placeholder = t(placeholderKey)
+      }
+    }
+    if (helpKey) {
+      if (isCmp) {
+        next.props = { ...(next.props ?? {}), help: t(helpKey) }
+      } else {
+        next.help = t(helpKey)
+      }
+    }
     return next
   })
 }
