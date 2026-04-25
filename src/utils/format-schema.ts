@@ -24,7 +24,6 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
                 ...(normalized.props ?? {}),
                 listKey: (normalized.props?.listKey as string | undefined) ?? key ?? '',
                 modelValue: children,
-                children,
                 isPlaceholder: isPreviewPlaceholder,
               },
             },
@@ -49,7 +48,6 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
                 ...(normalized.props ?? {}),
                 cardKey: (normalized.props?.cardKey as string | undefined) ?? key ?? '',
                 modelValue: children,
-                children,
               },
             },
           ],
@@ -108,8 +106,6 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
       }
       if (typeof schemaIf === 'string' && schemaIf.trim()) cleanField.if = schemaIf
       else if (typeof schemaIf === 'boolean') cleanField.if = schemaIf
-
-      if (options) cleanField.options = options
       return cleanField
     }
 
