@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { NButton } from 'naive-ui'
 
 const props = defineProps<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   context: any
 }>()
 

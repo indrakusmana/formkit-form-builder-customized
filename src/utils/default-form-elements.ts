@@ -618,21 +618,21 @@ export function createDefaultFormElements(t: (key: string) => string): FormKitSc
     const isCmp = typeof next.$cmp === 'string' && next.$cmp
     if (labelKey) {
       if (isCmp) {
-        next.props = { ...(next.props ?? {}), label: t(labelKey) }
+        next.props = { ...next.props, label: t(labelKey) }
       } else {
         next.label = t(labelKey)
       }
     }
     if (placeholderKey) {
       if (isCmp) {
-        next.props = { ...(next.props ?? {}), placeholder: t(placeholderKey) }
+        next.props = { ...next.props, placeholder: t(placeholderKey) }
       } else {
         next.placeholder = t(placeholderKey)
       }
     }
     if (helpKey) {
       if (isCmp) {
-        next.props = { ...(next.props ?? {}), help: t(helpKey) }
+        next.props = { ...next.props, help: t(helpKey) }
       } else {
         next.help = t(helpKey)
       }

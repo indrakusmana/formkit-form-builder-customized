@@ -49,7 +49,7 @@ export default {
   },
   condition: {
     useIf: '条件渲染（if）',
-    placeholder: '例如：$other == \"yes\" && $age >= 18',
+    placeholder: '例如：$other == "yes" && $age >= 18',
   },
   ai: {
     tooltip: 'AI 助手',

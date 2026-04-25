@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import type { FormKitSchemaFormKit } from '@formkit/core'
 
 // 生成稳定的字段 key，用于拖拽过程中的字段身份识别

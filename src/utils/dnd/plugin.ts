@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import type {
   DragState,
   InsertConfig,
@@ -14,7 +14,6 @@ import {
   addEvents,
   addParentClass,
   isDragState,
-  isSynthDragState,
   nodes,
   parents,
   removeClass,

@@ -21,7 +21,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
             {
               $cmp: 'ListContainer',
               props: {
-                ...(normalized.props ?? {}),
+                ...normalized.props,
                 listKey: (normalized.props?.listKey as string | undefined) ?? key ?? '',
                 modelValue: children,
                 isPlaceholder: isPreviewPlaceholder,
@@ -45,7 +45,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
             {
               $cmp: 'CardContainer',
               props: {
-                ...(normalized.props ?? {}),
+                ...normalized.props,
                 cardKey: (normalized.props?.cardKey as string | undefined) ?? key ?? '',
                 modelValue: children,
               },

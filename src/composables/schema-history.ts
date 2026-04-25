@@ -83,7 +83,6 @@ export function commitSchema(
   const now = Date.now()
   const currentSchema = formSchema.value
   const prevSelectedKey = selectedKey.value ?? ((formSchema.value[selectedIndex.value] as any)?.__key as string | undefined)
-  const selectedRef = formSchema.value[selectedIndex.value]
 
   if (currentSchema === nextSchema) return
 

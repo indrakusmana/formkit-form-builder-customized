@@ -49,7 +49,7 @@ export default {
   },
   condition: {
     useIf: 'Conditional render (if)',
-    placeholder: 'e.g. $other == \"yes\" && $age >= 18',
+    placeholder: 'e.g. $other == "yes" && $age >= 18',
   },
   ai: {
     tooltip: 'AI Assistant',

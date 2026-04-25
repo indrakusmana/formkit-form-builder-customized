@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref, watchEffect } from 'vue'
+import { provide, ref, watchEffect } from 'vue'
 import { NModal } from 'naive-ui'
 import { formSchema } from '../utils/default-form-elements'
 import createFormattedSchema from '../utils/format-schema'

@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import type {
   BaseDragState,
   DragState,
-  DragStateProps,
-  InsertEvent,
   NodeRecord,
   ParentRecord,
   SynthDragState,
@@ -30,18 +28,6 @@ function getContainerKey(el: HTMLElement | null | undefined): string | null {
   return raw && raw.trim() ? raw : null
 }
 
-function updateListChildrenByKey(
-  schema: FormKitSchemaFormKit[],
-  listKey: string,
-  nextChildren: FormKitSchemaFormKit[],
-) {
-  const nextSchema = [...schema]
-  const idx = nextSchema.findIndex((n: any) => n?.__key === listKey)
-  if (idx < 0) return null
-  nextSchema[idx] = { ...(nextSchema[idx] as any), children: [...nextChildren] } as any
-  return nextSchema
-}
-
 function normalizeInsertValues(
   insertValues: FormKitSchemaFormKit[],
   isSource: boolean,
@@ -61,11 +47,11 @@ function normalizeInsertValues(
       const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
       if (val.$formkit === 'submit') return { ...valObj, __key: nextKey, outerClass: 'col-span-12 pt-2' }
       if (val.$cmp === 'ListContainer') {
-        const props = { ...(val.props ?? {}), listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
+        const props = { ...val.props, listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
         return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
       }
       if (val.$cmp === 'CardContainer') {
-        const props = { ...(val.props ?? {}), cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
+        const props = { ...val.props, cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
         return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
       }
       return {
@@ -117,78 +103,6 @@ function adjustColSpansForInsert(
   } else {
     insertValues.forEach((val) => setColSpan(val, 3))
   }
-}
-
-function insertItemsIntoParentFromOutside<T>(
-  state: DragStateProps<T> & BaseDragState<T>,
-  newParentValues: T[],
-  index: number,
-  insertValues: Array<T>,
-  draggedOverNode?: NodeRecord<T>,
-) {
-  const isSource = state.initialParent.el.getAttribute('data-is-source') === 'true'
-  if (!isSource) {
-    setParentValues(state.initialParent.el, state.initialParent.data, [...newParentValues])
-  }
-
-  const targetParentValues = parentValues(state.currentParent.el, state.currentParent.data)
-  const existingNames = new Set<string>()
-  collectSchemaNames(formSchema.value, existingNames)
-
-  const processedInsertValues = insertValues.map((value) => {
-    const valObj = isSource ? JSON.parse(JSON.stringify(value)) : value
-    if (typeof valObj === 'object' && valObj !== null) {
-      const val = valObj as any
-      const nextKey = typeof val.__key === 'string' && val.__key ? val.__key : generateKey()
-      const base = toSafeName(val.name || val.$formkit || val.$cmp || 'field')
-      const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
-      const next: any =
-        val.$formkit === 'submit'
-          ? { ...valObj, __key: nextKey, outerClass: 'col-span-12 pt-2' }
-          : {
-              ...valObj,
-              __key: nextKey,
-              name: nextName,
-              id: `field_${nextKey}`,
-              outerClass: val.outerClass || 'col-span-12',
-            }
-      if (val.$formkit === 'submit') return next
-      if (val.$cmp === 'ListContainer') {
-        next.props = { ...(val.props ?? {}), listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
-        next.children = next.props.modelValue
-        return next
-      }
-      if (val.$cmp === 'CardContainer') {
-        next.props = { ...(val.props ?? {}), cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
-        next.children = next.props.modelValue
-        return next
-      }
-      return next
-    }
-    return valObj
-  })
-
-  if (draggedOverNode) {
-    adjustColSpansForInsert(
-      targetParentValues,
-      draggedOverNode.data.value,
-      processedInsertValues,
-      insertState.verticalInsert ?? false,
-    )
-  } else {
-    processedInsertValues.forEach((val) => setColSpan(val, 12))
-  }
-
-  const insertIndex =
-    typeof insertState.explicitIndex === 'number' && Number.isFinite(insertState.explicitIndex)
-      ? insertState.explicitIndex
-      : index
-
-  targetParentValues.splice(insertIndex, 0, ...processedInsertValues)
-
-  setParentValues(state.currentParent.el, state.currentParent.data, [...targetParentValues])
-
-  commitSchema([...(targetParentValues as FormKitSchemaFormKit[])], { reason: 'dnd' })
 }
 
 // 处理 dragEnd：根据 insertState 决定最终插入位置，并提交到 schema 历史
@@ -352,7 +266,7 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     const isCard = node.$formkit === 'card' || node.$cmp === 'CardContainer'
     if ((isList || isCard) && !Array.isArray(node.children)) {
       const next = { ...node, children: [] } as any
-      if (next.$cmp) next.props = { ...(next.props ?? {}), modelValue: [] }
+      if (next.$cmp) next.props = { ...next.props, modelValue: [] }
       return next
     }
     return node

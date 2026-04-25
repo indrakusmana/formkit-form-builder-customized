@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 // 从 outerClass 中解析 col-span，默认 12
 export function getColSpan(item: any): number {
