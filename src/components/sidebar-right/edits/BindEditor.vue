@@ -16,7 +16,7 @@ const events: EventDef[] = [
   {
     key: 'onClick',
     title: 'Click',
-    placeholder: `console.log('clicked', event)\nawait axios.get('/api/ping')`,
+    placeholder: `console.log('clicked', ctx.event)\nconsole.log('form data', $)\nawait axios.get('/api/ping')`,
   },
   {
     key: 'onChange',

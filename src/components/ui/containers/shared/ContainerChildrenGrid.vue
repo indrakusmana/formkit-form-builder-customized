@@ -57,12 +57,12 @@ const getSchemaData = (child: any, idx: number) => {
     if (typeof v === 'string' && v.trim() && k.startsWith('on')) {
       const code = v
       attrs[k] = async (event: unknown) => {
-        await runBindCode(code, event, data, attrs)
+        await runBindCode(code, { event, data, attrs })
       }
     } else if (v && typeof v === 'object' && typeof v.__js === 'string') {
       const code = v.__js
       attrs[k] = async (event: unknown) => {
-        await runBindCode(code, event, data, attrs)
+        await runBindCode(code, { event, data, attrs })
       }
     }
   }
