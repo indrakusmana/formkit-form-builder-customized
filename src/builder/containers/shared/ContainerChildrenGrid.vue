@@ -66,13 +66,16 @@ const { resizingIndex, startResize } = useGridSpanResize({
   <div class="relative">
     <ul
       :ref="props.containerRef"
-      class="w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0 min-h-[140px]"
+      class="w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0"
       v-bind="props.dataAttrs"
       @dragover.capture="props.setNestedParentOnRoot?.(true)"
       @dragstart.capture="isDragging = true"
       @dragend.capture="isDragging = false; props.setNestedParentOnRoot?.(false)"
       @drop="isDragging = false; props.setNestedParentOnRoot?.(false)"
-      :class="[props.ulClass, props.items.value.length === 0 ? 'bg-muted/20 rounded-lg' : '']"
+      :class="[
+        props.ulClass,
+        props.items.value.length === 0 ? 'min-h-[140px] bg-muted/20 rounded-lg' : '',
+      ]"
     >
       <li
         v-for="(child, idx) in props.items.value"
