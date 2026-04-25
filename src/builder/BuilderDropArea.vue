@@ -267,6 +267,44 @@ watch(
     }
   },
 )
+
+const schemaLibrary = computed(() => ({
+  ListContainerCanvas: ListContainer,
+  CardContainerCanvas: CardContainer,
+}))
+
+const renderCanvasSchemaNode = (field: any): any => {
+  if (!field || typeof field !== 'object') return field
+  const key = field.__key as string | undefined
+  if (field.$formkit === 'list') {
+    return {
+      $cmp: 'ListContainerCanvas',
+      props: {
+        listKey: key,
+        modelValue: (Array.isArray(field.children) ? field.children : []) as FormKitSchemaFormKit[],
+        label: field.label,
+        showActions: false,
+        'onUpdate:modelValue': (v: FormKitSchemaFormKit[]) => updateContainerChildren(key ?? '', v),
+        onSelect: selectByKey,
+      },
+    }
+  }
+  if (field.$formkit === 'card') {
+    return {
+      $cmp: 'CardContainerCanvas',
+      props: {
+        cardKey: key,
+        modelValue: (Array.isArray(field.children) ? field.children : []) as FormKitSchemaFormKit[],
+        label: field.label,
+        help: field.help,
+        naiveProps: field.naiveProps,
+        'onUpdate:modelValue': (v: FormKitSchemaFormKit[]) => updateContainerChildren(key ?? '', v),
+        onSelect: selectByKey,
+      },
+    }
+  }
+  return toCanvasSchemaNode(field as FormKitSchemaFormKit)
+}
 </script>
 
 <template>
@@ -373,28 +411,9 @@ watch(
             <!-- Field content -->
             <div class="flex gap-1.5 w-full pb-2">
               <div class="flex-1 w-full">
-                <ListContainer
-                  v-if="(field as any)?.$formkit === 'list'"
-                  :list-key="((field as any)?.__key as string | undefined)"
-                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
-                  :label="(field as any)?.label"
-                  :show-actions="false"
-                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
-                  @select="selectByKey"
-                />
-                <CardContainer
-                  v-else-if="(field as any)?.$formkit === 'card'"
-                  :card-key="((field as any)?.__key as string | undefined)"
-                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
-                  :label="(field as any)?.label"
-                  :help="(field as any)?.help"
-                  :naive-props="((field as any)?.naiveProps as any)"
-                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
-                  @select="selectByKey"
-                />
                 <FormKitSchema
-                  v-else
-                  :schema="[toCanvasSchemaNode(field as FormKitSchemaFormKit)]"
+                  :schema="[renderCanvasSchemaNode(field)]"
+                  :library="schemaLibrary"
                   :key="`${(field as any)?.__key ?? (field as FormKitSchemaFormKit)?.name ?? index}-${(field as FormKitSchemaFormKit)?.$formkit ?? 'unknown'}`"
                 />
               </div>
