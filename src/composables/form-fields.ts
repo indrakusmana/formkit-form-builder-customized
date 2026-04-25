@@ -77,10 +77,6 @@ type SchemaWithButtonProps = FormKitSchemaFormKit & {
   buttonProps?: Record<string, unknown>
 }
 
-type SchemaWithNaiveProps = FormKitSchemaFormKit & {
-  naiveProps?: Record<string, unknown>
-}
-
 export function useFormField() {
   const normalizeName = (value: string) => {
     let name = value.trim().replace(/[^a-zA-Z0-9_]+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '')
@@ -147,30 +143,17 @@ export function useFormField() {
     }
   }
 
-  const setNaiveProp = (key: string, value: unknown) => {
+  const setPropsProp = (key: string, value: unknown) => {
     if (formSchema.value.length > 0) {
       const selected = selectedKey.value
       const found = selected ? findSchemaNodeByKey(formSchema.value as any[], selected) : null
       const path = found?.path
       const current = (path ? getNodeAtPath(formSchema.value as any[], path) : formSchema.value[selectedIndex.value]) as any
       if (!current) return
-      const isCmp = typeof current?.$cmp === 'string' && Boolean(current?.$cmp)
-      if (isCmp) {
-        const base = (current?.props?.naiveProps ?? {}) as Record<string, unknown>
-        const nextNaiveProps = { ...base, [key]: value }
-        const nextNode: any = { ...current, props: { ...(current.props ?? {}), naiveProps: nextNaiveProps } }
-        const nextSchema = path
-          ? updateAtPath(formSchema.value as any[], path, nextNode)
-          : (() => {
-              const updatedSchema = [...formSchema.value]
-              updatedSchema[selectedIndex.value] = nextNode
-              return updatedSchema
-            })()
-        commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'field-edit', merge: true })
-        return
-      }
-      const nextNaiveProps = { ...(current?.naiveProps ?? {}), [key]: value }
-      const nextNode = { ...current, naiveProps: nextNaiveProps } as FormKitSchemaFormKit
+      const nextProps: any = { ...(((current as any).props ?? {}) as any) }
+      if (value === undefined) delete nextProps[key]
+      else nextProps[key] = value
+      const nextNode: any = { ...current, props: Object.keys(nextProps).length ? nextProps : undefined }
       const nextSchema = path
         ? updateAtPath(formSchema.value as any[], path, nextNode)
         : (() => {
@@ -193,29 +176,14 @@ export function useFormField() {
     })
   }
 
-  const createNaiveProp = <T>(key: string, defaultValue: T): WritableComputedRef<T, T> => {
+  const createPropsProp = <T>(key: string, defaultValue: T): WritableComputedRef<T, T> => {
     return computed({
       get: () => {
         const current: any = selectedField.value as any
-        const isCmp = typeof current?.$cmp === 'string' && Boolean(current?.$cmp)
-        const bag = isCmp ? current?.props?.naiveProps : current?.naiveProps
-        const value = bag?.[key]
-        return (value ?? defaultValue) as T
-      },
-      set: (value: T) => setNaiveProp(key, value),
-    })
-  }
-
-  const createComponentProp = <T>(key: string, defaultValue: T): WritableComputedRef<T, T> => {
-    return computed({
-      get: () => {
-        const current: any = selectedField.value as any
-        const isCmp = typeof current?.$cmp === 'string' && Boolean(current?.$cmp)
-        if (!isCmp) return defaultValue
         const value = current?.props?.[key]
         return (value ?? defaultValue) as T
       },
-      set: (value: T) => setFieldProp(key, value),
+      set: (value: T) => setPropsProp(key, value),
     })
   }
 
@@ -582,8 +550,7 @@ export function useFormField() {
     max,
     isValidationChecked,
     createButtonProp,
-    createNaiveProp,
-    createComponentProp,
+    createPropsProp,
     rowSpan,
   }
 }

@@ -7,8 +7,8 @@ import PlaceholderSection from '../common/PlaceholderSection.vue'
 import NaiveBasicSection from '../common/NaiveBasicSection.vue'
 import TextInput from '../common/TextInput.vue'
 
-const { createNaiveProp } = useFormField()
-const naiveValueFormat = createNaiveProp<string>('valueFormat', '')
+const { createPropsProp } = useFormField()
+const naiveValueFormat = createPropsProp<string>('valueFormat', '')
 const valueFormat = computed<string>({
   get: () => {
     const raw = naiveValueFormat.value

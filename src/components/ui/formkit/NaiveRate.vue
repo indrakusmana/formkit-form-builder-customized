@@ -2,28 +2,22 @@
 import type { FormKitFrameworkContext } from '@formkit/core'
 import { NRate } from 'naive-ui'
 import { computed } from 'vue'
+import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
   context: FormKitFrameworkContext
 }>()
 
-const naiveProps = computed<Record<string, unknown>>(() => {
-  const ctx = props.context as unknown as { naiveProps?: Record<string, unknown> }
-  const nodeProps = props.context.node.props as Record<string, unknown>
-  return (ctx.naiveProps ?? (nodeProps.naiveProps as Record<string, unknown> | undefined) ?? {}) as Record<
-    string,
-    unknown
-  >
-})
+const uiProps = computed<Record<string, unknown>>(() => getSchemaProps(props.context))
 
 const disabled = computed<boolean>(() =>
-  Boolean((naiveProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
+  Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
-const readonly = computed<boolean>(() => Boolean((naiveProps.value.readonly as boolean | undefined) ?? false))
-const clearable = computed<boolean>(() => Boolean((naiveProps.value.clearable as boolean | undefined) ?? true))
-const allowHalf = computed<boolean>(() => Boolean((naiveProps.value.allowHalf as boolean | undefined) ?? false))
+const readonly = computed<boolean>(() => Boolean((uiProps.value.readonly as boolean | undefined) ?? false))
+const clearable = computed<boolean>(() => Boolean((uiProps.value.clearable as boolean | undefined) ?? true))
+const allowHalf = computed<boolean>(() => Boolean((uiProps.value.allowHalf as boolean | undefined) ?? false))
 const count = computed<number>(() => {
-  const raw = naiveProps.value.count as unknown
+  const raw = uiProps.value.count as unknown
   if (typeof raw === 'number' && Number.isFinite(raw)) return raw
   if (typeof raw === 'string') {
     const parsed = Number(raw)

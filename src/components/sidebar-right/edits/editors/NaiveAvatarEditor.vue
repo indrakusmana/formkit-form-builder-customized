@@ -5,10 +5,10 @@ import LabelHelpSection from '../common/LabelHelpSection.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 import TextInput from '../common/TextInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 
-const avatarSrc = createNaiveProp<string>('src', '')
-const avatarSizeRaw = createNaiveProp<unknown>('avatarSize', 48)
+const avatarSrc = createPropsProp<string>('src', '')
+const avatarSizeRaw = createPropsProp<unknown>('avatarSize', 48)
 const avatarSize = computed({
   get: () => {
     const value = avatarSizeRaw.value
@@ -21,9 +21,9 @@ const avatarSize = computed({
     avatarSizeRaw.value = Number.isFinite(parsed) ? parsed : value
   },
 })
-const avatarRound = createNaiveProp<boolean>('round', true)
-const avatarBordered = createNaiveProp<boolean>('bordered', false)
-const avatarFallbackText = createNaiveProp<string>('fallbackText', 'A')
+const avatarRound = createPropsProp<boolean>('round', true)
+const avatarBordered = createPropsProp<boolean>('bordered', false)
+const avatarFallbackText = createPropsProp<string>('fallbackText', 'A')
 </script>
 
 <template>
@@ -39,4 +39,3 @@ const avatarFallbackText = createNaiveProp<string>('fallbackText', 'A')
   <SwitchInput label="round" :value="avatarRound" @update:value="(v) => (avatarRound = v)" />
   <SwitchInput label="bordered" :value="avatarBordered" @update:value="(v) => (avatarBordered = v)" />
 </template>
-

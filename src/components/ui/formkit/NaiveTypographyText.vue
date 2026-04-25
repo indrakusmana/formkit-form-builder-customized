@@ -2,29 +2,23 @@
 import type { FormKitFrameworkContext } from '@formkit/core'
 import { NText } from 'naive-ui'
 import { computed } from 'vue'
+import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
   context: FormKitFrameworkContext
 }>()
 
-const naiveProps = computed<Record<string, unknown>>(() => {
-  const ctx = props.context as unknown as { naiveProps?: Record<string, unknown> }
-  const nodeProps = props.context.node.props as Record<string, unknown>
-  return (ctx.naiveProps ?? (nodeProps.naiveProps as Record<string, unknown> | undefined) ?? {}) as Record<
-    string,
-    unknown
-  >
-})
+const uiProps = computed<Record<string, unknown>>(() => getSchemaProps(props.context))
 
 const text = computed(() => {
-  const raw = naiveProps.value.text
+  const raw = uiProps.value.text
   if (typeof raw === 'string') return raw
   return String(props.context._value ?? '')
 })
 
-const type = computed(() => naiveProps.value.type as any)
+const type = computed(() => uiProps.value.type as any)
 const depth = computed(() => {
-  const raw = naiveProps.value.depth as unknown
+  const raw = uiProps.value.depth as unknown
   if (typeof raw === 'number' && Number.isFinite(raw)) return raw
   if (typeof raw === 'string') {
     const parsed = Number(raw)
@@ -32,12 +26,12 @@ const depth = computed(() => {
   }
   return undefined
 })
-const tag = computed(() => naiveProps.value.tag as any)
-const strong = computed(() => Boolean((naiveProps.value.strong as boolean | undefined) ?? false))
-const italic = computed(() => Boolean((naiveProps.value.italic as boolean | undefined) ?? false))
-const underline = computed(() => Boolean((naiveProps.value.underline as boolean | undefined) ?? false))
-const del = computed(() => Boolean((naiveProps.value.delete as boolean | undefined) ?? false))
-const code = computed(() => Boolean((naiveProps.value.code as boolean | undefined) ?? false))
+const tag = computed(() => uiProps.value.tag as any)
+const strong = computed(() => Boolean((uiProps.value.strong as boolean | undefined) ?? false))
+const italic = computed(() => Boolean((uiProps.value.italic as boolean | undefined) ?? false))
+const underline = computed(() => Boolean((uiProps.value.underline as boolean | undefined) ?? false))
+const del = computed(() => Boolean((uiProps.value.delete as boolean | undefined) ?? false))
+const code = computed(() => Boolean((uiProps.value.code as boolean | undefined) ?? false))
 </script>
 
 <template>

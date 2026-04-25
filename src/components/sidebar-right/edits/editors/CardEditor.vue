@@ -4,12 +4,12 @@ import LabelHelpSection from '../common/LabelHelpSection.vue'
 import SelectInput from '../common/SelectInput.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 
-const { createComponentProp } = useFormField()
+const { createPropsProp } = useFormField()
 
-const cardSize = createComponentProp<string>('size', 'medium')
-const cardBordered = createComponentProp<boolean>('bordered', true)
-const cardEmbedded = createComponentProp<boolean>('embedded', false)
-const cardHoverable = createComponentProp<boolean>('hoverable', false)
+const cardSize = createPropsProp<string>('size', 'medium')
+const cardBordered = createPropsProp<boolean>('bordered', true)
+const cardEmbedded = createPropsProp<boolean>('embedded', false)
+const cardHoverable = createPropsProp<boolean>('hoverable', false)
 </script>
 
 <template>

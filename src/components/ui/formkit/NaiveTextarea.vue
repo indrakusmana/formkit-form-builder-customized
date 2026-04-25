@@ -3,26 +3,20 @@ import type { FormKitFrameworkContext } from '@formkit/core'
 import type { InputProps } from 'naive-ui'
 import { NInput } from 'naive-ui'
 import { computed } from 'vue'
+import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
   context: FormKitFrameworkContext
 }>()
 
-const naiveProps = computed<Record<string, unknown>>(() => {
-  const ctx = props.context as unknown as { naiveProps?: Record<string, unknown> }
-  const nodeProps = props.context.node.props as Record<string, unknown>
-  return (ctx.naiveProps ?? (nodeProps.naiveProps as Record<string, unknown> | undefined) ?? {}) as Record<
-    string,
-    unknown
-  >
-})
+const uiProps = computed<Record<string, unknown>>(() => getSchemaProps(props.context))
 
-const size = computed<InputProps['size']>(() => (naiveProps.value.size as InputProps['size']) ?? 'medium')
-const clearable = computed<boolean>(() => (naiveProps.value.clearable as boolean | undefined) ?? true)
+const size = computed<InputProps['size']>(() => (uiProps.value.size as InputProps['size']) ?? 'medium')
+const clearable = computed<boolean>(() => (uiProps.value.clearable as boolean | undefined) ?? true)
 const disabled = computed<boolean>(() =>
-  Boolean((naiveProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
+  Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
-const bordered = computed<boolean>(() => (naiveProps.value.bordered as boolean | undefined) ?? true)
+const bordered = computed<boolean>(() => (uiProps.value.bordered as boolean | undefined) ?? true)
 
 const value = computed(() => (props.context._value ?? '') as string)
 const placeholder = computed(() => props.context.placeholder as string | undefined)

@@ -8,13 +8,13 @@ import SelectInput from '../common/SelectInput.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 import TextInput from '../common/TextInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 const { t } = useFormBuilderI18n()
 
-const src = createNaiveProp<string>('src', '')
-const alt = createNaiveProp<string>('alt', '')
+const src = createPropsProp<string>('src', '')
+const alt = createPropsProp<string>('alt', '')
 
-const widthRaw = createNaiveProp<unknown>('width', 240)
+const widthRaw = createPropsProp<unknown>('width', 240)
 const width = computed({
   get: () => {
     const value = widthRaw.value
@@ -28,7 +28,7 @@ const width = computed({
   },
 })
 
-const heightRaw = createNaiveProp<unknown>('height', 160)
+const heightRaw = createPropsProp<unknown>('height', 160)
 const height = computed({
   get: () => {
     const value = heightRaw.value
@@ -42,9 +42,9 @@ const height = computed({
   },
 })
 
-const objectFit = createNaiveProp<string>('objectFit', 'cover')
-const previewDisabled = createNaiveProp<boolean>('previewDisabled', false)
-const lazy = createNaiveProp<boolean>('lazy', false)
+const objectFit = createPropsProp<string>('objectFit', 'cover')
+const previewDisabled = createPropsProp<boolean>('previewDisabled', false)
+const lazy = createPropsProp<boolean>('lazy', false)
 </script>
 
 <template>

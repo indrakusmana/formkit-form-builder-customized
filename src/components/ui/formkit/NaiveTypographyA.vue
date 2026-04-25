@@ -2,28 +2,22 @@
 import type { FormKitFrameworkContext } from '@formkit/core'
 import { NA } from 'naive-ui'
 import { computed } from 'vue'
+import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
   context: FormKitFrameworkContext
 }>()
 
-const naiveProps = computed<Record<string, unknown>>(() => {
-  const ctx = props.context as unknown as { naiveProps?: Record<string, unknown> }
-  const nodeProps = props.context.node.props as Record<string, unknown>
-  return (ctx.naiveProps ?? (nodeProps.naiveProps as Record<string, unknown> | undefined) ?? {}) as Record<
-    string,
-    unknown
-  >
-})
+const uiProps = computed<Record<string, unknown>>(() => getSchemaProps(props.context))
 
 const text = computed(() => {
-  const raw = naiveProps.value.text
+  const raw = uiProps.value.text
   if (typeof raw === 'string') return raw
   return String(props.context._value ?? '')
 })
 
-const href = computed(() => (naiveProps.value.href as string | undefined) ?? '#')
-const target = computed(() => naiveProps.value.target as any)
+const href = computed(() => (uiProps.value.href as string | undefined) ?? '#')
+const target = computed(() => uiProps.value.target as any)
 </script>
 
 <template>

@@ -2,27 +2,21 @@
 import type { FormKitFrameworkContext } from '@formkit/core'
 import { NAvatar } from 'naive-ui'
 import { computed } from 'vue'
+import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
   context: FormKitFrameworkContext
 }>()
 
-const naiveProps = computed<Record<string, unknown>>(() => {
-  const ctx = props.context as unknown as { naiveProps?: Record<string, unknown> }
-  const nodeProps = props.context.node.props as Record<string, unknown>
-  return (ctx.naiveProps ?? (nodeProps.naiveProps as Record<string, unknown> | undefined) ?? {}) as Record<
-    string,
-    unknown
-  >
-})
+const uiProps = computed<Record<string, unknown>>(() => getSchemaProps(props.context))
 
-const src = computed(() => naiveProps.value.src as string | undefined)
-const round = computed<boolean>(() => Boolean((naiveProps.value.round as boolean | undefined) ?? true))
-const bordered = computed<boolean>(() => Boolean((naiveProps.value.bordered as boolean | undefined) ?? false))
-const fallbackText = computed(() => (naiveProps.value.fallbackText as string | undefined) ?? '')
+const src = computed(() => uiProps.value.src as string | undefined)
+const round = computed<boolean>(() => Boolean((uiProps.value.round as boolean | undefined) ?? true))
+const bordered = computed<boolean>(() => Boolean((uiProps.value.bordered as boolean | undefined) ?? false))
+const fallbackText = computed(() => (uiProps.value.fallbackText as string | undefined) ?? '')
 
 const size = computed(() => {
-  const raw = naiveProps.value.avatarSize as unknown
+  const raw = uiProps.value.avatarSize as unknown
   if (typeof raw === 'number' && Number.isFinite(raw)) return raw
   if (typeof raw === 'string') {
     const parsed = Number(raw)

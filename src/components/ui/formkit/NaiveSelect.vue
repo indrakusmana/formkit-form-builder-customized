@@ -3,28 +3,22 @@ import type { FormKitFrameworkContext } from '@formkit/core'
 import type { SelectOption, SelectProps } from 'naive-ui'
 import { NSelect } from 'naive-ui'
 import { computed } from 'vue'
+import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
   context: FormKitFrameworkContext
 }>()
 
-const naiveProps = computed<Record<string, unknown>>(() => {
-  const ctx = props.context as unknown as { naiveProps?: Record<string, unknown> }
-  const nodeProps = props.context.node.props as Record<string, unknown>
-  return (ctx.naiveProps ?? (nodeProps.naiveProps as Record<string, unknown> | undefined) ?? {}) as Record<
-    string,
-    unknown
-  >
-})
+const uiProps = computed<Record<string, unknown>>(() => getSchemaProps(props.context))
 
-const size = computed<SelectProps['size']>(() => (naiveProps.value.size as SelectProps['size']) ?? 'medium')
-const clearable = computed<boolean>(() => (naiveProps.value.clearable as boolean | undefined) ?? true)
+const size = computed<SelectProps['size']>(() => (uiProps.value.size as SelectProps['size']) ?? 'medium')
+const clearable = computed<boolean>(() => (uiProps.value.clearable as boolean | undefined) ?? true)
 const disabled = computed<boolean>(() =>
-  Boolean((naiveProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
+  Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
-const bordered = computed<boolean>(() => (naiveProps.value.bordered as boolean | undefined) ?? true)
-const filterable = computed<boolean>(() => (naiveProps.value.filterable as boolean | undefined) ?? false)
-const multiple = computed<boolean>(() => (naiveProps.value.multiple as boolean | undefined) ?? false)
+const bordered = computed<boolean>(() => (uiProps.value.bordered as boolean | undefined) ?? true)
+const filterable = computed<boolean>(() => (uiProps.value.filterable as boolean | undefined) ?? false)
+const multiple = computed<boolean>(() => (uiProps.value.multiple as boolean | undefined) ?? false)
 
 const placeholder = computed(() => props.context.placeholder as string | undefined)
 

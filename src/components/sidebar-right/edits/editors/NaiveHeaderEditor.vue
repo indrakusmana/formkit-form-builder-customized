@@ -4,11 +4,11 @@ import { useFormBuilderI18n } from '../../../../i18n/context'
 import TextInput from '../common/TextInput.vue'
 import SelectInput from '../common/SelectInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 const { t } = useFormBuilderI18n()
 
-const typographyText = createNaiveProp<string>('text', 'text')
-const typoType = createNaiveProp<string>('type', 'default')
+const typographyText = createPropsProp<string>('text', 'text')
+const typoType = createPropsProp<string>('type', 'default')
 </script>
 
 <template>

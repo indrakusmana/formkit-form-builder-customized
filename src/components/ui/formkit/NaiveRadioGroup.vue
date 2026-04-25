@@ -2,30 +2,24 @@
 import type { FormKitFrameworkContext } from '@formkit/core'
 import { NRadio, NRadioGroup } from 'naive-ui'
 import { computed } from 'vue'
+import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
   context: FormKitFrameworkContext
 }>()
 
-const naiveProps = computed<Record<string, unknown>>(() => {
-  const ctx = props.context as unknown as { naiveProps?: Record<string, unknown> }
-  const nodeProps = props.context.node.props as Record<string, unknown>
-  return (ctx.naiveProps ?? (nodeProps.naiveProps as Record<string, unknown> | undefined) ?? {}) as Record<
-    string,
-    unknown
-  >
-})
+const uiProps = computed<Record<string, unknown>>(() => getSchemaProps(props.context))
 
 type GroupSize = 'small' | 'medium' | 'large'
 
 const size = computed<GroupSize>(() => {
-  const raw = naiveProps.value.size as string | undefined
+  const raw = uiProps.value.size as string | undefined
   if (raw === 'tiny') return 'small'
   if (raw === 'small' || raw === 'medium' || raw === 'large') return raw
   return 'medium'
 })
 const disabled = computed<boolean>(() =>
-  Boolean((naiveProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
+  Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
 
 const options = computed(() => {
