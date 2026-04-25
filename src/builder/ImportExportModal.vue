@@ -82,6 +82,10 @@ const safeVar = (value: unknown) => {
   return start || '_bind'
 }
 
+const bindVarFromKey = (key: string) => {
+  return key.startsWith('_') ? `bind${key}` : `bind_${key}`
+}
+
 const cloneSchema = (schema: FormKitSchemaFormKit[]) => {
   try {
     return structuredClone(schema) as FormKitSchemaFormKit[]
@@ -99,10 +103,12 @@ const exportAsJs = () => {
       if (!node || typeof node !== 'object') continue
       const bind = node.__bind
       if (bind && typeof bind === 'object' && !Array.isArray(bind)) {
+        const bindExp = typeof node.bind === 'string' ? node.bind.trim() : ''
+        const isSimpleVar = /^\$[a-zA-Z_]\w*$/.test(bindExp)
         const key = safeVar(node.__key || node.name || node.$formkit || node.$el)
-        const varName = `bind_${key}`
+        const varName = isSimpleVar ? bindExp.slice(1) : bindVarFromKey(key)
         bindVarMap[varName] = bind as any
-        node.bind = `$${varName}`
+        if (!isSimpleVar) node.bind = `$${varName}`
         delete node.__bind
       }
       if (Array.isArray(node.children)) visit(node.children)

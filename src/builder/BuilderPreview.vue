@@ -30,14 +30,14 @@
       <div class="mt-4 p-3 bg-muted/30 rounded border border-border/50">
         <h3 class="text-[11px] font-medium mb-2 text-foreground/80">{{ t('builder.formDataTitle') }}</h3>
 
-        <pre class="text-[11px] text-muted-foreground">{{ JSON.stringify(data, null, 2) }}</pre>
+        <pre class="text-[11px] text-muted-foreground">{{ prettyData }}</pre>
       </div>
     </div>
   </n-modal>
 </template>
 
 <script setup lang="ts">
-import { provide, reactive, ref, watchEffect } from 'vue'
+import { computed, provide, reactive, ref, watchEffect } from 'vue'
 import { NModal } from 'naive-ui'
 import { formSchema } from '../utils/default-form-elements'
 import createFormattedSchema from '../utils/format-schema'
@@ -62,6 +62,17 @@ const schemaLibrary = previewSchemaLibrary
 const previewRuntimeData = ref<Record<string, unknown>>({})
 
 provide('isPreviewOpen', isOpen)
+
+const prettyData = computed(() =>
+  JSON.stringify(
+    data.value,
+    (_k, v) => {
+      if (typeof v === 'function') return '[Function]'
+      return v
+    },
+    2,
+  ),
+)
 
 const normalizePath = (path: number[]) => path.filter((p) => p !== -1)
 
@@ -291,6 +302,10 @@ const safeVar = (value: unknown) => {
   return start || '_bind'
 }
 
+const bindVarFromKey = (key: string) => {
+  return key.startsWith('_') ? `bind${key}` : `bind_${key}`
+}
+
 const eachField = (schema: FormKitSchemaFormKit[], fn: (field: any) => void) => {
   for (const field of schema) {
     fn(field)
@@ -316,8 +331,11 @@ const applyBindRuntime = (schema: FormKitSchemaFormKit[]) => {
     const bind = field.__bind
     if (!bind || typeof bind !== 'object' || Array.isArray(bind)) return
 
-    const key = safeVar(field.__key || field.name || field.$formkit || field.$el)
-    const varName = `bind_${key}`
+    const bindExp = typeof field.bind === 'string' ? field.bind.trim() : ''
+    const isSimpleVar = /^\$[a-zA-Z_]\w*$/.test(bindExp)
+    const varName = isSimpleVar
+      ? bindExp.slice(1)
+      : bindVarFromKey(safeVar(field.__key || field.name || field.$formkit || field.$el))
     const attrs: any = { ...(bind as any) }
 
     for (const k of Object.keys(attrs)) {
@@ -337,7 +355,7 @@ const applyBindRuntime = (schema: FormKitSchemaFormKit[]) => {
     }
 
     runtimeReactive[varName] = attrs
-    field.bind = `$${varName}`
+    if (!isSimpleVar) field.bind = `$${varName}`
     delete field.__bind
   })
 
