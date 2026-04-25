@@ -11,7 +11,7 @@ import { cn } from '../utils/utils'
 import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
-import { CardContainer, ListContainer } from './containers'
+import { canvasSchemaLibrary } from './containers'
 import { createDefaultInsertPointElement } from '../utils/dnd/insert-point-element'
 import { getColSpan as parseColSpan, getRowSpan as parseRowSpan } from '../utils/dnd/grid'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
@@ -274,10 +274,7 @@ watch(
   },
 )
 
-const schemaLibrary = computed(() => ({
-  ListContainer: ListContainer,
-  CardContainer: CardContainer,
-}))
+const schemaLibrary = canvasSchemaLibrary
 
 const renderCanvasSchemaNode = (field: any): any => {
   if (!field || typeof field !== 'object') return field
@@ -286,7 +283,7 @@ const renderCanvasSchemaNode = (field: any): any => {
 }
 
 provideCanvasSchemaContext({
-  library: schemaLibrary.value,
+  library: schemaLibrary,
   renderNode: renderCanvasSchemaNode,
   updateContainerChildren,
   selectByKey,

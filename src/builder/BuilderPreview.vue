@@ -45,7 +45,7 @@ import { canvasView } from '../composables/form-fields'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { evalExpression } from '../utils/expression-eval'
 import { useFormBuilderI18n } from '../i18n/context'
-import { CardContainerPreview, ListContainerPreview } from './containers'
+import { previewSchemaLibrary } from './containers'
 import { collectSchemaNames, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 import { getContainerKind } from '../utils/schema/containers'
@@ -57,7 +57,7 @@ const data = ref({})
 const previewSchema = ref<FormKitSchemaFormKit[]>([])
 const previewListItemSeq = ref<Record<string, number>>({})
 const formattedSchema = createFormattedSchema(previewSchema)
-const schemaLibrary = computed(() => ({ ListContainer: ListContainerPreview, CardContainer: CardContainerPreview }))
+const schemaLibrary = previewSchemaLibrary
 
 provide('isPreviewOpen', isOpen)
 
