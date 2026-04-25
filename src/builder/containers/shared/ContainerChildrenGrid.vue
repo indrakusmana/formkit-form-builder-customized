@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { FormKitSchema } from '@formkit/vue'
 import { NButton, NTooltip, NEmpty } from 'naive-ui'
 import { getColSpan, getRowSpan } from '@/utils/dnd/grid'
 import { toCanvasSchemaNode } from '@/utils/canvas-schema'
+import { useCanvasSchemaContext } from '@/builder/composables/canvas-schema-context'
 import { pluralize, validationCount } from '@/utils/text'
 import { useGridSpanResize } from '@/builder/composables/use-grid-span-resize'
 
@@ -24,6 +25,12 @@ const props = defineProps<{
 }>()
 
 const isDragging = ref(false)
+
+const canvasCtx = useCanvasSchemaContext()
+const schemaLibrary = computed(() => canvasCtx?.library as any)
+const renderSchemaNode = (node: unknown) => {
+  return (canvasCtx?.renderNode ? canvasCtx.renderNode(node) : toCanvasSchemaNode(node as any)) as any
+}
 
 const { resizingIndex, startResize } = useGridSpanResize({
   items: props.items,
@@ -64,7 +71,7 @@ const { resizingIndex, startResize } = useGridSpanResize({
       >
         <div class="flex gap-1.5 p-1 w-full pb-2">
           <div class="flex-1 w-full">
-            <FormKitSchema :schema="[toCanvasSchemaNode(child)]" :key="`container-child-${idx}`" />
+            <FormKitSchema :schema="[renderSchemaNode(child)]" :library="schemaLibrary" :key="`container-child-${idx}`" />
           </div>
         </div>
 

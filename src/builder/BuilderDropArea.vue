@@ -20,6 +20,7 @@ import { useFormBuilderI18n } from '@/i18n/context'
 import { useRuntimeLocale } from '@/i18n/runtime-locale'
 import { pluralize } from '../utils/text'
 import { toCanvasSchemaNode } from '../utils/canvas-schema'
+import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
 
 const { validationStringLength } = useFormField()
 
@@ -305,6 +306,11 @@ const renderCanvasSchemaNode = (field: any): any => {
   }
   return toCanvasSchemaNode(field as FormKitSchemaFormKit)
 }
+
+provideCanvasSchemaContext({
+  library: schemaLibrary.value,
+  renderNode: renderCanvasSchemaNode,
+})
 </script>
 
 <template>
