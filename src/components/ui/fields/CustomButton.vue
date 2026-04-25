@@ -22,6 +22,8 @@ const text = computed(() => {
     props.context?.attrs?.buttonText ??
     props.context?.node?.props?.buttonText ??
     props.context?.buttonText ??
+    props.context?.attrs?.label ??
+    props.context?.node?.props?.label ??
     props.context?.label ??
     ''
   )
