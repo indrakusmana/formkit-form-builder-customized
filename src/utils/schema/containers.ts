@@ -9,12 +9,10 @@ export function getContainerKind(node: unknown): ContainerKind | null {
   if (n.$formkit === 'list') return 'list'
   if (n.$formkit === 'card') return 'card'
 
+  if (n.$cmp === 'list') return 'list'
+  if (n.$cmp === 'card') return 'card'
   if (n.$cmp === 'ListContainer') return 'list'
-  if (n.$cmp === 'ListContainerCanvas') return 'list'
-  if (n.$cmp === 'ListContainerPreview') return 'list'
   if (n.$cmp === 'CardContainer') return 'card'
-  if (n.$cmp === 'CardContainerCanvas') return 'card'
-  if (n.$cmp === 'CardContainerPreview') return 'card'
 
   return null
 }
@@ -38,17 +36,8 @@ export function ensureContainerCmpNode(node: any): any {
   if (!kind) return node
   const key = getContainerKey(node)
   const children = getContainerChildren(node)
-  const hasCmp =
-    node.$cmp === 'ListContainer' ||
-    node.$cmp === 'CardContainer' ||
-    node.$cmp === 'ListContainerCanvas' ||
-    node.$cmp === 'CardContainerCanvas' ||
-    node.$cmp === 'ListContainerPreview' ||
-    node.$cmp === 'CardContainerPreview'
-  if (hasCmp) {
-    const next = { ...node }
-    if (next.$cmp === 'ListContainerCanvas' || next.$cmp === 'ListContainerPreview') next.$cmp = 'ListContainer'
-    if (next.$cmp === 'CardContainerCanvas' || next.$cmp === 'CardContainerPreview') next.$cmp = 'CardContainer'
+  if (typeof node.$cmp === 'string' && node.$cmp) {
+    const next = { ...node, $cmp: kind }
     next.props = { ...(typeof next.props === 'object' && next.props ? next.props : {}) }
     if (kind === 'list') {
       next.props.listKey = next.props.listKey ?? key ?? ''
@@ -67,7 +56,7 @@ export function ensureContainerCmpNode(node: any): any {
   const next = { ...node }
   if (kind === 'list') {
     delete next.$formkit
-    next.$cmp = 'ListContainer'
+    next.$cmp = 'list'
     next.props = {
       ...(typeof next.props === 'object' && next.props ? next.props : {}),
       listKey: key ?? '',
@@ -80,7 +69,7 @@ export function ensureContainerCmpNode(node: any): any {
   }
 
   delete next.$formkit
-  next.$cmp = 'CardContainer'
+  next.$cmp = 'card'
   next.props = {
     ...(typeof next.props === 'object' && next.props ? next.props : {}),
     cardKey: key ?? '',

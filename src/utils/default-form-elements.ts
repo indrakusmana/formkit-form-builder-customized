@@ -587,7 +587,7 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.group.description',
   },
   {
-    $cmp: 'ListContainer',
+    $cmp: 'list',
     nameKey: 'elements.list.name',
     labelKey: 'elements.list.label',
     id: 'list_field',
@@ -597,7 +597,7 @@ const defs: DefaultElementDef[] = [
     props: { showActions: false, modelValue: [], listKey: '' },
   },
   {
-    $cmp: 'CardContainer',
+    $cmp: 'card',
     nameKey: 'elements.card.name',
     labelKey: 'elements.card.label',
     id: 'card_container',

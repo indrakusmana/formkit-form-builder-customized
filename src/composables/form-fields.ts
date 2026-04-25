@@ -479,8 +479,7 @@ export function useFormField() {
     if (!hasField.value) return null
     const current: any = selectedField.value as any
     if (typeof current?.$formkit === 'string' && current.$formkit) return current.$formkit
-    if (current?.$cmp === 'ListContainer') return 'list'
-    if (current?.$cmp === 'CardContainer') return 'card'
+    if (typeof current?.$cmp === 'string' && current.$cmp) return current.$cmp
     return null
   })
 

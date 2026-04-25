@@ -9,7 +9,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
       const key = (field as any)?.__key as string | undefined
       const isPreviewPlaceholder = (field as any)?.__preview_placeholder === true
       const normalized: any = ensureContainerCmpNode(field as any)
-      if (normalized?.$cmp === 'ListContainer') {
+      if (normalized?.$cmp === 'list') {
         const children = Array.isArray(normalized.children)
           ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
           : []
@@ -19,7 +19,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
           attrs: { class: normalized.outerClass || 'col-span-12' },
           children: [
             {
-              $cmp: 'ListContainer',
+              $cmp: 'list',
               props: {
                 ...normalized.props,
                 listKey: (normalized.props?.listKey as string | undefined) ?? key ?? '',
@@ -33,7 +33,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
         return nextNode
       }
-      if (normalized?.$cmp === 'CardContainer') {
+      if (normalized?.$cmp === 'card') {
         const children = Array.isArray(normalized.children)
           ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
           : []
@@ -43,7 +43,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
           attrs: { class: normalized.outerClass || 'col-span-12' },
           children: [
             {
-              $cmp: 'CardContainer',
+              $cmp: 'card',
               props: {
                 ...normalized.props,
                 cardKey: (normalized.props?.cardKey as string | undefined) ?? key ?? '',

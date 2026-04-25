@@ -7,11 +7,11 @@ import CardContainerPreview from './card/CardContainerPreview.vue'
 export { ListContainer, ListContainerPreview, CardContainer, CardContainerPreview }
 
 export const canvasSchemaLibrary = {
-  ListContainer: markRaw(ListContainer),
-  CardContainer: markRaw(CardContainer),
+  list: markRaw(ListContainer),
+  card: markRaw(CardContainer),
 }
 
 export const previewSchemaLibrary = {
-  ListContainer: markRaw(ListContainerPreview),
-  CardContainer: markRaw(CardContainerPreview),
+  list: markRaw(ListContainerPreview),
+  card: markRaw(CardContainerPreview),
 }
