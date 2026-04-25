@@ -99,7 +99,7 @@ export function useFormField() {
 
       const current = { ...(currentNode as Record<string, unknown>) }
       const isCmp = typeof (current as any)?.$cmp === 'string' && Boolean((current as any)?.$cmp)
-      const propKeys = new Set(['label', 'help', 'placeholder'])
+      const propKeys = new Set(['label', 'help', 'placeholder', 'bordered', 'embedded', 'hoverable', 'size'])
       if (isCmp && propKeys.has(key)) {
         const nextProps: any = { ...(((current as any).props ?? {}) as any) }
         if (value === undefined) delete nextProps[key]
@@ -203,6 +203,19 @@ export function useFormField() {
         return (value ?? defaultValue) as T
       },
       set: (value: T) => setNaiveProp(key, value),
+    })
+  }
+
+  const createComponentProp = <T>(key: string, defaultValue: T): WritableComputedRef<T, T> => {
+    return computed({
+      get: () => {
+        const current: any = selectedField.value as any
+        const isCmp = typeof current?.$cmp === 'string' && Boolean(current?.$cmp)
+        if (!isCmp) return defaultValue
+        const value = current?.props?.[key]
+        return (value ?? defaultValue) as T
+      },
+      set: (value: T) => setFieldProp(key, value),
     })
   }
 
@@ -570,6 +583,7 @@ export function useFormField() {
     isValidationChecked,
     createButtonProp,
     createNaiveProp,
+    createComponentProp,
     rowSpan,
   }
 }

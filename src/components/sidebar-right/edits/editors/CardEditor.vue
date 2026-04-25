@@ -4,12 +4,12 @@ import LabelHelpSection from '../common/LabelHelpSection.vue'
 import SelectInput from '../common/SelectInput.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createComponentProp } = useFormField()
 
-const cardSize = createNaiveProp<string>('size', 'medium')
-const cardBordered = createNaiveProp<boolean>('bordered', true)
-const cardEmbedded = createNaiveProp<boolean>('embedded', false)
-const cardHoverable = createNaiveProp<boolean>('hoverable', false)
+const cardSize = createComponentProp<string>('size', 'medium')
+const cardBordered = createComponentProp<boolean>('bordered', true)
+const cardEmbedded = createComponentProp<boolean>('embedded', false)
+const cardHoverable = createComponentProp<boolean>('hoverable', false)
 </script>
 
 <template>
@@ -29,4 +29,3 @@ const cardHoverable = createNaiveProp<boolean>('hoverable', false)
   <SwitchInput label="embedded" :value="cardEmbedded" @update:value="(v) => (cardEmbedded = v)" />
   <SwitchInput label="hoverable" :value="cardHoverable" @update:value="(v) => (cardHoverable = v)" />
 </template>
-

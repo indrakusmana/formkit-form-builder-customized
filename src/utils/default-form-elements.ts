@@ -602,7 +602,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.card.label',
     id: 'card_container',
     outerClass: 'col-span-12',
-    props: { naiveProps: { size: 'medium', bordered: true, embedded: false, hoverable: false }, modelValue: [], cardKey: '' },
+    props: { size: 'medium', bordered: true, embedded: false, hoverable: false, modelValue: [], cardKey: '' },
     descriptionKey: 'elements.card.description',
     children: [],
   },

@@ -56,8 +56,12 @@ export function ensureContainerCmpNode(node: any): any {
     } else {
       next.props.cardKey = next.props.cardKey ?? key ?? ''
       next.props.modelValue = children
-      if (next.props.naiveProps === undefined && (next as any).naiveProps !== undefined) {
-        next.props.naiveProps = (next as any).naiveProps
+      if (next.props.naiveProps && typeof next.props.naiveProps === 'object') {
+        next.props = { ...next.props, ...(next.props.naiveProps as any) }
+        delete next.props.naiveProps
+      }
+      if ((next as any).naiveProps && typeof (next as any).naiveProps === 'object') {
+        next.props = { ...next.props, ...((next as any).naiveProps as any) }
         delete (next as any).naiveProps
       }
       if (next.props.help === undefined && (next as any).help !== undefined) {
@@ -85,12 +89,13 @@ export function ensureContainerCmpNode(node: any): any {
 
   delete next.$formkit
   next.$cmp = 'CardContainer'
+  const legacyNaive = (next.naiveProps && typeof next.naiveProps === 'object' ? next.naiveProps : {}) as any
   next.props = {
     ...(typeof next.props === 'object' && next.props ? next.props : {}),
     cardKey: key ?? '',
     label: next.label,
     help: next.help,
-    naiveProps: next.naiveProps,
+    ...legacyNaive,
     modelValue: children,
   }
   delete next.label

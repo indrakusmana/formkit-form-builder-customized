@@ -10,7 +10,10 @@ const props = defineProps<{
   modelValue?: FormKitSchemaFormKit[]
   label?: string
   help?: string
-  naiveProps?: Record<string, unknown>
+  bordered?: boolean
+  embedded?: boolean
+  hoverable?: boolean
+  size?: string
 }>()
 
 const { t } = useFormBuilderI18n()
@@ -23,12 +26,10 @@ const modelValue = computed(() => {
   return []
 })
 
-const cardProps = computed<Record<string, unknown>>(() => (props.naiveProps ?? {}) as Record<string, unknown>)
-
-const bordered = computed<boolean>(() => (cardProps.value.bordered as boolean | undefined) ?? true)
-const embedded = computed<boolean>(() => (cardProps.value.embedded as boolean | undefined) ?? false)
-const hoverable = computed<boolean>(() => (cardProps.value.hoverable as boolean | undefined) ?? false)
-const size = computed(() => (cardProps.value.size as string | undefined) ?? 'medium')
+const bordered = computed<boolean>(() => props.bordered ?? true)
+const embedded = computed<boolean>(() => props.embedded ?? false)
+const hoverable = computed<boolean>(() => props.hoverable ?? false)
+const size = computed(() => props.size ?? 'medium')
 const showHeader = computed(() => Boolean(title.value || helpText.value))
 </script>
 

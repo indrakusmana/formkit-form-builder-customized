@@ -48,6 +48,16 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
       if (typeof node.if === 'string' && typeof node.__raw__ifExpression !== 'string') {
         node.__raw__ifExpression = node.if
       }
+      if (node.$cmp === 'CardContainer') {
+        if (node.props?.naiveProps && typeof node.props.naiveProps === 'object') {
+          node.props = { ...(node.props ?? {}), ...(node.props.naiveProps as any) }
+          delete node.props.naiveProps
+        }
+        if (node.naiveProps && typeof node.naiveProps === 'object') {
+          node.props = { ...(node.props ?? {}), ...(node.naiveProps as any) }
+          delete node.naiveProps
+        }
+      }
       if ('valueExpression' in node) delete node.valueExpression
       if (Array.isArray(node.children)) visit(node.children)
     }
