@@ -1,7 +1,7 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import type { ContainerDefinition, SchemaNode } from '../types'
-import ListContainer from '@/builder/containers/list/ListContainer.vue'
-import ListContainerPreview from '@/builder/containers/list/ListContainerPreview.vue'
+import ListContainer from '@/components/ui/containers/list/ListContainer.vue'
+import ListContainerPreview from '@/components/ui/containers/list/ListContainerPreview.vue'
 
 function isListContainer(node: any) {
   if (!node || typeof node !== 'object') return false
@@ -53,4 +53,3 @@ export const listContainerDef: ContainerDefinition = {
     return nextNode as FormKitSchemaFormKit
   },
 }
-

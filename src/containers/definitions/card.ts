@@ -1,7 +1,7 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import type { ContainerDefinition, SchemaNode } from '../types'
-import CardContainer from '@/builder/containers/card/CardContainer.vue'
-import CardContainerPreview from '@/builder/containers/card/CardContainerPreview.vue'
+import CardContainer from '@/components/ui/containers/card/CardContainer.vue'
+import CardContainerPreview from '@/components/ui/containers/card/CardContainerPreview.vue'
 
 function isCardContainer(node: any) {
   if (!node || typeof node !== 'object') return false
@@ -51,4 +51,3 @@ export const cardContainerDef: ContainerDefinition = {
     return nextNode as FormKitSchemaFormKit
   },
 }
-

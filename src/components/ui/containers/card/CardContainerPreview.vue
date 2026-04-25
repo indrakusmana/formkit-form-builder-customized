@@ -3,7 +3,7 @@ import type { FormKitSchemaFormKit } from '@formkit/core'
 import { computed } from 'vue'
 import { FormKitSchema } from '@formkit/vue'
 import { NCard, NEmpty } from 'naive-ui'
-import { useFormBuilderI18n } from '../../../i18n/context'
+import { useFormBuilderI18n } from '@/i18n/context'
 
 const props = defineProps<{
   children?: FormKitSchemaFormKit[]

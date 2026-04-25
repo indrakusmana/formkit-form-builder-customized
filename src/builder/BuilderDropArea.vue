@@ -18,7 +18,7 @@ import { useRuntimeLocale } from '@/i18n/runtime-locale'
 import { toCanvasSchemaNode } from '../utils/canvas-schema'
 import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
 import { normalizeContainerNode } from '@/containers/registry'
-import ContainerChildrenGrid from './containers/shared/ContainerChildrenGrid.vue'
+import ContainerChildrenGrid from '@/components/ui/containers/shared/ContainerChildrenGrid.vue'
 
 const showImportExportModal = ref(false)
 const { setLocale, locale } = useRuntimeLocale()
