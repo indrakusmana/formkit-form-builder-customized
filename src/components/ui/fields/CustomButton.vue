@@ -39,7 +39,6 @@ const type = computed(() => {
 const attrType = computed(() => {
   const formkitType = props.context.node.props.type
   if (formkitType === 'submit') return 'submit'
-  if (formkitType === 'reset') return 'reset'
   return 'button'
 })
 
@@ -65,6 +64,7 @@ function handleClick(e: MouseEvent) {
   if (formkitType === 'reset') {
     e.preventDefault()
     props.context?.node?.root?.reset?.()
+    return
   }
   props.context?.handlers?.click?.(e)
 }
