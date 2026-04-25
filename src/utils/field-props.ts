@@ -199,6 +199,13 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/SubmitEditor.vue'),
   },
   {
+    name: 'reset',
+    tooltipKey: 'fieldProps.tooltip.reset',
+    icon: 'i-lucide-rotate-ccw',
+    category: 'static',
+    editor: () => import('@/components/sidebar-right/edits/editors/SubmitEditor.vue'),
+  },
+  {
     name: 'naiveButton',
     tooltipKey: 'fieldProps.tooltip.naiveButton',
     icon: 'i-lucide-square-mouse-pointer',

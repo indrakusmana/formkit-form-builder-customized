@@ -36,7 +36,9 @@ const type = computed(() => {
 
 const attrType = computed(() => {
   const formkitType = props.context.node.props.type
-  return formkitType === 'submit' ? 'submit' : 'button'
+  if (formkitType === 'submit') return 'submit'
+  if (formkitType === 'reset') return 'reset'
+  return 'button'
 })
 
 const size = computed(() => buttonProps.value?.size || 'medium')
@@ -57,6 +59,11 @@ const booleans = computed(() => ({
 }))
 
 function handleClick(e: MouseEvent) {
+  const formkitType = props.context.node.props.type
+  if (formkitType === 'reset') {
+    e.preventDefault()
+    props.context?.node?.root?.reset?.()
+  }
   props.context?.handlers?.click?.(e)
 }
 </script>

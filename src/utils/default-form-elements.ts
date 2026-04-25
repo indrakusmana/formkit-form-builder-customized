@@ -579,6 +579,14 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.submit.label',
   },
   {
+    $formkit: 'reset',
+    outerClass: 'col-span-12 pt-2',
+    type: 'reset',
+    nameKey: 'elements.reset.name',
+    descriptionKey: 'elements.reset.description',
+    labelKey: 'elements.reset.label',
+  },
+  {
     $formkit: 'group',
     nameKey: 'elements.group.name',
     labelKey: 'elements.group.label',

@@ -73,6 +73,7 @@ export default defaultConfig({
   inputs: {
     naiveButton: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText'] }),
     submit: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText'] }),
+    reset: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText'] }),
     text: createUiInput('NaiveTextInput', NaiveTextInput),
     email: createUiInput('NaiveTextInput', NaiveTextInput),
     password: createUiInput('NaiveTextInput', NaiveTextInput),
