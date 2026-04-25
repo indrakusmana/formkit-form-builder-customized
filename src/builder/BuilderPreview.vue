@@ -319,9 +319,7 @@ const collectSchemaNamesSafe = (schema: FormKitSchemaFormKit[], names: Set<strin
   })
 }
 
-const applyBindRuntime = (schema: FormKitSchemaFormKit[]) => {
-  const runtime: Record<string, unknown> = {}
-  const runtimeReactive = reactive(runtime) as any
+const applyBindRuntime = (schema: FormKitSchemaFormKit[], getModel: () => Record<string, unknown>) => {
   eachField(schema, (field: any) => {
     if (!field || typeof field !== 'object') return
     const bind = field.__bind
@@ -336,22 +334,22 @@ const applyBindRuntime = (schema: FormKitSchemaFormKit[]) => {
       if (typeof v === 'string' && v.trim()) {
         const code = v
         attrs[k] = async (event: unknown) => {
-          await runBindCode(code, { event, data: runtimeReactive, attrs })
+          const data = getModel()
+          await runBindCode(code, { event, data, attrs })
         }
       } else if (v && typeof v === 'object' && typeof v.__js === 'string') {
         const code = v.__js
         attrs[k] = async (event: unknown) => {
-          await runBindCode(code, { event, data: runtimeReactive, attrs })
+          const data = getModel()
+          await runBindCode(code, { event, data, attrs })
         }
       }
     }
 
-    runtimeReactive[varName] = attrs
+    getModel()[varName] = attrs
     field.bind = `$${varName}`
     delete field.__bind
   })
-
-  return runtimeReactive as Record<string, unknown>
 }
 
 watchEffect(() => {
@@ -403,8 +401,9 @@ const handleSubmit = async (formData: Record<string, unknown>) => {
 const open = () => {
   isOpen.value = true
   previewSchema.value = safeClone(formSchema.value)
-  previewRuntimeData.value = applyBindRuntime(previewSchema.value)
-  data.value = reactive(cloneRuntime(previewRuntimeData.value))
+  data.value = reactive({})
+  applyBindRuntime(previewSchema.value, () => data.value as any)
+  previewRuntimeData.value = cloneRuntime(data.value)
   previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
