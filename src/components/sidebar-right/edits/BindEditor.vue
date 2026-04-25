@@ -40,7 +40,7 @@ const events: EventDef[] = [
   },
 ]
 
-const { hasField, bind: bindRef } = useFormField()
+const { hasField, bindEvents: bindRef } = useFormField()
 const { t } = useFormBuilderI18n()
 
 const isOpen = ref(false)

@@ -67,7 +67,7 @@ async function handleClick(e: MouseEvent) {
     props.context?.node?.root?.reset?.()
     return
   }
-  const bind = props.context?.node?.props?.bind
+  const bind = props.context?.node?.props?.__bind
   const onClick = bind && typeof bind === 'object' ? (bind as any).onClick : undefined
   if (typeof onClick === 'string' && onClick.trim()) {
     await runBindCode(onClick, e)

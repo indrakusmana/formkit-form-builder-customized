@@ -31,6 +31,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         buttonText,
         props,
         bind,
+        __bind,
         min,
         max,
         validationVisibility,
@@ -56,7 +57,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         buttonProps,
         buttonText,
         props,
-        bind: normalizeBind(bind),
+        __bind: (typeof __bind === 'object' && __bind ? __bind : undefined) ?? normalizeBind(bind),
         number,
         min,
         max,
@@ -66,6 +67,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         multiple,
         accept,
       }
+      if (typeof bind === 'string' && bind.trim()) cleanField.bind = bind
       if (typeof schemaIf === 'string' && schemaIf.trim()) cleanField.if = schemaIf
       else if (typeof schemaIf === 'boolean') cleanField.if = schemaIf
       return cleanField

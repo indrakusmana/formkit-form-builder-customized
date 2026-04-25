@@ -523,15 +523,19 @@ export function useFormField() {
     },
   })
 
-  const bind = computed<Record<string, unknown>>({
+  const bindEvents = computed<Record<string, unknown>>({
     get: () => {
       const current: any = selectedField.value as any
-      const value = current?.bind
-      return value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+      const value = current?.__bind
+      if (value && typeof value === 'object') return value as Record<string, unknown>
+      const legacy = current?.bind
+      if (legacy && typeof legacy === 'object') return legacy as Record<string, unknown>
+      return {}
     },
     set: (value: Record<string, unknown>) => {
       const hasAny = value && typeof value === 'object' && Object.keys(value).length > 0
-      setFieldProp('bind', hasAny ? value : undefined)
+      setFieldProp('__bind', hasAny ? value : undefined)
+      setFieldProp('bind', undefined)
     },
   })
 
@@ -563,6 +567,6 @@ export function useFormField() {
     createButtonProp,
     createPropsProp,
     rowSpan,
-    bind,
+    bindEvents,
   }
 }

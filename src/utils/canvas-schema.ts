@@ -7,7 +7,10 @@ export function toCanvasSchemaNode(node: FormKitSchemaFormKit): FormKitSchemaFor
   const next: any = { ...anyNode }
   if ('if' in next) delete next.if
   if ('__raw__ifExpression' in next) delete next.__raw__ifExpression
-  if ('bind' in next) next.bind = normalizeBind(next.bind)
+  if ('bind' in next && typeof next.bind !== 'string') {
+    if (!next.__bind) next.__bind = normalizeBind(next.bind)
+    delete next.bind
+  }
   if (Array.isArray(next.children)) {
     next.children = next.children.map((c: any) => toCanvasSchemaNode(c))
   }
