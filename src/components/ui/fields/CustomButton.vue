@@ -59,12 +59,17 @@ const booleans = computed(() => ({
   secondary: !!buttonProps.value?.secondary,
 }))
 
-function handleClick(e: MouseEvent) {
+async function handleClick(e: MouseEvent) {
   const formkitType = props.context.node.props.type
   if (formkitType === 'reset') {
     e.preventDefault()
     props.context?.node?.root?.reset?.()
     return
+  }
+  const bind = props.context?.node?.props?.bind
+  const onClick = bind && typeof bind === 'object' ? (bind as any).onClick : undefined
+  if (typeof onClick === 'function') {
+    await onClick(e)
   }
   props.context?.handlers?.click?.(e)
 }

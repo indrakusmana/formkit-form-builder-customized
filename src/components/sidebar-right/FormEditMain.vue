@@ -7,6 +7,7 @@ import { useFormField } from '../../composables/form-fields'
 import EditsSection from './edits/EditsSection.vue'
 import ExpressionEditor from './edits/ExpressionEditor.vue'
 import IfConditionEditor from './edits/IfConditionEditor.vue'
+import BindEditor from './edits/BindEditor.vue'
 import { createFieldProps } from '../../utils/field-props'
 
 const { hasField, currentFieldType } = useFormField()
@@ -29,6 +30,7 @@ const isFieldsCategory = computed(() => {
       <div class="space-y-2 md:space-y-3">
         <ExpressionEditor v-if="isFieldsCategory" />
         <IfConditionEditor />
+        <BindEditor />
         <EditsSection />
         <n-divider />
         <ValidationSection />

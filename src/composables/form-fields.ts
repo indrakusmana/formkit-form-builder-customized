@@ -523,6 +523,18 @@ export function useFormField() {
     },
   })
 
+  const bind = computed<Record<string, unknown>>({
+    get: () => {
+      const current: any = selectedField.value as any
+      const value = current?.bind
+      return value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+    },
+    set: (value: Record<string, unknown>) => {
+      const hasAny = value && typeof value === 'object' && Object.keys(value).length > 0
+      setFieldProp('bind', hasAny ? value : undefined)
+    },
+  })
+
   return {
     fieldName,
     useExpressionValue,
@@ -551,5 +563,6 @@ export function useFormField() {
     createButtonProp,
     createPropsProp,
     rowSpan,
+    bind,
   }
 }

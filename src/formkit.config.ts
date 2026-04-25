@@ -33,6 +33,7 @@ import NaiveDivider from './components/ui/structure/NaiveDivider.vue'
 
 const sharedObservedProps = [
   'props',
+  'bind',
   'placeholder',
   'options',
   'min',
@@ -71,9 +72,9 @@ export default defaultConfig({
     rootClasses,
   },
   inputs: {
-    naiveButton: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type'] }),
-    submit: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type'] }),
-    reset: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type'] }),
+    naiveButton: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type', 'bind'] }),
+    submit: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type', 'bind'] }),
+    reset: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type', 'bind'] }),
     text: createUiInput('NaiveTextInput', NaiveTextInput),
     email: createUiInput('NaiveTextInput', NaiveTextInput),
     password: createUiInput('NaiveTextInput', NaiveTextInput),
