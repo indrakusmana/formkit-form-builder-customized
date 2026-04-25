@@ -40,6 +40,7 @@ export default {
     title: '导入 / 导出 Schema',
     placeholder: '在这里粘贴表单 schema 的 JSON...',
     downloadJson: '下载 JSON',
+    downloadJs: '下载 JS',
     saveAndImport: '保存并导入',
     schemaMustBeArray: 'Schema 必须是数组',
     importSuccess: 'Schema 导入成功',

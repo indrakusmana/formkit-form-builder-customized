@@ -40,6 +40,7 @@ export default {
     title: 'Import / Export Schema',
     placeholder: 'Paste your form schema JSON here...',
     downloadJson: 'Download JSON',
+    downloadJs: 'Download JS',
     saveAndImport: 'Save & Import',
     schemaMustBeArray: 'Schema must be an array',
     importSuccess: 'Schema imported successfully',
