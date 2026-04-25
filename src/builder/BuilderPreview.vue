@@ -151,6 +151,7 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listS
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
   const next: any = { ...node, __key: nextKey }
+  const kind = getContainerKind(node)
   if (node.$formkit !== 'submit') {
     if (!isStructureNode(node)) {
       const rawName = node.name || node.$formkit || node.$cmp || 'field'
@@ -169,6 +170,14 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listS
   }
   if (Array.isArray(node.children)) {
     next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames, listSuffix))
+  }
+  if (kind) {
+    const baseProps = typeof next.props === 'object' && next.props ? next.props : {}
+    if (kind === 'list') {
+      next.props = { ...baseProps, listKey: nextKey, modelValue: Array.isArray(next.children) ? next.children : [] }
+    } else {
+      next.props = { ...baseProps, cardKey: nextKey, modelValue: Array.isArray(next.children) ? next.children : [] }
+    }
   }
   return next
 }
