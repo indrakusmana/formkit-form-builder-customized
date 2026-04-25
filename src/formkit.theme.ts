@@ -59,7 +59,7 @@ export function rootClasses(
       };
     }
     if (sectionName === "label") {
-      if (type === "submit" || type === "naiveButton") {
+      if (type === "submit" || type === "reset" || type === "naiveButton") {
         return { [semanticKey]: true, hidden: true };
       }
       return {
@@ -73,7 +73,7 @@ export function rootClasses(
       };
     }
     if (sectionName === "help") {
-      if (type === "submit" || type === "naiveButton") {
+      if (type === "submit" || type === "reset" || type === "naiveButton") {
         return { [semanticKey]: true, hidden: true };
       }
       return {
@@ -121,7 +121,7 @@ export function rootClasses(
 
   const key = `${node.props.type}__${sectionName}`;
   if (sectionName === "label") {
-    if (type === "submit" || type === "naiveButton") {
+    if (type === "submit" || type === "reset" || type === "naiveButton") {
       return { [semanticKey]: true, hidden: true };
     }
   }
