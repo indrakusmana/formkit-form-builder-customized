@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { NButton } from 'naive-ui'
+import { runBindCode } from '@/utils/bind-runtime'
 
 const props = defineProps<{
    
@@ -68,8 +69,8 @@ async function handleClick(e: MouseEvent) {
   }
   const bind = props.context?.node?.props?.bind
   const onClick = bind && typeof bind === 'object' ? (bind as any).onClick : undefined
-  if (typeof onClick === 'function') {
-    await onClick(e)
+  if (typeof onClick === 'string' && onClick.trim()) {
+    await runBindCode(onClick, e)
   }
   props.context?.handlers?.click?.(e)
 }

@@ -1,4 +1,5 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
+import { normalizeBind } from './bind-runtime'
 
 export function toCanvasSchemaNode(node: FormKitSchemaFormKit): FormKitSchemaFormKit {
   const anyNode: any = node as any
@@ -6,9 +7,9 @@ export function toCanvasSchemaNode(node: FormKitSchemaFormKit): FormKitSchemaFor
   const next: any = { ...anyNode }
   if ('if' in next) delete next.if
   if ('__raw__ifExpression' in next) delete next.__raw__ifExpression
+  if ('bind' in next) next.bind = normalizeBind(next.bind)
   if (Array.isArray(next.children)) {
     next.children = next.children.map((c: any) => toCanvasSchemaNode(c))
   }
   return next as FormKitSchemaFormKit
 }
-

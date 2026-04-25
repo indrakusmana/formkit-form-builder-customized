@@ -2,29 +2,27 @@ import axios from 'axios'
 
 type BindJs = { __js: string }
 
-function isBindJs(v: unknown): v is BindJs {
-  return Boolean(v && typeof v === 'object' && typeof (v as any).__js === 'string')
+const allowedEventKeys = new Set(['onClick', 'onChange', 'onInput', 'onFocus', 'onBlur'])
+
+function extractCode(v: unknown): string | undefined {
+  if (typeof v === 'string') return v
+  if (v && typeof v === 'object' && typeof (v as any).__js === 'string') return (v as BindJs).__js
+  return undefined
 }
 
-export function compileBind(bind: unknown): Record<string, unknown> | undefined {
+export function normalizeBind(bind: unknown): Record<string, string> | undefined {
   if (!bind || typeof bind !== 'object') return undefined
   const obj = bind as Record<string, unknown>
-  const out: Record<string, unknown> = {}
-  for (const [k, v] of Object.entries(obj)) {
-    if (isBindJs(v)) {
-      const code = v.__js
-      out[k] = async (event: unknown) => {
-        try {
-          const runner = new Function('axios', 'event', `"use strict"; return (async () => { ${code}\n})()`)
-          return await (runner as any)(axios, event)
-        } catch (e) {
-          console.error(e)
-        }
-      }
-      continue
-    }
-    out[k] = v
+  const out: Record<string, string> = {}
+  for (const key of Object.keys(obj)) {
+    if (!allowedEventKeys.has(key)) continue
+    const code = extractCode(obj[key])
+    if (typeof code === 'string' && code.trim()) out[key] = code
   }
   return Object.keys(out).length ? out : undefined
 }
 
+export async function runBindCode(code: string, event: unknown) {
+  const runner = new Function('axios', 'event', `"use strict"; return (async () => { ${code}\n})()`)
+  return await (runner as any)(axios, event)
+}

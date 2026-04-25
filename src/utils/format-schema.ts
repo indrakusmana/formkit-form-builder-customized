@@ -1,7 +1,7 @@
 import { computed, type Ref } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { formatContainerPreviewNode, normalizeContainerNode } from '@/containers/registry'
-import { compileBind } from './bind-runtime'
+import { normalizeBind } from './bind-runtime'
 
 export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]> | undefined) {
   return computed(() => {
@@ -56,7 +56,7 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         buttonProps,
         buttonText,
         props,
-        bind: compileBind(bind) ?? bind,
+        bind: normalizeBind(bind),
         number,
         min,
         max,

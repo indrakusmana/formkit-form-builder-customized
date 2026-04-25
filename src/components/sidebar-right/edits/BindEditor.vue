@@ -6,8 +6,6 @@ import { useFormBuilderI18n } from '../../../i18n/context'
 import SwitchInput from './common/SwitchInput.vue'
 import JsCodeEditor from './common/JsCodeEditor.vue'
 
-type BindJs = { __js: string }
-
 type EventDef = {
   key: string
   title: string
@@ -76,26 +74,33 @@ function setEventEnabled(key: string, enabled: boolean) {
     return
   }
   const existing = next[key] as any
+  if (typeof existing === 'string') {
+    bindObj.value = next
+    return
+  }
   if (existing && typeof existing === 'object' && typeof existing.__js === 'string') {
+    next[key] = existing.__js
     bindObj.value = next
     return
   }
   const def = events.find((e) => e.key === key)
-  next[key] = { __js: def?.placeholder ?? '' } satisfies BindJs
+  next[key] = def?.placeholder ?? ''
   bindObj.value = next
 }
 
 function openEditor(key: string) {
   activeEventKey.value = key
   const cur = bindObj.value[key] as any
-  draft.value = typeof cur?.__js === 'string' ? cur.__js : ''
+  if (typeof cur === 'string') draft.value = cur
+  else if (cur && typeof cur === 'object' && typeof cur.__js === 'string') draft.value = cur.__js
+  else draft.value = ''
   isOpen.value = true
 }
 
 function save() {
   const key = activeEventKey.value
   const next = { ...bindObj.value }
-  next[key] = { __js: draft.value } satisfies BindJs
+  next[key] = draft.value
   bindObj.value = next
   isOpen.value = false
 }
@@ -166,4 +171,3 @@ function save() {
     </n-modal>
   </div>
 </template>
-
