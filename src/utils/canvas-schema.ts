@@ -11,6 +11,9 @@ export function toCanvasSchemaNode(node: FormKitSchemaFormKit): FormKitSchemaFor
     if (!next.__bind) next.__bind = normalizeBind(next.bind)
     delete next.bind
   }
+  if (typeof next.__bind === 'object' && next.__bind) {
+    next.bind = '$someAttributes'
+  }
   if (Array.isArray(next.children)) {
     next.children = next.children.map((c: any) => toCanvasSchemaNode(c))
   }

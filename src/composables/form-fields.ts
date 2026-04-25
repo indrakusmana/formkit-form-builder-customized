@@ -535,7 +535,12 @@ export function useFormField() {
     set: (value: Record<string, unknown>) => {
       const hasAny = value && typeof value === 'object' && Object.keys(value).length > 0
       setFieldProp('__bind', hasAny ? value : undefined)
-      setFieldProp('bind', undefined)
+      const current: any = selectedField.value as any
+      if (current?.bind && typeof current.bind !== 'string') setFieldProp('bind', undefined)
+      if (hasAny && (!current?.bind || typeof current.bind !== 'string')) {
+        setFieldProp('bind', '$someAttributes')
+      }
+      if (!hasAny && current?.bind === '$someAttributes') setFieldProp('bind', undefined)
     },
   })
 

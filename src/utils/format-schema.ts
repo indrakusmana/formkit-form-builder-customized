@@ -67,7 +67,8 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         multiple,
         accept,
       }
-      if (typeof bind === 'string' && bind.trim()) cleanField.bind = bind
+      if (cleanField.__bind && typeof cleanField.__bind === 'object') cleanField.bind = '$someAttributes'
+      else if (typeof bind === 'string' && bind.trim()) cleanField.bind = bind
       if (typeof schemaIf === 'string' && schemaIf.trim()) cleanField.if = schemaIf
       else if (typeof schemaIf === 'boolean') cleanField.if = schemaIf
       return cleanField

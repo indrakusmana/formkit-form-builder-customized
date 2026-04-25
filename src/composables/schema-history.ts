@@ -49,6 +49,13 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
         node.__raw__ifExpression = node.if
       }
       if ('valueExpression' in node) delete node.valueExpression
+      const bind = (node as any).bind
+      if (bind && typeof bind !== 'string') {
+        if (typeof bind === 'object' && !Array.isArray(bind) && typeof (node as any).__bind !== 'object') {
+          ;(node as any).__bind = bind
+        }
+        delete (node as any).bind
+      }
       if (Array.isArray(node.children)) visit(node.children)
     }
   }

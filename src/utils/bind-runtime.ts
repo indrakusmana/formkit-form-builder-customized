@@ -22,7 +22,13 @@ export function normalizeBind(bind: unknown): Record<string, string> | undefined
   return Object.keys(out).length ? out : undefined
 }
 
-export async function runBindCode(code: string, event: unknown) {
-  const runner = new Function('axios', 'event', `"use strict"; return (async () => { ${code}\n})()`)
-  return await (runner as any)(axios, event)
+export async function runBindCode(code: string, event: unknown, data?: unknown) {
+  const runner = new Function(
+    'axios',
+    'event',
+    'data',
+    'someAttributes',
+    `"use strict"; return (async () => { ${code}\n})()`,
+  )
+  return await (runner as any)(axios, event, data, (data as any)?.someAttributes)
 }
