@@ -48,7 +48,7 @@ const hoverable = computed<boolean>(() => props.hoverable ?? false)
 const size = computed(() => props.size ?? 'medium')
 const showHeader = computed(() => Boolean(title.value || helpText.value))
 
-const onSelect = (child: any) => {
+const onSelect = (child: any, _index: number) => {
   const key = child?.__key as string | undefined
   if (!key) return
   if (canvasCtx?.selectByKey) canvasCtx.selectByKey(key)

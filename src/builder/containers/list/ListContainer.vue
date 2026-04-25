@@ -42,7 +42,7 @@ const showActions = computed(() => props.showActions === true)
 const title = computed(() => (typeof props.label === 'string' && props.label.trim() ? props.label.trim() : ''))
 const showHeader = computed(() => !!title.value || showActions.value)
 
-const onSelect = (child: any) => {
+const onSelect = (child: any, _index: number) => {
   const key = child?.__key as string | undefined
   if (!key) return
   if (canvasCtx?.selectByKey) canvasCtx.selectByKey(key)

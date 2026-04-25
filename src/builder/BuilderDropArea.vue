@@ -1,29 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
-import { FormKitSchema } from '@formkit/vue'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
 import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { isLoading, canvasView } from '../composables/form-fields'
 import { cn } from '../utils/utils'
-import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
 import { canvasSchemaLibrary } from './containers'
 import { createDefaultInsertPointElement } from '../utils/dnd/insert-point-element'
-import { getColSpan as parseColSpan, getRowSpan as parseRowSpan } from '../utils/dnd/grid'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 import { useFormBuilderI18n } from '@/i18n/context'
 import { useRuntimeLocale } from '@/i18n/runtime-locale'
-import { pluralize } from '../utils/text'
 import { toCanvasSchemaNode } from '../utils/canvas-schema'
 import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
 import { ensureContainerCmpNode } from '../utils/schema/containers'
-
-const { validationStringLength } = useFormField()
+import ContainerChildrenGrid from './containers/shared/ContainerChildrenGrid.vue'
 
 const showImportExportModal = ref(false)
 const { setLocale, locale } = useRuntimeLocale()
@@ -94,111 +89,6 @@ const updateContainerChildren = (containerKey: string, children: FormKitSchemaFo
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'container-children', merge: true })
 }
 
-const getColSpan = (field: unknown, index: number): number => {
-  return parseColSpan((field as any) ?? formSchema.value[index])
-}
-
-const getRowSpan = (field: unknown, index: number): number => {
-  return parseRowSpan((field as any) ?? formSchema.value[index])
-}
-
-const resizingIndex = ref<number | null>(null)
-const resizingPointerId = ref<number | null>(null)
-const startX = ref(0)
-const startSpan = ref(12)
-const columnWidth = ref(0)
-const isDragging = ref(false)
-
-// Safelist for Tailwind JIT to properly generate classes for dynamic column spans
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const safelistClasses = [
-  'col-span-1', 'col-span-2', 'col-span-3', 'col-span-4',
-  'col-span-5', 'col-span-6', 'col-span-7', 'col-span-8',
-  'col-span-9', 'col-span-10', 'col-span-11', 'col-span-12',
-  'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4', 'row-span-5', 'row-span-6'
-]
-
-const startResize = (e: PointerEvent, index: number) => {
-  resizingIndex.value = index
-  resizingPointerId.value = e.pointerId
-  startX.value = e.clientX
-
-  const schemaItem = formSchema.value[index]
-  if (!schemaItem) return
-
-  startSpan.value = parseColSpan(schemaItem)
-
-  if (formFields.value) {
-    const ul = formFields.value as unknown as HTMLElement
-    columnWidth.value = ul.clientWidth / 12
-  }
-
-  ;(e.currentTarget as HTMLElement | null)?.setPointerCapture?.(e.pointerId)
-  window.addEventListener('pointermove', onPointerMove)
-  window.addEventListener('pointerup', onPointerUp)
-  window.addEventListener('pointercancel', onPointerUp)
-}
-
-const setColSpan = (index: number, newSpan: number) => {
-  newSpan = Math.max(2, Math.min(12, newSpan))
-  newSpan = Math.round(newSpan / 2) * 2
-
-  const schemaItem = formSchema.value[index]
-  if (schemaItem) {
-    let classes = schemaItem.outerClass || ''
-    if (/col-span-\d+/.test(classes)) {
-      classes = classes.replace(/col-span-\d+/, `col-span-${newSpan}`)
-    } else {
-      classes = `${classes} col-span-${newSpan}`.trim()
-    }
-    schemaItem.outerClass = classes
-
-    if (fields.value[index]) {
-      fields.value[index] = {
-        ...fields.value[index],
-        outerClass: schemaItem.outerClass
-      }
-    }
-  }
-}
-
-const onPointerMove = (e: PointerEvent) => {
-  if (resizingPointerId.value !== null && e.pointerId !== resizingPointerId.value) return
-  const index = resizingIndex.value
-  if (index === null) return
-
-  const deltaX = e.clientX - startX.value
-  const deltaSpan = Math.round(deltaX / columnWidth.value)
-  setColSpan(index, startSpan.value + deltaSpan)
-}
-
-const onPointerUp = (e: PointerEvent) => {
-  if (resizingPointerId.value !== null && e.pointerId !== resizingPointerId.value) return
-  if (resizingIndex.value !== null) {
-    commitSchema(formSchema.value, { reason: 'resize' })
-  }
-  resizingIndex.value = null
-  resizingPointerId.value = null
-  window.removeEventListener('pointermove', onPointerMove)
-  window.removeEventListener('pointerup', onPointerUp)
-  window.removeEventListener('pointercancel', onPointerUp)
-}
-
-const nudgeResize = (index: number, deltaSpan: number) => {
-  const schemaItem = formSchema.value[index]
-  if (!schemaItem) return
-
-  const currentSpan = parseColSpan(schemaItem)
-  setColSpan(index, currentSpan + deltaSpan)
-  commitSchema(formSchema.value, { reason: 'resize' })
-}
-
-const clickedField = (index: number) => {
-  selectedIndex.value = index
-  const key = (formSchema.value[index] as any)?.__key as string | undefined
-  selectedKey.value = key ?? null
-}
-
 const selectByKey = (key: string) => {
   const found = findSchemaNodeByKey(formSchema.value as any[], key)
   if (!found) return
@@ -225,6 +115,8 @@ const [formFields, fields] = useDragAndDrop<FormKitSchemaFormKit>(formSchema.val
   ],
 })
 
+const rootGrid = { containerRef: formFields, items: fields }
+
 watch(
   () => formSchema.value,
   (nextSchema) => {
@@ -233,6 +125,23 @@ watch(
     }
   },
 )
+
+const dropAreaUlClass = computed(() =>
+  cn(
+    'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-0 m-0 flex-1',
+    fields.value.length === 0 ? 'min-h-[200px] h-full' : 'h-fit',
+  ),
+)
+
+const onSelectRoot = (child: FormKitSchemaFormKit, index: number) => {
+  const key = (child as any)?.__key as string | undefined
+  if (key) selectByKey(key)
+  else selectedIndex.value = index
+}
+
+const onResizeEnd = () => {
+  commitSchema(fields.value as FormKitSchemaFormKit[], { reason: 'resize', merge: true })
+}
 
 const schemaLibrary = canvasSchemaLibrary
 
@@ -319,107 +228,18 @@ provideCanvasSchemaContext({
         )"
         content-style="padding: 16px; flex: 1; display: flex; flex-direction: column;"
       >
-        <!-- 保留原生 ul 以确保 useDragAndDrop ref 绑定正常工作 -->
-        <ul
-          ref="formFields"
-          :class="cn(
-            'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-0 m-0 flex-1',
-            fields.length === 0 ? 'min-h-[200px] h-full' : 'h-fit',
-          )"
-          @dragstart.capture="isDragging = true"
-          @dragend.capture="isDragging = false"
-          @drop.capture="isDragging = false"
-          data-testid="drop-area"
-        >
-          <li
-            v-for="(field, index) in fields"
-            :key="(field as any)?.__key || (field as FormKitSchemaFormKit)?.name || (field as FormKitSchemaFormKit)?.$formkit + index"
-            :class="cn(
-            'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-            'px-2 py-1 !cursor-grab h-full !z-20 relative border-[1.5px]',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
-            ((field as any)?.__key && (field as any).__key === selectedKey) || selectedIndex === index
-              ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
-              : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
-          )"
-          :style="{
-            gridColumn: `span ${getColSpan(field, index)} / span ${getColSpan(field, index)}`,
-            gridRow: `span ${getRowSpan(field, index)} / span ${getRowSpan(field, index)}`,
-          }"
-          tabindex="0"
-          @pointerdown="clickedField(index)"
-          @keydown.enter.stop.prevent="clickedField(index)"
-          @keydown.space.stop.prevent="clickedField(index)"
-          >
-            <!-- Field content -->
-            <div class="flex gap-1.5 w-full pb-2">
-              <div class="flex-1 w-full">
-                <FormKitSchema
-                  :schema="[renderCanvasSchemaNode(field)]"
-                  :library="schemaLibrary"
-                  :key="`${(field as any)?.__key ?? (field as FormKitSchemaFormKit)?.name ?? index}-${(field as FormKitSchemaFormKit)?.$formkit ?? 'unknown'}`"
-                />
-              </div>
-            </div>
-
-            <!-- Bottom controls: validation rules count + delete button -->
-            <div class="absolute bottom-1 right-1 flex flex-row z-40">
-              <div
-                class="px-2 mr-1 border-1 border-ring/40 dark:border-ring/20 rounded-md flex items-center justify-center"
-                v-if="selectedIndex === index"
-              >
-                <span class="text-xs">
-                  {{ validationStringLength }} {{ pluralize(validationStringLength, 'rule') }}
-                </span>
-              </div>
-              <n-button
-                quaternary
-                size="small"
-                :aria-label="t('builder.deleteField')"
-                @click.stop="deleteField(index)"
-                class="!h-[26px] !w-[26px] !rounded-[7px] !text-muted-foreground
-                      hover:!bg-red-100 hover:!text-red-600
-                      active:!scale-95 active:!bg-red-200 active:!text-red-700
-                      dark:hover:!bg-red-950/50 dark:hover:!text-red-400
-                      transition-all duration-150"
-              >
-                <template #icon><span class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
-              </n-button>
-            </div>
-
-            <!-- Resize handle -->
-            <n-button
-              text
-              size="small"
-              class="absolute top-1/2 -translate-y-1/2 -right-3 z-30
-                    opacity-0 pointer-events-none
-                    group-hover:opacity-100 group-hover:pointer-events-auto
-                    transition-all duration-150
-                    !cursor-ew-resize"
-              content-class="!cursor-ew-resize"
-              :class="resizingIndex === index
-                ? '!opacity-100 scale-110'
-                : isDragging ? '!opacity-0 !pointer-events-none' : ''"
-              @pointerdown.stop.prevent="startResize($event, index)"
-              @keydown.left.stop.prevent="nudgeResize(index, -2)"
-              @keydown.right.stop.prevent="nudgeResize(index, 2)"
-            >
-              <template #icon>
-                <span class="i-lucide-more-vertical h-5 w-5"></span>
-              </template>
-            </n-button>
-
-            <!-- 拖拽宽度遮罩 -->
-            <div
-              v-if="resizingIndex === index"
-              class="absolute inset-0 z-40 bg-[#a277ff]/[0.06] flex items-center justify-center rounded-xl border-[1.5px] border-[#a277ff]/50"
-            >
-              <span class="bg-[#a277ff] text-white text-xs font-medium px-2.5 py-1 rounded-lg tracking-wide">
-                {{ (getColSpan(field, index) / 12 * 100).toFixed(0) }}%
-              </span>
-            </div>
-          </li>
-        </ul>
+        <ContainerChildrenGrid
+          :container-ref="rootGrid.containerRef"
+          :items="rootGrid.items"
+          :selected-key="selectedKey"
+          :empty-text="t('builder.listDropHere')"
+          :delete-aria-label="t('builder.deleteField')"
+          :data-attrs="{ 'data-testid': 'drop-area' }"
+          :ul-class="dropAreaUlClass"
+          :on-select="onSelectRoot"
+          :on-delete="deleteField"
+          :on-resize-end="onResizeEnd"
+        />
       </n-card>
     </div>
 

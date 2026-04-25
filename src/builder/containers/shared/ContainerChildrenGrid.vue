@@ -17,9 +17,10 @@ const props = defineProps<{
   deleteAriaLabel: string
   showDeleteTooltip?: boolean
   deleteTooltipText?: string
-  dataAttrs?: Record<string, string | undefined>
+  dataAttrs?: Record<string, string | number | boolean | undefined>
+  ulClass?: string
   setNestedParentOnRoot?: (active: boolean) => void
-  onSelect: (child: FormKitSchemaFormKit) => void
+  onSelect: (child: FormKitSchemaFormKit, index: number) => void
   onDelete: (index: number) => void
   onResizeEnd: () => void
 }>()
@@ -31,6 +32,28 @@ const schemaLibrary = computed(() => canvasCtx?.library as any)
 const renderSchemaNode = (node: unknown) => {
   return (canvasCtx?.renderNode ? canvasCtx.renderNode(node) : toCanvasSchemaNode(node as any)) as any
 }
+
+const tailwindSafelist = [
+  'col-span-1',
+  'col-span-2',
+  'col-span-3',
+  'col-span-4',
+  'col-span-5',
+  'col-span-6',
+  'col-span-7',
+  'col-span-8',
+  'col-span-9',
+  'col-span-10',
+  'col-span-11',
+  'col-span-12',
+  'row-span-1',
+  'row-span-2',
+  'row-span-3',
+  'row-span-4',
+  'row-span-5',
+  'row-span-6',
+]
+void tailwindSafelist
 
 const { resizingIndex, startResize } = useGridSpanResize({
   items: props.items,
@@ -49,7 +72,7 @@ const { resizingIndex, startResize } = useGridSpanResize({
       @dragstart.capture="isDragging = true"
       @dragend.capture="isDragging = false; props.setNestedParentOnRoot?.(false)"
       @drop="isDragging = false; props.setNestedParentOnRoot?.(false)"
-      :class="props.items.value.length === 0 ? 'bg-muted/20 rounded-lg' : ''"
+      :class="[props.ulClass, props.items.value.length === 0 ? 'bg-muted/20 rounded-lg' : '']"
     >
       <li
         v-for="(child, idx) in props.items.value"
@@ -67,7 +90,9 @@ const { resizingIndex, startResize } = useGridSpanResize({
           gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
         }"
         tabindex="0"
-        @pointerdown.stop="props.onSelect(child)"
+        @pointerdown.stop="props.onSelect(child, idx)"
+        @keydown.enter.stop.prevent="props.onSelect(child, idx)"
+        @keydown.space.stop.prevent="props.onSelect(child, idx)"
       >
         <div class="flex gap-1.5 p-1 w-full pb-2">
           <div class="flex-1 w-full">
