@@ -16,7 +16,7 @@ const events: EventDef[] = [
   {
     key: 'onClick',
     title: 'Click',
-    placeholder: `if (data.someAttributes.class === '!text-red-500') {\n  data.someAttributes.class = '!text-blue-500'\n} else {\n  data.someAttributes.class = '!text-red-500'\n}\nawait axios.get('/api/ping')`,
+    placeholder: `console.log('clicked', event)\nawait axios.get('/api/ping')`,
   },
   {
     key: 'onChange',

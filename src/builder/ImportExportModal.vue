@@ -78,12 +78,8 @@ const indent = (code: string, spaces: number) => {
 const safeVar = (value: unknown) => {
   const raw = String(value ?? '')
   const cleaned = raw.replace(/[^a-zA-Z0-9_]/g, '_')
-  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `_${cleaned}`
-  return start || '_bind'
-}
-
-const bindVarFromKey = (key: string) => {
-  return key.startsWith('_') ? `bind${key}` : `bind_${key}`
+  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `k_${cleaned}`
+  return start || 'k_bind'
 }
 
 const cloneSchema = (schema: FormKitSchemaFormKit[]) => {
@@ -103,12 +99,10 @@ const exportAsJs = () => {
       if (!node || typeof node !== 'object') continue
       const bind = node.__bind
       if (bind && typeof bind === 'object' && !Array.isArray(bind)) {
-        const bindExp = typeof node.bind === 'string' ? node.bind.trim() : ''
-        const isSimpleVar = /^\$[a-zA-Z_]\w*$/.test(bindExp)
         const key = safeVar(node.__key || node.name || node.$formkit || node.$el)
-        const varName = isSimpleVar ? bindExp.slice(1) : bindVarFromKey(key)
+        const varName = `bind_${key}`
         bindVarMap[varName] = bind as any
-        if (!isSimpleVar) node.bind = `$${varName}`
+        node.bind = `$${varName}`
         delete node.__bind
       }
       if (Array.isArray(node.children)) visit(node.children)

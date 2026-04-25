@@ -36,6 +36,13 @@ const renderSchemaNode = (node: unknown) => {
 
 const bindCache = new Map<string, { sig: string; data: any }>()
 
+const safeVar = (value: unknown) => {
+  const raw = String(value ?? '')
+  const cleaned = raw.replace(/[^a-zA-Z0-9_]/g, '_')
+  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `k_${cleaned}`
+  return start || 'k_bind'
+}
+
 const getSchemaData = (child: any, idx: number) => {
   const key = String(child?.__key || child?.name || `${child?.$formkit || child?.$el || 'node'}-${idx}`)
   const rawBind = child?.__bind
@@ -43,18 +50,19 @@ const getSchemaData = (child: any, idx: number) => {
   const cached = bindCache.get(key)
   if (cached && cached.sig === sig) return cached.data
   const attrs: any = rawBind && typeof rawBind === 'object' ? { ...rawBind } : {}
-  const data: any = { someAttributes: attrs }
+  const varName = `bind_${safeVar(child?.__key || child?.name || child?.$formkit || child?.$el || key)}`
+  const data: any = { [varName]: attrs }
   for (const k of Object.keys(attrs)) {
     const v = attrs[k]
     if (typeof v === 'string' && v.trim() && k.startsWith('on')) {
       const code = v
       attrs[k] = async (event: unknown) => {
-        await runBindCode(code, event, data)
+        await runBindCode(code, event, data, attrs)
       }
     } else if (v && typeof v === 'object' && typeof v.__js === 'string') {
       const code = v.__js
       attrs[k] = async (event: unknown) => {
-        await runBindCode(code, event, data)
+        await runBindCode(code, event, data, attrs)
       }
     }
   }

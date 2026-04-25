@@ -55,6 +55,9 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
           ;(node as any).__bind = bind
         }
         delete (node as any).bind
+      } else if (typeof bind === 'string') {
+        if (bind === '$someAttributes') delete (node as any).bind
+        else if (bind.startsWith('$bind_')) delete (node as any).bind
       }
       if (Array.isArray(node.children)) visit(node.children)
     }

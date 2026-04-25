@@ -298,12 +298,8 @@ const cloneRuntime = (value: any): any => {
 const safeVar = (value: unknown) => {
   const raw = String(value ?? '')
   const cleaned = raw.replace(/[^a-zA-Z0-9_]/g, '_')
-  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `_${cleaned}`
-  return start || '_bind'
-}
-
-const bindVarFromKey = (key: string) => {
-  return key.startsWith('_') ? `bind${key}` : `bind_${key}`
+  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `k_${cleaned}`
+  return start || 'k_bind'
 }
 
 const eachField = (schema: FormKitSchemaFormKit[], fn: (field: any) => void) => {
@@ -331,11 +327,7 @@ const applyBindRuntime = (schema: FormKitSchemaFormKit[]) => {
     const bind = field.__bind
     if (!bind || typeof bind !== 'object' || Array.isArray(bind)) return
 
-    const bindExp = typeof field.bind === 'string' ? field.bind.trim() : ''
-    const isSimpleVar = /^\$[a-zA-Z_]\w*$/.test(bindExp)
-    const varName = isSimpleVar
-      ? bindExp.slice(1)
-      : bindVarFromKey(safeVar(field.__key || field.name || field.$formkit || field.$el))
+    const varName = `bind_${safeVar(field.__key || field.name || field.$formkit || field.$el)}`
     const attrs: any = { ...(bind as any) }
 
     for (const k of Object.keys(attrs)) {
@@ -355,7 +347,7 @@ const applyBindRuntime = (schema: FormKitSchemaFormKit[]) => {
     }
 
     runtimeReactive[varName] = attrs
-    if (!isSimpleVar) field.bind = `$${varName}`
+    field.bind = `$${varName}`
     delete field.__bind
   })
 
