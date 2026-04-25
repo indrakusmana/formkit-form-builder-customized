@@ -8,7 +8,6 @@ import { toCanvasSchemaNode } from '@/utils/canvas-schema'
 import { useCanvasSchemaContext } from '@/builder/composables/canvas-schema-context'
 import { pluralize, validationCount } from '@/utils/text'
 import { useGridSpanResize } from '@/builder/composables/use-grid-span-resize'
-import { runBindCode } from '@/utils/bind-runtime'
 
 const props = defineProps<{
   containerRef: Ref<unknown>
@@ -32,42 +31,6 @@ const canvasCtx = useCanvasSchemaContext()
 const schemaLibrary = computed(() => canvasCtx?.library as any)
 const renderSchemaNode = (node: unknown) => {
   return (canvasCtx?.renderNode ? canvasCtx.renderNode(node) : toCanvasSchemaNode(node as any)) as any
-}
-
-const bindCache = new Map<string, { sig: string; data: any }>()
-
-const safeVar = (value: unknown) => {
-  const raw = String(value ?? '')
-  const cleaned = raw.replace(/[^a-zA-Z0-9_]/g, '_')
-  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `k_${cleaned}`
-  return start || 'k_bind'
-}
-
-const getSchemaData = (child: any, idx: number) => {
-  const key = String(child?.__key || child?.name || `${child?.$formkit || child?.$el || 'node'}-${idx}`)
-  const rawBind = child?.__bind
-  const sig = rawBind && typeof rawBind === 'object' ? JSON.stringify(rawBind) : ''
-  const cached = bindCache.get(key)
-  if (cached && cached.sig === sig) return cached.data
-  const attrs: any = rawBind && typeof rawBind === 'object' ? { ...rawBind } : {}
-  const varName = `bind_${safeVar(child?.__key || child?.name || child?.$formkit || child?.$el || key)}`
-  const data: any = { [varName]: attrs }
-  for (const k of Object.keys(attrs)) {
-    const v = attrs[k]
-    if (typeof v === 'string' && v.trim() && k.startsWith('on')) {
-      const code = v
-      attrs[k] = async (event: unknown) => {
-        await runBindCode(code, { event, data, attrs })
-      }
-    } else if (v && typeof v === 'object' && typeof v.__js === 'string') {
-      const code = v.__js
-      attrs[k] = async (event: unknown) => {
-        await runBindCode(code, { event, data, attrs })
-      }
-    }
-  }
-  bindCache.set(key, { sig, data })
-  return data
 }
 
 const tailwindSafelist = [
@@ -139,7 +102,6 @@ const { resizingIndex, startResize } = useGridSpanResize({
             <FormKitSchema
               :schema="[renderSchemaNode(child)]"
               :library="schemaLibrary"
-              :data="getSchemaData(child as any, idx)"
               :key="`container-child-${idx}`"
             />
           </div>

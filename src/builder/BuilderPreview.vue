@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, reactive, ref, watchEffect } from 'vue'
+import { computed, provide, ref, watchEffect } from 'vue'
 import { NModal } from 'naive-ui'
 import { formSchema } from '../utils/default-form-elements'
 import createFormattedSchema from '../utils/format-schema'
@@ -49,7 +49,6 @@ import { previewSchemaLibrary } from './containers'
 import { collectSchemaNames, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 import { getContainerKind } from '../utils/schema/containers'
-import { runBindCode } from '../utils/bind-runtime'
 
 const { t } = useFormBuilderI18n()
 
@@ -59,7 +58,6 @@ const previewSchema = ref<FormKitSchemaFormKit[]>([])
 const previewListItemSeq = ref<Record<string, number>>({})
 const formattedSchema = createFormattedSchema(previewSchema)
 const schemaLibrary = previewSchemaLibrary
-const previewRuntimeData = ref<Record<string, unknown>>({})
 
 provide('isPreviewOpen', isOpen)
 
@@ -285,23 +283,6 @@ const safeClone = <T,>(value: T): T => {
   }
 }
 
-const cloneRuntime = (value: any): any => {
-  if (Array.isArray(value)) return value.map((v) => cloneRuntime(v))
-  if (value && typeof value === 'object') {
-    const out: any = {}
-    for (const k of Object.keys(value)) out[k] = cloneRuntime(value[k])
-    return out
-  }
-  return value
-}
-
-const safeVar = (value: unknown) => {
-  const raw = String(value ?? '')
-  const cleaned = raw.replace(/[^a-zA-Z0-9_]/g, '_')
-  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `k_${cleaned}`
-  return start || 'k_bind'
-}
-
 const eachField = (schema: FormKitSchemaFormKit[], fn: (field: any) => void) => {
   for (const field of schema) {
     fn(field)
@@ -316,39 +297,6 @@ const collectSchemaNamesSafe = (schema: FormKitSchemaFormKit[], names: Set<strin
     const raw = field?.name
     if (typeof raw !== 'string' || !raw) return
     names.add(toSafeName(raw))
-  })
-}
-
-const applyBindRuntime = (schema: FormKitSchemaFormKit[], getModel: () => Record<string, unknown>) => {
-  eachField(schema, (field: any) => {
-    if (!field || typeof field !== 'object') return
-    const bind = field.__bind
-    if (!bind || typeof bind !== 'object' || Array.isArray(bind)) return
-
-    const varName = `bind_${safeVar(field.__key || field.name || field.$formkit || field.$el)}`
-    const attrs: any = { ...(bind as any) }
-
-    for (const k of Object.keys(attrs)) {
-      if (!k.startsWith('on')) continue
-      const v = attrs[k]
-      if (typeof v === 'string' && v.trim()) {
-        const code = v
-        attrs[k] = async (event: unknown) => {
-          const data = getModel()
-          await runBindCode(code, { event, data, attrs })
-        }
-      } else if (v && typeof v === 'object' && typeof v.__js === 'string') {
-        const code = v.__js
-        attrs[k] = async (event: unknown) => {
-          const data = getModel()
-          await runBindCode(code, { event, data, attrs })
-        }
-      }
-    }
-
-    getModel()[varName] = attrs
-    field.bind = `$${varName}`
-    delete field.__bind
   })
 }
 
@@ -395,15 +343,13 @@ const handleSubmit = async (formData: Record<string, unknown>) => {
   console.log('Form submitted:', formData)
   await new Promise((r) => setTimeout(r, 1000))
   alert(t('builder.formSubmitted'))
-  data.value = reactive(cloneRuntime(previewRuntimeData.value))
+  data.value = {}
 }
 
 const open = () => {
   isOpen.value = true
   previewSchema.value = safeClone(formSchema.value)
-  data.value = reactive({})
-  applyBindRuntime(previewSchema.value, () => data.value as any)
-  previewRuntimeData.value = cloneRuntime(data.value)
+  data.value = {}
   previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
@@ -416,7 +362,6 @@ const close = () => {
   previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}
-  previewRuntimeData.value = {}
 }
 
 defineExpose({
