@@ -17,7 +17,7 @@ pnpm i vue naive-ui @vueuse/core
 ## 样式引入
 
 ```ts
-import '@zeng-alt/formkit-form-builder/style.css'
+import "@zeng-alt/formkit-form-builder/style.css";
 ```
 
 ## 快速开始
@@ -28,25 +28,25 @@ import '@zeng-alt/formkit-form-builder/style.css'
 
 ```ts
 // main.ts
-import { createApp } from 'vue'
-import { plugin as formkitPlugin } from '@formkit/vue'
-import App from './App.vue'
-import formkitConfig from './formkit.config'
+import { createApp } from "vue";
+import { plugin as formkitPlugin } from "@formkit/vue";
+import App from "./App.vue";
+import formkitConfig from "./formkit.config";
 
-createApp(App).use(formkitPlugin, formkitConfig).mount('#app')
+createApp(App).use(formkitPlugin, formkitConfig).mount("#app");
 ```
 
 ### 2) 使用 FormBuilder
 
 ```vue
 <script setup lang="ts">
-import { FormBuilder, BuilderProvider } from 'formkit-form-builder'
-import 'formkit-form-builder/style.css'
+import { FormBuilder, BuilderProvider } from "formkit-form-builder";
+import "formkit-form-builder/style.css";
 
 const config = {
-  locale: 'zh-CN',
-  apiKey: '',
-}
+  locale: "zh-CN",
+  apiKey: "",
+};
 </script>
 
 <template>
@@ -67,7 +67,7 @@ import {
   FormBuilderProvider,
   useFormBuilderConfig,
   provideFormBuilderConfig,
-} from 'formkit-form-builder'
+} from "formkit-form-builder";
 ```
 
 - `FormBuilder`：主组件（设计器 UI）。
@@ -78,9 +78,9 @@ import {
 
 ```ts
 export interface FormBuilderConfig {
-  apiKey?: string
-  locale?: string
-  messages?: Record<string, any>
+  apiKey?: string;
+  locale?: string;
+  messages?: Record<string, any>;
 }
 ```
 
@@ -92,15 +92,15 @@ export interface FormBuilderConfig {
 
 ```ts
 const config = {
-  locale: 'zh-CN',
+  locale: "zh-CN",
   messages: {
-    'zh-CN': {
+    "zh-CN": {
       builder: {
-        clearForm: '清空当前表单',
+        clearForm: "清空当前表单",
       },
     },
   },
-}
+};
 ```
 
 ## 示例
@@ -143,4 +143,9 @@ pnpm publish --access public
 ```bash
 pnpm install
 pnpm dev
+
+pnpm version patch   # 1.0.0 → 1.0.1
+pnpm version minor   # 1.0.0 → 1.1.0
+pnpm version major   # 1.0.0 → 2.0.0
+pnpm publish
 ```
