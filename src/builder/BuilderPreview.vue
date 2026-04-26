@@ -30,7 +30,7 @@
       <div class="mt-4 p-3 bg-muted/30 rounded border border-border/50">
         <h3 class="text-[11px] font-medium mb-2 text-foreground/80">{{ t('builder.formDataTitle') }}</h3>
 
-        <pre class="text-[11px] text-muted-foreground">{{ JSON.stringify(data, null, 2) }}</pre>
+        <pre class="text-[11px] text-muted-foreground">{{ prettyData }}</pre>
       </div>
     </div>
   </n-modal>
@@ -45,9 +45,10 @@ import { canvasView } from '../composables/form-fields'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { evalExpression } from '../utils/expression-eval'
 import { useFormBuilderI18n } from '../i18n/context'
-import { CardContainerPreview, ListContainerPreview } from './containers'
+import { previewSchemaLibrary } from './containers'
 import { collectSchemaNames, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
+import { getContainerKind } from '../utils/schema/containers'
 
 const { t } = useFormBuilderI18n()
 
@@ -56,9 +57,20 @@ const data = ref({})
 const previewSchema = ref<FormKitSchemaFormKit[]>([])
 const previewListItemSeq = ref<Record<string, number>>({})
 const formattedSchema = createFormattedSchema(previewSchema)
-const schemaLibrary = computed(() => ({ ListContainerPreview, CardContainerPreview }))
+const schemaLibrary = previewSchemaLibrary
 
 provide('isPreviewOpen', isOpen)
+
+const prettyData = computed(() =>
+  JSON.stringify(
+    data.value,
+    (_k, v) => {
+      if (typeof v === 'function') return '[Function]'
+      return v
+    },
+    2,
+  ),
+)
 
 const normalizePath = (path: number[]) => path.filter((p) => p !== -1)
 
@@ -128,12 +140,16 @@ const canonicalBaseName = (value: unknown) => {
   return match?.[1] || safe
 }
 
-const isStructureNode = (node: any) => ['list', 'group', 'card'].includes(String(node?.$formkit ?? ''))
+const isStructureNode = (node: any) => {
+  const kind = getContainerKind(node)
+  if (kind) return true
+  return ['group'].includes(String(node?.$formkit ?? ''))
+}
 
 const collectLeafBases = (node: any, bases: Set<string>) => {
   if (!node || typeof node !== 'object') return
   if (!isStructureNode(node) && node.$formkit !== 'submit') {
-    const rawName = node.name || node.$formkit || 'field'
+    const rawName = node.name || node.$formkit || node.$cmp || 'field'
     const base = canonicalBaseName(rawName)
     if (base) bases.add(base)
   }
@@ -146,9 +162,10 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listS
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
   const next: any = { ...node, __key: nextKey }
+  const kind = getContainerKind(node)
   if (node.$formkit !== 'submit') {
     if (!isStructureNode(node)) {
-      const rawName = node.name || node.$formkit || 'field'
+      const rawName = node.name || node.$formkit || node.$cmp || 'field'
       const base = canonicalBaseName(rawName)
       let candidate = listSuffix > 0 ? `${base}_${listSuffix}` : base
       let i = 1
@@ -164,6 +181,14 @@ const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listS
   }
   if (Array.isArray(node.children)) {
     next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames, listSuffix))
+  }
+  if (kind) {
+    const baseProps = typeof next.props === 'object' && next.props ? next.props : {}
+    if (kind === 'list') {
+      next.props = { ...baseProps, listKey: nextKey, modelValue: Array.isArray(next.children) ? next.children : [] }
+    } else {
+      next.props = { ...baseProps, cardKey: nextKey, modelValue: Array.isArray(next.children) ? next.children : [] }
+    }
   }
   return next
 }
@@ -200,7 +225,7 @@ provide(
     const info = getParentArrayAtPath(previewSchema.value as any[], found.path)
     if (!info) return true
     const { parentArr } = info
-    const last = [...parentArr].reverse().find((n: any) => n?.$formkit === 'list' && (n as any)?.__preview_placeholder !== true)
+    const last = [...parentArr].reverse().find((n: any) => getContainerKind(n) === 'list' && (n as any)?.__preview_placeholder !== true)
     if (!last) return true
     return (last as any).__key === key
   },
@@ -215,7 +240,7 @@ provide(
       const walk = (nodes: any[]): boolean => {
         for (const node of nodes) {
           if (!node || typeof node !== 'object') continue
-          if (node.$formkit === 'list' && node.__key !== key && (node as any).__preview_placeholder !== true) return true
+          if (getContainerKind(node) === 'list' && node.__key !== key && (node as any).__preview_placeholder !== true) return true
           const children = (node as any)?.children
           if (Array.isArray(children) && walk(children)) return true
         }
@@ -323,8 +348,8 @@ const handleSubmit = async (formData: Record<string, unknown>) => {
 
 const open = () => {
   isOpen.value = true
-  data.value = {}
   previewSchema.value = safeClone(formSchema.value)
+  data.value = {}
   previewListItemSeq.value = {}
   lastComputedValueByName.value = {}
   lastDepsSigByName.value = {}

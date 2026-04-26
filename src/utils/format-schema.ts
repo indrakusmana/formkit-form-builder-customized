@@ -1,5 +1,6 @@
 import { computed, type Ref } from 'vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
+import { formatContainerPreviewNode, normalizeContainerNode } from '@/containers/registry'
 
 export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]> | undefined) {
   return computed(() => {
@@ -7,6 +8,13 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
     const formatOne = (field: FormKitSchemaFormKit, index: number): any => {
       const key = (field as any)?.__key as string | undefined
       const isPreviewPlaceholder = (field as any)?.__preview_placeholder === true
+      const normalized = normalizeContainerNode(field as any) as any
+      const formattedContainer = formatContainerPreviewNode(normalized, {
+        key,
+        isPlaceholder: isPreviewPlaceholder,
+        format: formatOne,
+      })
+      if (formattedContainer) return formattedContainer
       const {
         $formkit,
         label,
@@ -20,7 +28,9 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         type,
         buttonProps,
         buttonText,
-        naiveProps,
+        props,
+        __bind,
+        bind,
         min,
         max,
         validationVisibility,
@@ -28,41 +38,10 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         step,
         multiple,
         accept,
+        if: schemaIf,
       } = field
 
-      if ($formkit === 'list') {
-        const children = Array.isArray((field as any)?.children)
-          ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
-          : []
-        return {
-          $el: 'div',
-          attrs: { class: outerClass || 'col-span-12' },
-          children: [
-            {
-              $cmp: 'ListContainerPreview',
-              props: { nodeKey: key, children, label, isPlaceholder: isPreviewPlaceholder },
-            },
-          ],
-        }
-      }
-
-      if ($formkit === 'card') {
-        const children = Array.isArray((field as any)?.children)
-          ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
-          : []
-        return {
-          $el: 'div',
-          attrs: { class: outerClass || 'col-span-12' },
-          children: [
-            {
-              $cmp: 'CardContainerPreview',
-              props: { children, label, help, naiveProps },
-            },
-          ],
-        }
-      }
-
-      const cleanField: FormKitSchemaFormKit = {
+      const cleanField: any = {
         $formkit,
         name: field.name || (key ? `field_${key}` : `field_${index}`),
         id: field.id || (key ? `preview_field_${key}` : `preview_field_${index}`),
@@ -76,7 +55,8 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         type,
         buttonProps,
         buttonText,
-        naiveProps,
+        props,
+        __bind,
         number,
         min,
         max,
@@ -86,8 +66,9 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         multiple,
         accept,
       }
-
-      if (options) cleanField.options = options
+      if (typeof bind === 'string' && bind.trim()) cleanField.bind = bind
+      if (typeof schemaIf === 'string' && schemaIf.trim()) cleanField.if = schemaIf
+      else if (typeof schemaIf === 'boolean') cleanField.if = schemaIf
       return cleanField
     }
 

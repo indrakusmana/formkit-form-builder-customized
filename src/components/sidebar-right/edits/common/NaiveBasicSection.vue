@@ -9,11 +9,11 @@ const props = defineProps<{
   clearable?: boolean
 }>()
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 
-const naiveSize = createNaiveProp<string>('size', 'medium')
-const naiveDisabled = createNaiveProp<boolean>('disabled', false)
-const naiveClearable = createNaiveProp<boolean>('clearable', true)
+const naiveSize = createPropsProp<string>('size', 'medium')
+const naiveDisabled = createPropsProp<boolean>('disabled', false)
+const naiveClearable = createPropsProp<boolean>('clearable', true)
 </script>
 
 <template>
@@ -42,4 +42,3 @@ const naiveClearable = createNaiveProp<boolean>('clearable', true)
     @update:value="(v) => (naiveClearable = v)"
   />
 </template>
-

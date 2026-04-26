@@ -58,6 +58,7 @@ export default defineConfig({
     "i-lucide-move-right",
     "i-lucide-credit-card",
     "i-lucide-upload",
+    "i-lucide-rotate-ccw",
     "i-lucide-plus",
   ],
   presets: [

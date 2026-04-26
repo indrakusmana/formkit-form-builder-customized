@@ -3,6 +3,7 @@ export default {
     selectFieldToEdit: '请选择一个字段来编辑属性',
     cancel: '取消',
     confirm: '确认',
+    save: '保存',
   },
   sidebar: {
     search: '搜索...',
@@ -22,6 +23,11 @@ export default {
     importExportSchema: '导入 / 导出 Schema',
     previewTitle: '表单预览',
     previewDescription: '预览表单并测试其功能。',
+    bindTitle: 'Bind',
+    bindEvents: '事件',
+    noEvents: '暂无事件',
+    editEvent: '编辑事件',
+    bindHint: '编写 JavaScript，可使用 axios 和 event 参数。',
     addListContainer: '添加列表容器',
     formDataTitle: '表单数据：',
     formSubmitted: '表单已提交！',
@@ -34,6 +40,7 @@ export default {
     title: '导入 / 导出 Schema',
     placeholder: '在这里粘贴表单 schema 的 JSON...',
     downloadJson: '下载 JSON',
+    downloadJs: '下载 JS',
     saveAndImport: '保存并导入',
     schemaMustBeArray: 'Schema 必须是数组',
     importSuccess: 'Schema 导入成功',
@@ -46,6 +53,10 @@ export default {
     useExpressionValue: '使用表达式值',
     placeholder: '例如：$my_variable + 1',
     variablesNotFound: '未找到变量：{vars}',
+  },
+  condition: {
+    useIf: '条件渲染（if）',
+    placeholder: '例如：$other == "yes" && $age >= 18',
   },
   ai: {
     tooltip: 'AI 助手',
@@ -149,6 +160,7 @@ export default {
       time: '时间',
       url: '链接',
       submit: '提交按钮',
+      reset: '重置按钮',
       naiveButton: '按钮（Naive）',
       naiveText: '文本（Typography）',
       naiveP: '段落（Typography）',
@@ -220,9 +232,9 @@ export default {
     tel: { name: '电话', label: '电话字段', placeholder: '(+XX) XXXXXXXXXX', description: '电话输入框' },
     naiveButton: { name: '按钮（Naive）', label: '按钮', description: 'Naive UI 按钮' },
     submit: { name: '提交按钮', label: '提交', description: '提交表单' },
+    reset: { name: '重置按钮', label: '重置', description: '重置表单内容' },
     group: { name: '分组', label: '分组', description: '字段对象分组' },
     list: { name: '列表', label: '列表', description: '字段数组分组' },
     card: { name: '卡片容器', label: '卡片', description: '可包含子字段的卡片容器' },
   },
 } as const
-

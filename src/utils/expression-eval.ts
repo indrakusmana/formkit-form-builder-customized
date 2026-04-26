@@ -1,12 +1,28 @@
 type Token =
   | { type: 'number'; value: number }
   | { type: 'string'; value: string }
+  | { type: 'boolean'; value: boolean }
   | { type: 'var'; name: string }
   | { type: 'op'; op: Op }
   | { type: 'lparen' }
   | { type: 'rparen' }
 
-type Op = '+' | '-' | '*' | '/' | 'u-' | 'u+'
+type Op =
+  | '+'
+  | '-'
+  | '*'
+  | '/'
+  | 'u-'
+  | 'u+'
+  | '!'
+  | '=='
+  | '!='
+  | '>'
+  | '>='
+  | '<'
+  | '<='
+  | '&&'
+  | '||'
 
 const isWhitespace = (ch: string) => ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r'
 const isDigit = (ch: string) => ch >= '0' && ch <= '9'
@@ -41,7 +57,7 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
   let i = 0
   const n = input.length
 
-  const pushOp = (op: '+' | '-' | '*' | '/') => {
+  const pushOp = (op: Op) => {
     tokens.push({ type: 'op', op })
   }
 
@@ -59,6 +75,54 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
     }
     if (ch === ')') {
       tokens.push({ type: 'rparen' })
+      i++
+      continue
+    }
+    if (ch === '&') {
+      if (input[i + 1] !== '&') return { ok: false, error: '无法解析字符: &' }
+      pushOp('&&')
+      i += 2
+      continue
+    }
+    if (ch === '|') {
+      if (input[i + 1] !== '|') return { ok: false, error: '无法解析字符: |' }
+      pushOp('||')
+      i += 2
+      continue
+    }
+    if (ch === '=') {
+      if (input[i + 1] !== '=') return { ok: false, error: '无法解析字符: =' }
+      pushOp('==')
+      i += 2
+      continue
+    }
+    if (ch === '!') {
+      if (input[i + 1] === '=') {
+        pushOp('!=')
+        i += 2
+        continue
+      }
+      pushOp('!')
+      i++
+      continue
+    }
+    if (ch === '>') {
+      if (input[i + 1] === '=') {
+        pushOp('>=')
+        i += 2
+        continue
+      }
+      pushOp('>')
+      i++
+      continue
+    }
+    if (ch === '<') {
+      if (input[i + 1] === '=') {
+        pushOp('<=')
+        i += 2
+        continue
+      }
+      pushOp('<')
       i++
       continue
     }
@@ -80,6 +144,22 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
       deps.add(name)
       tokens.push({ type: 'var', name })
       continue
+    }
+
+    if (isIdentStart(ch)) {
+      const start = i
+      i++
+      while (i < n && isIdent(input[i]!)) i++
+      const word = input.slice(start, i)
+      if (word === 'true') {
+        tokens.push({ type: 'boolean', value: true })
+        continue
+      }
+      if (word === 'false') {
+        tokens.push({ type: 'boolean', value: false })
+        continue
+      }
+      return { ok: false, error: `未知标识符: ${word}` }
     }
 
     if (ch === '"' || ch === "'") {
@@ -130,16 +210,21 @@ function toRpn(tokens: Token[]): RpnResult {
   const ops: Token[] = []
 
   const prec = (op: Op) => {
-    if (op === 'u-' || op === 'u+') return 3
-    if (op === '*' || op === '/') return 2
-    return 1
+    if (op === 'u-' || op === 'u+' || op === '!') return 7
+    if (op === '*' || op === '/') return 6
+    if (op === '+' || op === '-') return 5
+    if (op === '>' || op === '>=' || op === '<' || op === '<=') return 4
+    if (op === '==' || op === '!=') return 3
+    if (op === '&&') return 2
+    if (op === '||') return 1
+    return 0
   }
-  const isRightAssoc = (op: Op) => op === 'u-' || op === 'u+'
+  const isRightAssoc = (op: Op) => op === 'u-' || op === 'u+' || op === '!'
 
   let prev: Token | null = null
 
   for (const t of tokens) {
-    if (t.type === 'number' || t.type === 'string' || t.type === 'var') {
+    if (t.type === 'number' || t.type === 'string' || t.type === 'boolean' || t.type === 'var') {
       output.push(t)
       prev = t
       continue
@@ -165,6 +250,7 @@ function toRpn(tokens: Token[]): RpnResult {
     }
     if (t.type === 'op') {
       const isUnary: boolean =
+        t.op === '!' ||
         prev === null ||
         prev.type === 'op' ||
         prev.type === 'lparen'
@@ -205,10 +291,13 @@ type EvalRpnResult =
 function evalRpn(rpn: Token[], vars: Record<string, unknown>): EvalRpnResult {
   const stack: unknown[] = []
 
+  const truthy = (v: unknown) => Boolean(v)
+
   const toNum = (v: unknown) => {
     if (typeof v === 'number') return v
     if (typeof v === 'string') return v.trim() ? Number(v) : 0
     if (v === null || v === undefined) return 0
+    if (typeof v === 'boolean') return v ? 1 : 0
     return Number(v)
   }
 
@@ -221,14 +310,22 @@ function evalRpn(rpn: Token[], vars: Record<string, unknown>): EvalRpnResult {
       stack.push(t.value)
       continue
     }
+    if (t.type === 'boolean') {
+      stack.push(t.value)
+      continue
+    }
     if (t.type === 'var') {
       stack.push(vars[t.name])
       continue
     }
     if (t.type === 'op') {
-      if (t.op === 'u-' || t.op === 'u+') {
+      if (t.op === 'u-' || t.op === 'u+' || t.op === '!') {
         if (stack.length < 1) return { ok: false, error: '表达式不完整' }
         const a = stack.pop()
+        if (t.op === '!') {
+          stack.push(!truthy(a))
+          continue
+        }
         const n = toNum(a)
         if (!Number.isFinite(n)) return { ok: false, error: '数值运算失败' }
         stack.push(t.op === 'u-' ? -n : n)
@@ -248,6 +345,42 @@ function evalRpn(rpn: Token[], vars: Record<string, unknown>): EvalRpnResult {
         const nb = toNum(b)
         if (!Number.isFinite(na) || !Number.isFinite(nb)) return { ok: false, error: '数值运算失败' }
         stack.push(na + nb)
+        continue
+      }
+
+      if (t.op === '&&') {
+        stack.push(truthy(a) && truthy(b))
+        continue
+      }
+      if (t.op === '||') {
+        stack.push(truthy(a) || truthy(b))
+        continue
+      }
+
+      if (t.op === '==' || t.op === '!=') {
+        const equal =
+          (a === null || a === undefined) && (b === null || b === undefined)
+            ? true
+            : (() => {
+                const na = toNum(a)
+                const nb = toNum(b)
+                if (Number.isFinite(na) && Number.isFinite(nb)) return na === nb
+                return String(a ?? '') === String(b ?? '')
+              })()
+        stack.push(t.op === '==' ? equal : !equal)
+        continue
+      }
+
+      if (t.op === '>' || t.op === '>=' || t.op === '<' || t.op === '<=') {
+        const na = toNum(a)
+        const nb = toNum(b)
+        const useNumber = Number.isFinite(na) && Number.isFinite(nb)
+        const left = useNumber ? na : String(a ?? '')
+        const right = useNumber ? nb : String(b ?? '')
+        if (t.op === '>') stack.push(left > right)
+        else if (t.op === '>=') stack.push(left >= right)
+        else if (t.op === '<') stack.push(left < right)
+        else stack.push(left <= right)
         continue
       }
 

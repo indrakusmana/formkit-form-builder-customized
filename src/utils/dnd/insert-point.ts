@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import type { InsertState, NodeRecord, ParentRecord } from '@formkit/drag-and-drop'
 import { state } from '@formkit/drag-and-drop'
 import { formSchema } from '../default-form-elements'
@@ -61,7 +61,8 @@ export function positionInsertPoint<T>(
 
   const resetInsertPointSegments = () => {
     if (insertPointEl.childElementCount) insertPointEl.replaceChildren()
-    insertPointEl.style.backgroundColor = ''
+    const bg = insertPointEl.getAttribute('data-insert-bg')
+    if (bg) insertPointEl.style.backgroundColor = bg
   }
 
   if (position.vertical) {

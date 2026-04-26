@@ -5,13 +5,13 @@ import TextInput from '../common/TextInput.vue'
 import SelectInput from '../common/SelectInput.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 const { t } = useFormBuilderI18n()
 
-const dividerTitle = createNaiveProp<string>('title', 'Divider')
-const dividerTitlePlacement = createNaiveProp<string>('titlePlacement', 'center')
-const dividerDashed = createNaiveProp<boolean>('dashed', false)
-const dividerVertical = createNaiveProp<boolean>('vertical', false)
+const dividerTitle = createPropsProp<string>('title', 'Divider')
+const dividerTitlePlacement = createPropsProp<string>('titlePlacement', 'center')
+const dividerDashed = createPropsProp<boolean>('dashed', false)
+const dividerVertical = createPropsProp<boolean>('vertical', false)
 </script>
 
 <template>

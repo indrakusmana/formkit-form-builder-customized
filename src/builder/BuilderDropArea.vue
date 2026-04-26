@@ -1,23 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
-import { FormKitSchema } from '@formkit/vue'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
 import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { isLoading, canvasView } from '../composables/form-fields'
 import { cn } from '../utils/utils'
-import { useFormField } from '../composables/form-fields'
 import { commitSchema } from '../composables/schema-history'
 import ImportExportModal from './ImportExportModal.vue'
-import { CardContainer, ListContainer } from './containers'
+import { canvasSchemaLibrary } from './containers'
+import { createDefaultInsertPointElement } from '../utils/dnd/insert-point-element'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 import { useFormBuilderI18n } from '@/i18n/context'
 import { useRuntimeLocale } from '@/i18n/runtime-locale'
-
-const { validationStringLength } = useFormField()
+import { toCanvasSchemaNode } from '../utils/canvas-schema'
+import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
+import { normalizeContainerNode } from '@/containers/registry'
+import ContainerChildrenGrid from '@/components/ui/containers/shared/ContainerChildrenGrid.vue'
 
 const showImportExportModal = ref(false)
 const { setLocale, locale } = useRuntimeLocale()
@@ -29,31 +30,6 @@ const deleteField = (index: number) => {
   const nextSchema = formSchema.value.filter((_: unknown, i: number) => i !== index)
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'delete' })
   fields.value = fields.value.filter((_, i) => i !== index)
-}
-
-const canonicalBaseName = (value: unknown) => {
-  const safe = toSafeName(value)
-  const match = safe.match(/^(.*_\d+)_\d+$/)
-  return match?.[1] || safe
-}
-
-const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>) => {
-  if (!node || typeof node !== 'object') return node
-  const nextKey = generateKey()
-  const base = canonicalBaseName(node.name || node.$formkit || 'field')
-  const nextName = node.$formkit === 'submit' ? node.name : ensureUniqueName(base, existingNames)
-  const next: any = {
-    ...node,
-    __key: nextKey,
-  }
-  if (node.$formkit !== 'submit') {
-    next.name = nextName
-    next.id = `field_${nextKey}`
-  }
-  if (Array.isArray(node.children)) {
-    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames))
-  }
-  return next
 }
 
 const updateContainerChildren = (containerKey: string, children: FormKitSchemaFormKit[]) => {
@@ -101,141 +77,16 @@ const updateContainerChildren = (containerKey: string, children: FormKitSchemaFo
   const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
   const nextIndex = nextSchema.findIndex((n: any) => n?.__key === containerKey)
   if (nextIndex < 0) return
-  nextSchema[nextIndex] = {
+  const merged: any = {
     ...(current as any),
     children: normalizedChildren,
-  } as FormKitSchemaFormKit
+  }
+  if (merged.$cmp) {
+    merged.props = { ...merged.props, modelValue: normalizedChildren }
+  }
+  nextSchema[nextIndex] = merged as FormKitSchemaFormKit
 
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'container-children', merge: true })
-}
-
-const duplicateListContainer = (index: number) => {
-  const current = formSchema.value[index] as any
-  if (!current) return
-  const existingNames = new Set<string>()
-  collectSchemaNames(formSchema.value as any, existingNames)
-  const cloned = cloneNodeWithFreshIdentity(structuredClone(current), existingNames)
-  const nextSchema = [...formSchema.value]
-  nextSchema.splice(index + 1, 0, cloned)
-  commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'list-duplicate' })
-}
-
-const removeListContainer = (index: number) => {
-  deleteField(index)
-}
-
-// 从 outerClass 中提取 col-span 数值，默认 12
-const getColSpan = (field: unknown, index: number): number => {
-  const outerClass =
-    (field as FormKitSchemaFormKit)?.outerClass || formSchema.value[index]?.outerClass || ''
-  const match = outerClass.match(/col-span-(\d+)/)
-  return match ? parseInt(match[1], 10) : 12
-}
-
-const getRowSpan = (field: unknown, index: number): number => {
-  const outerClass =
-    (field as FormKitSchemaFormKit)?.outerClass || formSchema.value[index]?.outerClass || ''
-  const match = outerClass.match(/row-span-(\d+)/)
-  return match ? parseInt(match[1], 10) : 1
-}
-
-const resizingIndex = ref<number | null>(null)
-const resizingPointerId = ref<number | null>(null)
-const startX = ref(0)
-const startSpan = ref(12)
-const columnWidth = ref(0)
-const isDragging = ref(false)
-
-// Safelist for Tailwind JIT to properly generate classes for dynamic column spans
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const safelistClasses = [
-  'col-span-1', 'col-span-2', 'col-span-3', 'col-span-4',
-  'col-span-5', 'col-span-6', 'col-span-7', 'col-span-8',
-  'col-span-9', 'col-span-10', 'col-span-11', 'col-span-12',
-  'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4', 'row-span-5', 'row-span-6'
-]
-
-const startResize = (e: PointerEvent, index: number) => {
-  resizingIndex.value = index
-  resizingPointerId.value = e.pointerId
-  startX.value = e.clientX
-
-  const schemaItem = formSchema.value[index]
-  if (!schemaItem) return
-
-  const match = schemaItem.outerClass?.match(/col-span-(\d+)/)
-  startSpan.value = match ? parseInt(match[1], 10) : 12
-
-  if (formFields.value) {
-    const ul = formFields.value as unknown as HTMLElement
-    columnWidth.value = ul.clientWidth / 12
-  }
-
-  ;(e.currentTarget as HTMLElement | null)?.setPointerCapture?.(e.pointerId)
-  window.addEventListener('pointermove', onPointerMove)
-  window.addEventListener('pointerup', onPointerUp)
-  window.addEventListener('pointercancel', onPointerUp)
-}
-
-const setColSpan = (index: number, newSpan: number) => {
-  newSpan = Math.max(2, Math.min(12, newSpan))
-  newSpan = Math.round(newSpan / 2) * 2
-
-  const schemaItem = formSchema.value[index]
-  if (schemaItem) {
-    let classes = schemaItem.outerClass || ''
-    if (/col-span-\d+/.test(classes)) {
-      classes = classes.replace(/col-span-\d+/, `col-span-${newSpan}`)
-    } else {
-      classes = `${classes} col-span-${newSpan}`.trim()
-    }
-    schemaItem.outerClass = classes
-
-    if (fields.value[index]) {
-      fields.value[index] = {
-        ...fields.value[index],
-        outerClass: schemaItem.outerClass
-      }
-    }
-  }
-}
-
-const onPointerMove = (e: PointerEvent) => {
-  if (resizingPointerId.value !== null && e.pointerId !== resizingPointerId.value) return
-  const index = resizingIndex.value
-  if (index === null) return
-
-  const deltaX = e.clientX - startX.value
-  const deltaSpan = Math.round(deltaX / columnWidth.value)
-  setColSpan(index, startSpan.value + deltaSpan)
-}
-
-const onPointerUp = (e: PointerEvent) => {
-  if (resizingPointerId.value !== null && e.pointerId !== resizingPointerId.value) return
-  if (resizingIndex.value !== null) {
-    commitSchema(formSchema.value, { reason: 'resize' })
-  }
-  resizingIndex.value = null
-  resizingPointerId.value = null
-  window.removeEventListener('pointermove', onPointerMove)
-  window.removeEventListener('pointerup', onPointerUp)
-  window.removeEventListener('pointercancel', onPointerUp)
-}
-
-const nudgeResize = (index: number, deltaSpan: number) => {
-  const schemaItem = formSchema.value[index]
-  if (!schemaItem) return
-
-  const match = schemaItem.outerClass?.match(/col-span-(\d+)/)
-  const currentSpan = match ? parseInt(match[1], 10) : 12
-  setColSpan(index, currentSpan + deltaSpan)
-  commitSchema(formSchema.value, { reason: 'resize' })
-}
-
-const clickedField = (index: number) => {
-  selectedIndex.value = index
-  const key = (formSchema.value[index] as any)?.__key as string | undefined
-  selectedKey.value = key ?? null
 }
 
 const selectByKey = (key: string) => {
@@ -244,19 +95,6 @@ const selectByKey = (key: string) => {
   selectedIndex.value = found.rootIndex
   selectedKey.value = key
 }
-
-const pluralize = (count: number, noun: string, suffix = 's') => {
-  return count === 1 ? noun : noun + suffix
-}
-
-const insertPointClasses = [
-  'absolute',
-  'bg-green-500',
-  'z-[2000]',
-  'rounded-sm',
-  'pointer-events-none',
-  'opacity-90',
-]
 
 const [formFields, fields] = useDragAndDrop<FormKitSchemaFormKit>(formSchema.value, {
   group: 'form-builder',
@@ -271,13 +109,13 @@ const [formFields, fields] = useDragAndDrop<FormKitSchemaFormKit>(formSchema.val
   plugins: [
     customInsertPlugin({
       insertPoint: () => {
-        const div = document.createElement('div')
-        for (const cls of insertPointClasses) div.classList.add(cls)
-        return div
+        return createDefaultInsertPointElement()
       },
     }),
   ],
 })
+
+const rootGrid = { containerRef: formFields, items: fields }
 
 watch(
   () => formSchema.value,
@@ -287,6 +125,38 @@ watch(
     }
   },
 )
+
+const dropAreaUlClass = computed(() =>
+  cn(
+    'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-0 m-0 flex-1',
+    fields.value.length === 0 ? 'min-h-[200px] h-full' : 'h-fit',
+  ),
+)
+
+const onSelectRoot = (child: FormKitSchemaFormKit, index: number) => {
+  const key = (child as any)?.__key as string | undefined
+  if (key) selectByKey(key)
+  else selectedIndex.value = index
+}
+
+const onResizeEnd = () => {
+  commitSchema(fields.value as FormKitSchemaFormKit[], { reason: 'resize', merge: true })
+}
+
+const schemaLibrary = canvasSchemaLibrary
+
+const renderCanvasSchemaNode = (field: any): any => {
+  if (!field || typeof field !== 'object') return field
+  const next = normalizeContainerNode(field)
+  return toCanvasSchemaNode(next as FormKitSchemaFormKit)
+}
+
+provideCanvasSchemaContext({
+  library: schemaLibrary,
+  renderNode: renderCanvasSchemaNode,
+  updateContainerChildren,
+  selectByKey,
+})
 </script>
 
 <template>
@@ -358,126 +228,18 @@ watch(
         )"
         content-style="padding: 16px; flex: 1; display: flex; flex-direction: column;"
       >
-        <!-- 保留原生 ul 以确保 useDragAndDrop ref 绑定正常工作 -->
-        <ul
-          ref="formFields"
-          :class="cn(
-            'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-0 m-0 flex-1',
-            fields.length === 0 ? 'min-h-[200px] h-full' : 'h-fit',
-          )"
-          @dragstart.capture="isDragging = true"
-          @dragend.capture="isDragging = false"
-          @drop.capture="isDragging = false"
-          data-testid="drop-area"
-        >
-          <li
-            v-for="(field, index) in fields"
-            :key="(field as any)?.__key || (field as FormKitSchemaFormKit)?.name || (field as FormKitSchemaFormKit)?.$formkit + index"
-            :class="cn(
-            'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-            'px-2 py-1 !cursor-grab h-full !z-20 relative border-[1.5px]',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
-            ((field as any)?.__key && (field as any).__key === selectedKey) || selectedIndex === index
-              ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
-              : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
-          )"
-          :style="{
-            gridColumn: `span ${getColSpan(field, index)} / span ${getColSpan(field, index)}`,
-            gridRow: `span ${getRowSpan(field, index)} / span ${getRowSpan(field, index)}`,
-          }"
-          tabindex="0"
-          @pointerdown="clickedField(index)"
-          @keydown.enter.stop.prevent="clickedField(index)"
-          @keydown.space.stop.prevent="clickedField(index)"
-          >
-            <!-- Field content -->
-            <div class="flex gap-1.5 w-full pb-2">
-              <div class="flex-1 w-full">
-                <ListContainer
-                  v-if="(field as any)?.$formkit === 'list'"
-                  :list-key="((field as any)?.__key as string | undefined)"
-                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
-                  :label="(field as any)?.label"
-                  :show-actions="false"
-                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
-                  @select="selectByKey"
-                />
-                <CardContainer
-                  v-else-if="(field as any)?.$formkit === 'card'"
-                  :card-key="((field as any)?.__key as string | undefined)"
-                  :model-value="(((field as any)?.children as FormKitSchemaFormKit[] | undefined) ?? [])"
-                  :label="(field as any)?.label"
-                  :help="(field as any)?.help"
-                  :naive-props="((field as any)?.naiveProps as any)"
-                  @update:model-value="(v) => updateContainerChildren(((field as any)?.__key as string) ?? '', v)"
-                  @select="selectByKey"
-                />
-                <FormKitSchema
-                  v-else
-                  :schema="[field as FormKitSchemaFormKit]"
-                  :key="`${(field as any)?.__key ?? (field as FormKitSchemaFormKit)?.name ?? index}-${(field as FormKitSchemaFormKit)?.$formkit ?? 'unknown'}`"
-                />
-              </div>
-            </div>
-
-            <!-- Bottom controls: validation rules count + delete button -->
-            <div class="absolute bottom-1 right-1 flex flex-row z-40">
-              <div
-                class="px-2 mr-1 border-1 border-ring/40 dark:border-ring/20 rounded-md flex items-center justify-center"
-                v-if="selectedIndex === index"
-              >
-                <span class="text-xs">
-                  {{ validationStringLength }} {{ pluralize(validationStringLength, 'rule') }}
-                </span>
-              </div>
-              <n-button
-                quaternary
-                size="small"
-                :aria-label="t('builder.deleteField')"
-                @click.stop="deleteField(index)"
-                class="!h-[26px] !w-[26px] !rounded-[7px] !text-muted-foreground
-                      hover:!bg-red-100 hover:!text-red-600
-                      active:!scale-95 active:!bg-red-200 active:!text-red-700
-                      dark:hover:!bg-red-950/50 dark:hover:!text-red-400
-                      transition-all duration-150"
-              >
-                <template #icon><span class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
-              </n-button>
-            </div>
-
-            <!-- Resize handle -->
-            <n-button
-              text
-              size="small"
-              class="absolute top-1/2 -translate-y-1/2 -right-3 z-30
-                    opacity-0 pointer-events-none
-                    group-hover:opacity-100 group-hover:pointer-events-auto
-                    transition-all duration-150
-                    !cursor-ew-resize"
-              content-class="!cursor-ew-resize"
-              :class="resizingIndex === index
-                ? '!opacity-100 scale-110'
-                : isDragging ? '!opacity-0 !pointer-events-none' : ''"
-              @pointerdown.stop.prevent="startResize($event, index)"
-              @keydown.left.stop.prevent="nudgeResize(index, -2)"
-              @keydown.right.stop.prevent="nudgeResize(index, 2)"
-            >
-              <template #icon>
-                <span class="i-lucide-more-vertical h-5 w-5"></span>
-              </template>
-            </n-button>
-
-            <!-- 拖拽宽度遮罩 -->
-            <div
-              v-if="resizingIndex === index"
-              class="absolute inset-0 z-40 bg-[#a277ff]/[0.06] flex items-center justify-center rounded-xl border-[1.5px] border-[#a277ff]/50"
-            >
-              <span class="bg-[#a277ff] text-white text-xs font-medium px-2.5 py-1 rounded-lg tracking-wide">
-                {{ (getColSpan(field, index) / 12 * 100).toFixed(0) }}%
-              </span>
-            </div>
-          </li>
-        </ul>
+        <ContainerChildrenGrid
+          :container-ref="rootGrid.containerRef"
+          :items="rootGrid.items"
+          :selected-key="selectedKey"
+          :empty-text="t('builder.listDropHere')"
+          :delete-aria-label="t('builder.deleteField')"
+          :data-attrs="{ 'data-testid': 'drop-area' }"
+          :ul-class="dropAreaUlClass"
+          :on-select="onSelectRoot"
+          :on-delete="deleteField"
+          :on-resize-end="onResizeEnd"
+        />
       </n-card>
     </div>
 

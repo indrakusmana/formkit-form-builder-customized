@@ -6,10 +6,10 @@ import NaiveBasicSection from '../common/NaiveBasicSection.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 import TextInput from '../common/TextInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 
-const naiveRateAllowHalf = createNaiveProp<boolean>('allowHalf', false)
-const naiveRateCountRaw = createNaiveProp<unknown>('count', 5)
+const naiveRateAllowHalf = createPropsProp<boolean>('allowHalf', false)
+const naiveRateCountRaw = createPropsProp<unknown>('count', 5)
 const naiveRateCount = computed({
   get: () => {
     const value = naiveRateCountRaw.value
@@ -39,4 +39,3 @@ const naiveRateCount = computed({
   />
   <NaiveBasicSection :disabled="true" :clearable="true" />
 </template>
-

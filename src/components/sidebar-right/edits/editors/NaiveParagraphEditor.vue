@@ -5,11 +5,11 @@ import { useFormBuilderI18n } from '../../../../i18n/context'
 import TextInput from '../common/TextInput.vue'
 import SelectInput from '../common/SelectInput.vue'
 
-const { createNaiveProp, fieldValue } = useFormField()
+const { createPropsProp, fieldValue } = useFormField()
 const { t } = useFormBuilderI18n()
 
-const typoType = createNaiveProp<string>('type', 'default')
-const typoDepthRaw = createNaiveProp<unknown>('depth', 1)
+const typoType = createPropsProp<string>('type', 'default')
+const typoDepthRaw = createPropsProp<unknown>('depth', 1)
 const typoDepth = computed({
   get: () => {
     const value = typoDepthRaw.value
@@ -22,7 +22,7 @@ const typoDepth = computed({
     typoDepthRaw.value = Number.isFinite(parsed) ? parsed : value
   },
 })
-const typoAlign = createNaiveProp<string>('align', 'start')
+const typoAlign = createPropsProp<string>('align', 'start')
 </script>
 
 <template>

@@ -4,12 +4,12 @@ import { useFormBuilderI18n } from '../../../../i18n/context'
 import TextInput from '../common/TextInput.vue'
 import SelectInput from '../common/SelectInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 const { t } = useFormBuilderI18n()
 
-const typographyText = createNaiveProp<string>('text', 'text')
-const linkHref = createNaiveProp<string>('href', 'https://www.example.com')
-const linkTarget = createNaiveProp<string>('target', '_blank')
+const typographyText = createPropsProp<string>('text', 'text')
+const linkHref = createPropsProp<string>('href', 'https://www.example.com')
+const linkTarget = createPropsProp<string>('target', '_blank')
 </script>
 
 <template>

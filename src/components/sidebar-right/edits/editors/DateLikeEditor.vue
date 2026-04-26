@@ -7,14 +7,14 @@ import PlaceholderSection from '../common/PlaceholderSection.vue'
 import NaiveBasicSection from '../common/NaiveBasicSection.vue'
 import TextInput from '../common/TextInput.vue'
 
-const { createNaiveProp, currentFieldType } = useFormField()
+const { createPropsProp, currentFieldType } = useFormField()
 
 const defaultValueFormat = computed(() => {
   if (currentFieldType.value === 'time') return DEFAULT_TIME_VALUE_FORMAT
   return DEFAULT_DATE_VALUE_FORMAT
 })
 
-const naiveValueFormat = createNaiveProp<string>('valueFormat', '')
+const naiveValueFormat = createPropsProp<string>('valueFormat', '')
 const valueFormat = computed<string>({
   get: () => {
     const raw = naiveValueFormat.value

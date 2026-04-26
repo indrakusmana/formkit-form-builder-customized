@@ -3,6 +3,7 @@ export default {
     selectFieldToEdit: 'Select a field to edit its properties',
     cancel: 'Cancel',
     confirm: 'Confirm',
+    save: 'Save',
   },
   sidebar: {
     search: 'Search...',
@@ -22,6 +23,11 @@ export default {
     importExportSchema: 'Import / Export Schema',
     previewTitle: 'Form Preview',
     previewDescription: 'Preview your form and test its functionality.',
+    bindTitle: 'Bind',
+    bindEvents: 'Events',
+    noEvents: 'No events',
+    editEvent: 'Edit event',
+    bindHint: 'Write JavaScript. You can use axios and the event argument.',
     addListContainer: 'Add list container',
     formDataTitle: 'Form Data:',
     formSubmitted: 'Form submitted!',
@@ -34,6 +40,7 @@ export default {
     title: 'Import / Export Schema',
     placeholder: 'Paste your form schema JSON here...',
     downloadJson: 'Download JSON',
+    downloadJs: 'Download JS',
     saveAndImport: 'Save & Import',
     schemaMustBeArray: 'Schema must be an array',
     importSuccess: 'Schema imported successfully',
@@ -46,6 +53,10 @@ export default {
     useExpressionValue: 'Use expression value',
     placeholder: 'e.g. $my_variable + 1',
     variablesNotFound: 'Variables not found: {vars}',
+  },
+  condition: {
+    useIf: 'Conditional render (if)',
+    placeholder: 'e.g. $other == "yes" && $age >= 18',
   },
   ai: {
     tooltip: 'AI Assistant',
@@ -150,6 +161,7 @@ export default {
       time: 'Allows user to select time',
       url: 'Allows user to enter url',
       submit: 'Allows user to submit form',
+      reset: 'Allows user to reset form',
       naiveButton: 'Naive UI button',
       naiveText: 'Typography text',
       naiveP: 'Typography paragraph',
@@ -236,9 +248,9 @@ export default {
     },
     naiveButton: { name: 'Naive Button', label: 'Button', description: 'Naive UI button' },
     submit: { name: 'Submit Button', label: 'Submit', description: 'Allows form submission' },
+    reset: { name: 'Reset Button', label: 'Reset', description: 'Resets form values' },
     group: { name: 'Group', label: 'Group', description: 'Object grouping of fields' },
     list: { name: 'List', label: 'List', description: 'Array grouping of fields' },
     card: { name: 'Card', label: 'Card', description: 'Card container with children' },
   },
 } as const
-

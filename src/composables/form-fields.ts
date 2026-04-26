@@ -77,10 +77,6 @@ type SchemaWithButtonProps = FormKitSchemaFormKit & {
   buttonProps?: Record<string, unknown>
 }
 
-type SchemaWithNaiveProps = FormKitSchemaFormKit & {
-  naiveProps?: Record<string, unknown>
-}
-
 export function useFormField() {
   const normalizeName = (value: string) => {
     let name = value.trim().replace(/[^a-zA-Z0-9_]+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '')
@@ -98,7 +94,14 @@ export function useFormField() {
       if (!currentNode) return
 
       const current = { ...(currentNode as Record<string, unknown>) }
-      if (value === undefined) {
+      const isCmp = typeof (current as any)?.$cmp === 'string' && Boolean((current as any)?.$cmp)
+      const propKeys = new Set(['label', 'help', 'placeholder', 'bordered', 'embedded', 'hoverable', 'size'])
+      if (isCmp && propKeys.has(key)) {
+        const nextProps: any = { ...(((current as any).props ?? {}) as any) }
+        if (value === undefined) delete nextProps[key]
+        else nextProps[key] = value
+        ;(current as any).props = Object.keys(nextProps).length ? nextProps : undefined
+      } else if (value === undefined) {
         delete (current as any)[key]
       } else {
         ;(current as any)[key] = value
@@ -140,21 +143,17 @@ export function useFormField() {
     }
   }
 
-  const setNaiveProp = (key: string, value: unknown) => {
+  const setPropsProp = (key: string, value: unknown) => {
     if (formSchema.value.length > 0) {
       const selected = selectedKey.value
       const found = selected ? findSchemaNodeByKey(formSchema.value as any[], selected) : null
       const path = found?.path
-      const current = (path ? getNodeAtPath(formSchema.value as any[], path) : formSchema.value[selectedIndex.value]) as SchemaWithNaiveProps
+      const current = (path ? getNodeAtPath(formSchema.value as any[], path) : formSchema.value[selectedIndex.value]) as any
       if (!current) return
-      const nextNaiveProps = {
-        ...current?.naiveProps,
-        [key]: value,
-      }
-      const nextNode = {
-        ...current,
-        naiveProps: nextNaiveProps,
-      } as FormKitSchemaFormKit
+      const nextProps: any = { ...(((current as any).props ?? {}) as any) }
+      if (value === undefined) delete nextProps[key]
+      else nextProps[key] = value
+      const nextNode: any = { ...current, props: Object.keys(nextProps).length ? nextProps : undefined }
       const nextSchema = path
         ? updateAtPath(formSchema.value as any[], path, nextNode)
         : (() => {
@@ -177,14 +176,14 @@ export function useFormField() {
     })
   }
 
-  const createNaiveProp = <T>(key: string, defaultValue: T): WritableComputedRef<T, T> => {
+  const createPropsProp = <T>(key: string, defaultValue: T): WritableComputedRef<T, T> => {
     return computed({
       get: () => {
-        const current = selectedField.value as SchemaWithNaiveProps
-        const value = current?.naiveProps?.[key]
+        const current: any = selectedField.value as any
+        const value = current?.props?.[key]
         return (value ?? defaultValue) as T
       },
-      set: (value: T) => setNaiveProp(key, value),
+      set: (value: T) => setPropsProp(key, value),
     })
   }
 
@@ -226,18 +225,27 @@ export function useFormField() {
     },
   })
 
-  const label = computed({
-    get: () => selectedField.value?.label || '',
-    set: (newLabel: string) => {
-      if (formSchema.value.length > 0) {
-        const updatedSchema = [...formSchema.value]
-        updatedSchema[selectedIndex.value] = {
-          ...updatedSchema[selectedIndex.value],
-          label: newLabel,
-        } as FormKitSchemaFormKit
-        commitSchema(updatedSchema, { reason: 'field-edit', merge: true })
-      }
+  const ifExpression = computed<string>({
+    get: () => {
+      const current = selectedField.value as any
+      const raw = current?.__raw__ifExpression ?? current?.if
+      if (typeof raw !== 'string') return ''
+      return raw
     },
+    set: (value: string) => {
+      const next = value.trim()
+      setFieldProp('__raw__ifExpression', next ? next : undefined)
+      setFieldProp('if', next ? next : undefined)
+    },
+  })
+
+  const label = computed({
+    get: () => {
+      const current: any = selectedField.value as any
+      if (typeof current?.$cmp === 'string' && current.$cmp) return String(current?.props?.label ?? '')
+      return (selectedField.value as any)?.label || ''
+    },
+    set: (newLabel: string) => setFieldProp('label', newLabel),
   })
 
   const buttonText = computed<string>({
@@ -254,17 +262,12 @@ export function useFormField() {
   })
 
   const placeholder = computed({
-    get: () => selectedField.value?.placeholder || '',
-    set: (newPlaceholder: string) => {
-      if (formSchema.value.length > 0) {
-        const updatedSchema = [...formSchema.value]
-        updatedSchema[selectedIndex.value] = {
-          ...updatedSchema[selectedIndex.value],
-          placeholder: newPlaceholder,
-        } as FormKitSchemaFormKit
-        commitSchema(updatedSchema, { reason: 'field-edit', merge: true })
-      }
+    get: () => {
+      const current: any = selectedField.value as any
+      if (typeof current?.$cmp === 'string' && current.$cmp) return String(current?.props?.placeholder ?? '')
+      return (selectedField.value as any)?.placeholder || ''
     },
+    set: (newPlaceholder: string) => setFieldProp('placeholder', newPlaceholder),
   })
 
   const fieldValue = computed<string>({
@@ -351,17 +354,12 @@ export function useFormField() {
   }
 
   const help = computed({
-    get: () => selectedField.value?.help || '',
-    set: (newHelp: string) => {
-      if (formSchema.value.length > 0) {
-        const updatedSchema = [...formSchema.value]
-        updatedSchema[selectedIndex.value] = {
-          ...updatedSchema[selectedIndex.value],
-          help: newHelp,
-        } as FormKitSchemaFormKit
-        commitSchema(updatedSchema, { reason: 'field-edit', merge: true })
-      }
+    get: () => {
+      const current: any = selectedField.value as any
+      if (typeof current?.$cmp === 'string' && current.$cmp) return String(current?.props?.help ?? '')
+      return (selectedField.value as any)?.help || ''
     },
+    set: (newHelp: string) => setFieldProp('help', newHelp),
   })
 
   const whichNumber = computed<string>({
@@ -477,7 +475,13 @@ export function useFormField() {
     })
   }
 
-  const currentFieldType = computed(() => (hasField.value ? selectedField.value?.$formkit : null))
+  const currentFieldType = computed(() => {
+    if (!hasField.value) return null
+    const current: any = selectedField.value as any
+    if (typeof current?.$formkit === 'string' && current.$formkit) return current.$formkit
+    if (typeof current?.$cmp === 'string' && current.$cmp) return current.$cmp
+    return null
+  })
 
   const availableFieldNames = computed(() => {
     const extractNames = (schema: FormKitSchemaFormKit[]): string[] => {
@@ -519,10 +523,27 @@ export function useFormField() {
     },
   })
 
+  const bindEvents = computed<Record<string, unknown>>({
+    get: () => {
+      const current: any = selectedField.value as any
+      const value = current?.__bind
+      if (value && typeof value === 'object') return value as Record<string, unknown>
+      const legacy = current?.bind
+      if (legacy && typeof legacy === 'object') return legacy as Record<string, unknown>
+      return {}
+    },
+    set: (value: Record<string, unknown>) => {
+      const hasAny = value && typeof value === 'object' && Object.keys(value).length > 0
+      setFieldProp('__bind', hasAny ? value : undefined)
+      setFieldProp('bind', undefined)
+    },
+  })
+
   return {
     fieldName,
     useExpressionValue,
     valueExpression,
+    ifExpression,
     label,
     buttonText,
     placeholder,
@@ -544,7 +565,8 @@ export function useFormField() {
     max,
     isValidationChecked,
     createButtonProp,
-    createNaiveProp,
+    createPropsProp,
     rowSpan,
+    bindEvents,
   }
 }

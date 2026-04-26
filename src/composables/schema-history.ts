@@ -45,7 +45,20 @@ function migrateExpressionKeys(schema: SchemaSnapshot) {
       if (typeof node.valueExpression === 'string' && typeof node.__raw__valueExpression !== 'string') {
         node.__raw__valueExpression = node.valueExpression
       }
+      if (typeof node.if === 'string' && typeof node.__raw__ifExpression !== 'string') {
+        node.__raw__ifExpression = node.if
+      }
       if ('valueExpression' in node) delete node.valueExpression
+      const bind = (node as any).bind
+      if (bind && typeof bind !== 'string') {
+        if (typeof bind === 'object' && !Array.isArray(bind) && typeof (node as any).__bind !== 'object') {
+          ;(node as any).__bind = bind
+        }
+        delete (node as any).bind
+      } else if (typeof bind === 'string') {
+        if (bind === '$someAttributes') delete (node as any).bind
+        else if (bind.startsWith('$bind_')) delete (node as any).bind
+      }
       if (Array.isArray(node.children)) visit(node.children)
     }
   }
@@ -80,7 +93,6 @@ export function commitSchema(
   const now = Date.now()
   const currentSchema = formSchema.value
   const prevSelectedKey = selectedKey.value ?? ((formSchema.value[selectedIndex.value] as any)?.__key as string | undefined)
-  const selectedRef = formSchema.value[selectedIndex.value]
 
   if (currentSchema === nextSchema) return
 

@@ -6,11 +6,11 @@ import TextInput from '../common/TextInput.vue'
 import SelectInput from '../common/SelectInput.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 
-const { createNaiveProp } = useFormField()
+const { createPropsProp } = useFormField()
 const { t } = useFormBuilderI18n()
 
-const typoType = createNaiveProp<string>('type', 'default')
-const typoDepthRaw = createNaiveProp<unknown>('depth', 1)
+const typoType = createPropsProp<string>('type', 'default')
+const typoDepthRaw = createPropsProp<unknown>('depth', 1)
 const typoDepth = computed({
   get: () => {
     const value = typoDepthRaw.value
@@ -23,12 +23,12 @@ const typoDepth = computed({
     typoDepthRaw.value = Number.isFinite(parsed) ? parsed : value
   },
 })
-const typoStrong = createNaiveProp<boolean>('strong', false)
-const typoItalic = createNaiveProp<boolean>('italic', false)
-const typoUnderline = createNaiveProp<boolean>('underline', false)
-const typoDelete = createNaiveProp<boolean>('delete', false)
-const typoCode = createNaiveProp<boolean>('code', false)
-const typographyText = createNaiveProp<string>('text', 'text')
+const typoStrong = createPropsProp<boolean>('strong', false)
+const typoItalic = createPropsProp<boolean>('italic', false)
+const typoUnderline = createPropsProp<boolean>('underline', false)
+const typoDelete = createPropsProp<boolean>('delete', false)
+const typoCode = createPropsProp<boolean>('code', false)
+const typographyText = createPropsProp<string>('text', 'text')
 </script>
 
 <template>

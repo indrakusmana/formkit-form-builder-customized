@@ -66,6 +66,97 @@ const handleDownload = () => {
     toast.error(t('importExport.failedGenerateDownload'))
   }
 }
+
+const indent = (code: string, spaces: number) => {
+  const pad = ' '.repeat(spaces)
+  return code
+    .split('\n')
+    .map((l) => (l.trim() ? `${pad}${l}` : l))
+    .join('\n')
+}
+
+const safeVar = (value: unknown) => {
+  const raw = String(value ?? '')
+  const cleaned = raw.replace(/[^a-zA-Z0-9_]/g, '_')
+  const start = cleaned.match(/^[a-zA-Z_]/) ? cleaned : `k_${cleaned}`
+  return start || 'k_bind'
+}
+
+const cloneSchema = (schema: FormKitSchemaFormKit[]) => {
+  try {
+    return structuredClone(schema) as FormKitSchemaFormKit[]
+  } catch {
+    return JSON.parse(JSON.stringify(schema)) as FormKitSchemaFormKit[]
+  }
+}
+
+const exportAsJs = () => {
+  const schema = cloneSchema(formSchema.value as any)
+  const bindVarMap: Record<string, Record<string, unknown>> = {}
+
+  const visit = (nodes: any[]) => {
+    for (const node of nodes) {
+      if (!node || typeof node !== 'object') continue
+      const bind = node.__bind
+      if (bind && typeof bind === 'object' && !Array.isArray(bind)) {
+        const key = safeVar(node.__key || node.name || node.$formkit || node.$el)
+        const varName = `bind_${key}`
+        bindVarMap[varName] = bind as any
+        node.bind = `$${varName}`
+        delete node.__bind
+      }
+      if (Array.isArray(node.children)) visit(node.children)
+    }
+  }
+
+  visit(schema as any[])
+
+  const schemaStr = JSON.stringify(schema, null, 2)
+
+  const bindEntries = Object.entries(bindVarMap).map(([varName, attrs]) => {
+    const innerLines: string[] = []
+    for (const [k, v] of Object.entries(attrs)) {
+      if (typeof v === 'string') {
+        innerLines.push(`${k}: async (event) => {\n${indent(v, 6)}\n    }`)
+      } else if (v && typeof v === 'object' && typeof (v as any).__js === 'string') {
+        innerLines.push(`${k}: async (event) => {\n${indent(String((v as any).__js), 6)}\n    }`)
+      } else {
+        innerLines.push(`${k}: ${JSON.stringify(v)}`)
+      }
+    }
+    return `  ${varName}: {\n    ${innerLines.join(',\n    ')}\n  }`
+  })
+
+  const dataStr = `reactive({\n${bindEntries.join(',\n')}\n})`
+
+  return [
+    `import { reactive } from 'vue'`,
+    `import axios from 'axios'`,
+    ``,
+    `export const schema = ${schemaStr}`,
+    ``,
+    `export const data = ${dataStr}`,
+  ].join('\n')
+}
+
+const handleDownloadJs = () => {
+  try {
+    const js = exportAsJs()
+    const blob = new Blob([js], { type: 'text/javascript' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'form-schema.js'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success(t('importExport.downloadedSuccess'))
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : t('importExport.unknownError')
+    toast.error(t('importExport.failedParseJson', { message }))
+  }
+}
 </script>
 
 <template>
@@ -95,6 +186,12 @@ const handleDownload = () => {
     <template #footer>
       <n-space justify="end">
         <n-button @click="handleClose">{{ t('common.cancel') }}</n-button>
+        <n-button type="info" @click="handleDownloadJs">
+          <template #icon>
+            <span class="i-lucide-file-code-2 w-4 h-4"></span>
+          </template>
+          {{ t('importExport.downloadJs') }}
+        </n-button>
         <n-button type="info" @click="handleDownload">
           <template #icon>
             <span class="i-lucide-download w-4 h-4"></span>

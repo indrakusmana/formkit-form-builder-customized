@@ -35,7 +35,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.text.label',
     outerClass: 'col-span-12',
     id: 'text_field',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     placeholderKey: 'elements.text.placeholder',
     helpKey: 'elements.common.help',
     validation: '',
@@ -48,7 +48,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.textarea.label',
     id: 'textarea_field',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     placeholderKey: 'elements.textarea.placeholder',
     helpKey: 'elements.common.help',
     validation: '',
@@ -61,7 +61,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.email.label',
     outerClass: 'col-span-12',
     id: 'email_field',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     placeholderKey: 'elements.email.placeholder',
     helpKey: 'elements.common.help',
     validation: 'email',
@@ -74,7 +74,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.number.label',
     outerClass: 'col-span-12',
     id: 'number_field',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     placeholderKey: 'elements.number.placeholder',
     number: 'integer',
     helpKey: 'elements.common.help',
@@ -88,7 +88,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.url.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     placeholderKey: 'elements.url.placeholder',
     id: 'url_field',
     validation: 'url',
@@ -101,7 +101,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.checkbox.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     options: ['One'],
     id: 'checkbox_field',
     validation: '',
@@ -115,7 +115,7 @@ const defs: DefaultElementDef[] = [
     value: '#00ff00',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     id: 'color_field',
     validation: '',
     validationVisibility: 'live',
@@ -127,7 +127,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.date.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_VALUE_FORMAT },
+    props: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_VALUE_FORMAT },
     id: 'date_field',
     validation: '',
     validationVisibility: 'live',
@@ -139,7 +139,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.time.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_TIME_VALUE_FORMAT },
+    props: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_TIME_VALUE_FORMAT },
     id: 'time_field',
     validation: '',
     validationVisibility: 'live',
@@ -151,7 +151,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.dateTime.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_TIME_VALUE_FORMAT },
+    props: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_TIME_VALUE_FORMAT },
     id: 'date_time_field',
     validation: '',
     validationVisibility: 'live',
@@ -163,7 +163,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.file.label',
     helpKey: 'elements.file.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     id: 'file_field',
     validation: '',
     accept: '.pdf,.doc,.docx,.xml,.md,.csv,.jpg,.png,.webp',
@@ -177,7 +177,7 @@ const defs: DefaultElementDef[] = [
     placeholderKey: 'elements.password.placeholder',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     id: 'password_field',
     validation: '',
     validationVisibility: 'live',
@@ -190,7 +190,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.radio.label',
     outerClass: 'col-span-12',
     helpKey: 'elements.common.help',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     id: 'radio_field',
     validation: '',
     validationVisibility: 'live',
@@ -203,7 +203,7 @@ const defs: DefaultElementDef[] = [
     children: '$slots.default',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     value: 0,
     __raw__sectionsSchema: {
       prefix: {
@@ -225,7 +225,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.select.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       size: 'medium',
       disabled: false,
       clearable: true,
@@ -244,7 +244,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveCascader.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       size: 'medium',
       disabled: false,
       clearable: true,
@@ -277,7 +277,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveTreeSelect.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       size: 'medium',
       disabled: false,
       clearable: true,
@@ -307,7 +307,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveMention.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false },
+    props: { size: 'medium', disabled: false },
     placeholderKey: 'elements.naiveMention.placeholder',
     id: 'naive_mention_field',
     validation: '',
@@ -321,7 +321,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveRate.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { disabled: false, clearable: true, allowHalf: false, count: 5 },
+    props: { disabled: false, clearable: true, allowHalf: false, count: 5 },
     value: 0,
     id: 'naive_rate_field',
     validation: '',
@@ -334,7 +334,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveSwitch.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false },
+    props: { size: 'medium', disabled: false },
     value: false,
     id: 'naive_switch_field',
     validation: '',
@@ -347,7 +347,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveCheckbox.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', disabled: false },
+    props: { size: 'medium', disabled: false },
     value: false,
     id: 'naive_checkbox_field',
     validation: '',
@@ -360,7 +360,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveAvatar.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: { src: '', avatarSize: 48, round: true, bordered: false, fallbackText: 'A' },
+    props: { src: '', avatarSize: 48, round: true, bordered: false, fallbackText: 'A' },
     id: 'naive_avatar_field',
     validation: '',
     validationVisibility: 'live',
@@ -372,7 +372,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.naiveImage.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       src: '',
       alt: '',
       width: 240,
@@ -389,7 +389,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveText',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
       type: 'default',
       depth: 1,
@@ -406,7 +406,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveP',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       type: 'default',
       depth: 1,
       align: 'start',
@@ -419,7 +419,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveA',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
       href: 'https://www.example.com',
       target: '_blank',
@@ -431,7 +431,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveBlockquote',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
     },
     nameKey: 'elements.naiveBlockquote.name',
@@ -441,7 +441,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveH1',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
     },
     nameKey: 'elements.naiveH1.name',
@@ -451,7 +451,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveH2',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
     },
     nameKey: 'elements.naiveH2.name',
@@ -461,7 +461,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveH3',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
     },
     nameKey: 'elements.naiveH3.name',
@@ -471,7 +471,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveH4',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
     },
     nameKey: 'elements.naiveH4.name',
@@ -481,7 +481,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveH5',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
     },
     nameKey: 'elements.naiveH5.name',
@@ -491,7 +491,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveH6',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       text: 'text',
     },
     nameKey: 'elements.naiveH6.name',
@@ -525,7 +525,7 @@ const defs: DefaultElementDef[] = [
   {
     $formkit: 'naiveDivider',
     outerClass: 'col-span-12',
-    naiveProps: {
+    props: {
       title: 'Divider',
       titlePlacement: 'center',
       dashed: false,
@@ -542,7 +542,7 @@ const defs: DefaultElementDef[] = [
     placeholderKey: 'elements.tel.placeholder',
     outerClass: 'col-span-12',
     helpKey: 'elements.common.help',
-    naiveProps: { size: 'medium', disabled: false, clearable: true },
+    props: { size: 'medium', disabled: false, clearable: true },
     id: 'tel_field',
     validation: '',
     validationVisibility: 'live',
@@ -579,6 +579,14 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.submit.label',
   },
   {
+    $formkit: 'reset',
+    outerClass: 'col-span-12 pt-2',
+    type: 'reset',
+    nameKey: 'elements.reset.name',
+    descriptionKey: 'elements.reset.description',
+    labelKey: 'elements.reset.label',
+  },
+  {
     $formkit: 'group',
     nameKey: 'elements.group.name',
     labelKey: 'elements.group.label',
@@ -587,21 +595,22 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.group.description',
   },
   {
-    $formkit: 'list',
+    $cmp: 'list',
     nameKey: 'elements.list.name',
     labelKey: 'elements.list.label',
     id: 'list_field',
     outerClass: 'col-span-12',
     descriptionKey: 'elements.list.description',
     children: [],
+    props: { showActions: false, modelValue: [], listKey: '' },
   },
   {
-    $formkit: 'card',
+    $cmp: 'card',
     nameKey: 'elements.card.name',
     labelKey: 'elements.card.label',
     id: 'card_container',
     outerClass: 'col-span-12',
-    naiveProps: { size: 'medium', bordered: true, embedded: false, hoverable: false },
+    props: { size: 'medium', bordered: true, embedded: false, hoverable: false, modelValue: [], cardKey: '' },
     descriptionKey: 'elements.card.description',
     children: [],
   },
@@ -609,14 +618,33 @@ const defs: DefaultElementDef[] = [
 
 export function createDefaultFormElements(t: (key: string) => string): FormKitSchemaFormKit[] {
   return defs.map(({ nameKey, labelKey, placeholderKey, helpKey, descriptionKey, ...rest }) => {
-    const next: FormKitSchemaFormKit = {
+    const next: any = {
       ...(rest as FormKitSchemaFormKit),
       name: t(nameKey),
       description: t(descriptionKey),
     }
-    if (labelKey) (next as any).label = t(labelKey)
-    if (placeholderKey) (next as any).placeholder = t(placeholderKey)
-    if (helpKey) (next as any).help = t(helpKey)
+    const isCmp = typeof next.$cmp === 'string' && next.$cmp
+    if (labelKey) {
+      if (isCmp) {
+        next.props = { ...next.props, label: t(labelKey) }
+      } else {
+        next.label = t(labelKey)
+      }
+    }
+    if (placeholderKey) {
+      if (isCmp) {
+        next.props = { ...next.props, placeholder: t(placeholderKey) }
+      } else {
+        next.placeholder = t(placeholderKey)
+      }
+    }
+    if (helpKey) {
+      if (isCmp) {
+        next.props = { ...next.props, help: t(helpKey) }
+      } else {
+        next.help = t(helpKey)
+      }
+    }
     return next
   })
 }

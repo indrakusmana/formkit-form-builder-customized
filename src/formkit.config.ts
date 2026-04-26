@@ -1,38 +1,39 @@
 // formkit.config.ts
 import { rootClasses } from './formkit.theme.ts'
 import { defaultConfig, createInput } from '@formkit/vue'
-import CustomButton from './components/ui/button/CustomButton.vue'
-import NaiveTextInput from './components/ui/formkit/NaiveTextInput.vue'
-import NaiveTextarea from './components/ui/formkit/NaiveTextarea.vue'
-import NaiveNumberInput from './components/ui/formkit/NaiveNumberInput.vue'
-import NaiveSelect from './components/ui/formkit/NaiveSelect.vue'
-import NaiveDatePicker from './components/ui/formkit/NaiveDatePicker.vue'
-import NaiveTimePicker from './components/ui/formkit/NaiveTimePicker.vue'
-import NaiveUpload from './components/ui/formkit/NaiveUpload.vue'
-import NaiveCheckboxGroup from './components/ui/formkit/NaiveCheckboxGroup.vue'
-import NaiveRadioGroup from './components/ui/formkit/NaiveRadioGroup.vue'
-import NaiveSlider from './components/ui/formkit/NaiveSlider.vue'
-import NaiveColorPicker from './components/ui/formkit/NaiveColorPicker.vue'
-import NaiveAvatar from './components/ui/formkit/NaiveAvatar.vue'
-import NaiveImage from './components/ui/formkit/NaiveImage.vue'
-import NaiveCascader from './components/ui/formkit/NaiveCascader.vue'
-import NaiveCheckbox from './components/ui/formkit/NaiveCheckbox.vue'
-import NaiveMention from './components/ui/formkit/NaiveMention.vue'
-import NaiveRate from './components/ui/formkit/NaiveRate.vue'
-import NaiveSwitch from './components/ui/formkit/NaiveSwitch.vue'
-import NaiveTreeSelect from './components/ui/formkit/NaiveTreeSelect.vue'
-import NaiveTypographyText from './components/ui/formkit/NaiveTypographyText.vue'
-import NaiveTypographyP from './components/ui/formkit/NaiveTypographyP.vue'
-import NaiveTypographyA from './components/ui/formkit/NaiveTypographyA.vue'
-import NaiveTypographyBlockquote from './components/ui/formkit/NaiveTypographyBlockquote.vue'
-import NaiveTypographyHeader from './components/ui/formkit/NaiveTypographyHeader.vue'
-import NaiveTypographyUl from './components/ui/formkit/NaiveTypographyUl.vue'
-import NaiveTypographyOl from './components/ui/formkit/NaiveTypographyOl.vue'
-import NaiveTypographyLi from './components/ui/formkit/NaiveTypographyLi.vue'
-import NaiveDivider from './components/ui/formkit/NaiveDivider.vue'
+import CustomButton from './components/ui/fields/CustomButton.vue'
+import NaiveTextInput from './components/ui/fields/NaiveTextInput.vue'
+import NaiveTextarea from './components/ui/fields/NaiveTextarea.vue'
+import NaiveNumberInput from './components/ui/fields/NaiveNumberInput.vue'
+import NaiveSelect from './components/ui/fields/NaiveSelect.vue'
+import NaiveDatePicker from './components/ui/fields/NaiveDatePicker.vue'
+import NaiveTimePicker from './components/ui/fields/NaiveTimePicker.vue'
+import NaiveUpload from './components/ui/fields/NaiveUpload.vue'
+import NaiveCheckboxGroup from './components/ui/fields/NaiveCheckboxGroup.vue'
+import NaiveRadioGroup from './components/ui/fields/NaiveRadioGroup.vue'
+import NaiveSlider from './components/ui/fields/NaiveSlider.vue'
+import NaiveColorPicker from './components/ui/fields/NaiveColorPicker.vue'
+import NaiveAvatar from './components/ui/fields/NaiveAvatar.vue'
+import NaiveImage from './components/ui/fields/NaiveImage.vue'
+import NaiveCascader from './components/ui/fields/NaiveCascader.vue'
+import NaiveCheckbox from './components/ui/fields/NaiveCheckbox.vue'
+import NaiveMention from './components/ui/fields/NaiveMention.vue'
+import NaiveRate from './components/ui/fields/NaiveRate.vue'
+import NaiveSwitch from './components/ui/fields/NaiveSwitch.vue'
+import NaiveTreeSelect from './components/ui/fields/NaiveTreeSelect.vue'
+import NaiveTypographyText from './components/ui/structure/NaiveTypographyText.vue'
+import NaiveTypographyP from './components/ui/structure/NaiveTypographyP.vue'
+import NaiveTypographyA from './components/ui/structure/NaiveTypographyA.vue'
+import NaiveTypographyBlockquote from './components/ui/structure/NaiveTypographyBlockquote.vue'
+import NaiveTypographyHeader from './components/ui/structure/NaiveTypographyHeader.vue'
+import NaiveTypographyUl from './components/ui/structure/NaiveTypographyUl.vue'
+import NaiveTypographyOl from './components/ui/structure/NaiveTypographyOl.vue'
+import NaiveTypographyLi from './components/ui/structure/NaiveTypographyLi.vue'
+import NaiveDivider from './components/ui/structure/NaiveDivider.vue'
 
 const sharedObservedProps = [
-  'naiveProps',
+  'props',
+  '__bind',
   'placeholder',
   'options',
   'min',
@@ -42,7 +43,7 @@ const sharedObservedProps = [
   'accept',
 ]
 
-function createNaiveInput(
+function createUiInput(
   cmpName: string,
   component: unknown,
   options: { family?: string } = {},
@@ -71,45 +72,46 @@ export default defaultConfig({
     rootClasses,
   },
   inputs: {
-    naiveButton: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText'] }),
-    submit: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText'] }),
-    text: createNaiveInput('NaiveTextInput', NaiveTextInput),
-    email: createNaiveInput('NaiveTextInput', NaiveTextInput),
-    password: createNaiveInput('NaiveTextInput', NaiveTextInput),
-    tel: createNaiveInput('NaiveTextInput', NaiveTextInput),
-    url: createNaiveInput('NaiveTextInput', NaiveTextInput),
-    textarea: createNaiveInput('NaiveTextarea', NaiveTextarea),
-    number: createNaiveInput('NaiveNumberInput', NaiveNumberInput),
-    select: createNaiveInput('NaiveSelect', NaiveSelect),
-    checkbox: createNaiveInput('NaiveCheckboxGroup', NaiveCheckboxGroup),
-    radio: createNaiveInput('NaiveRadioGroup', NaiveRadioGroup),
-    range: createNaiveInput('NaiveSlider', NaiveSlider),
-    date: createNaiveInput('NaiveDatePicker', NaiveDatePicker),
-    time: createNaiveInput('NaiveTimePicker', NaiveTimePicker),
-    naiveDateTime: createNaiveInput('NaiveDatePicker', NaiveDatePicker),
-    file: createNaiveInput('NaiveUpload', NaiveUpload),
-    color: createNaiveInput('NaiveColorPicker', NaiveColorPicker),
-    naiveAvatar: createNaiveInput('NaiveAvatar', NaiveAvatar),
-    naiveImage: createNaiveInput('NaiveImage', NaiveImage),
-    naiveCascader: createNaiveInput('NaiveCascader', NaiveCascader),
-    naiveCheckbox: createNaiveInput('NaiveCheckbox', NaiveCheckbox),
-    naiveMention: createNaiveInput('NaiveMention', NaiveMention),
-    naiveRate: createNaiveInput('NaiveRate', NaiveRate),
-    naiveSwitch: createNaiveInput('NaiveSwitch', NaiveSwitch),
-    naiveTreeSelect: createNaiveInput('NaiveTreeSelect', NaiveTreeSelect),
-    naiveText: createNaiveInput('NaiveTypographyText', NaiveTypographyText),
-    naiveP: createNaiveInput('NaiveTypographyP', NaiveTypographyP),
-    naiveA: createNaiveInput('NaiveTypographyA', NaiveTypographyA),
-    naiveBlockquote: createNaiveInput('NaiveTypographyBlockquote', NaiveTypographyBlockquote),
-    naiveH1: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
-    naiveH2: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
-    naiveH3: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
-    naiveH4: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
-    naiveH5: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
-    naiveH6: createNaiveInput('NaiveTypographyHeader', NaiveTypographyHeader),
-    naiveUl: createNaiveInput('NaiveTypographyUl', NaiveTypographyUl),
-    naiveOl: createNaiveInput('NaiveTypographyOl', NaiveTypographyOl),
-    naiveLi: createNaiveInput('NaiveTypographyLi', NaiveTypographyLi),
-    naiveDivider: createNaiveInput('NaiveDivider', NaiveDivider),
+    naiveButton: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type', '__bind'] }),
+    submit: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type', '__bind'] }),
+    reset: createInput(CustomButton, { family: 'naive', props: ['buttonProps', 'buttonText', 'label', 'type', '__bind'] }),
+    text: createUiInput('NaiveTextInput', NaiveTextInput),
+    email: createUiInput('NaiveTextInput', NaiveTextInput),
+    password: createUiInput('NaiveTextInput', NaiveTextInput),
+    tel: createUiInput('NaiveTextInput', NaiveTextInput),
+    url: createUiInput('NaiveTextInput', NaiveTextInput),
+    textarea: createUiInput('NaiveTextarea', NaiveTextarea),
+    number: createUiInput('NaiveNumberInput', NaiveNumberInput),
+    select: createUiInput('NaiveSelect', NaiveSelect),
+    checkbox: createUiInput('NaiveCheckboxGroup', NaiveCheckboxGroup),
+    radio: createUiInput('NaiveRadioGroup', NaiveRadioGroup),
+    range: createUiInput('NaiveSlider', NaiveSlider),
+    date: createUiInput('NaiveDatePicker', NaiveDatePicker),
+    time: createUiInput('NaiveTimePicker', NaiveTimePicker),
+    naiveDateTime: createUiInput('NaiveDatePicker', NaiveDatePicker),
+    file: createUiInput('NaiveUpload', NaiveUpload),
+    color: createUiInput('NaiveColorPicker', NaiveColorPicker),
+    naiveAvatar: createUiInput('NaiveAvatar', NaiveAvatar),
+    naiveImage: createUiInput('NaiveImage', NaiveImage),
+    naiveCascader: createUiInput('NaiveCascader', NaiveCascader),
+    naiveCheckbox: createUiInput('NaiveCheckbox', NaiveCheckbox),
+    naiveMention: createUiInput('NaiveMention', NaiveMention),
+    naiveRate: createUiInput('NaiveRate', NaiveRate),
+    naiveSwitch: createUiInput('NaiveSwitch', NaiveSwitch),
+    naiveTreeSelect: createUiInput('NaiveTreeSelect', NaiveTreeSelect),
+    naiveText: createUiInput('NaiveTypographyText', NaiveTypographyText),
+    naiveP: createUiInput('NaiveTypographyP', NaiveTypographyP),
+    naiveA: createUiInput('NaiveTypographyA', NaiveTypographyA),
+    naiveBlockquote: createUiInput('NaiveTypographyBlockquote', NaiveTypographyBlockquote),
+    naiveH1: createUiInput('NaiveTypographyHeader', NaiveTypographyHeader),
+    naiveH2: createUiInput('NaiveTypographyHeader', NaiveTypographyHeader),
+    naiveH3: createUiInput('NaiveTypographyHeader', NaiveTypographyHeader),
+    naiveH4: createUiInput('NaiveTypographyHeader', NaiveTypographyHeader),
+    naiveH5: createUiInput('NaiveTypographyHeader', NaiveTypographyHeader),
+    naiveH6: createUiInput('NaiveTypographyHeader', NaiveTypographyHeader),
+    naiveUl: createUiInput('NaiveTypographyUl', NaiveTypographyUl),
+    naiveOl: createUiInput('NaiveTypographyOl', NaiveTypographyOl),
+    naiveLi: createUiInput('NaiveTypographyLi', NaiveTypographyLi),
+    naiveDivider: createUiInput('NaiveDivider', NaiveDivider),
   },
 })
