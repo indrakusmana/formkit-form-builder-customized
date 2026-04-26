@@ -64,6 +64,8 @@ const config = {
 import {
   FormBuilder,
   BuilderProvider,
+  BuilderPreview,
+  FormSchemaRenderer,
   FormBuilderProvider,
   useFormBuilderConfig,
   provideFormBuilderConfig,
@@ -72,7 +74,25 @@ import {
 
 - `FormBuilder`：主组件（设计器 UI）。
 - `BuilderProvider / FormBuilderProvider`：提供全局配置（同一个组件，两个别名）。
+- `FormSchemaRenderer`：对外表单渲染组件（渲染 builder 产出的 schema）。
+- `BuilderPreview`：对外可复用的弹窗渲染组件（基于 FormSchemaRenderer）。
 - `useFormBuilderConfig / provideFormBuilderConfig`：低层配置注入工具（通常你只需要 `BuilderProvider`）。
+
+### 表单渲染（对外）
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import { FormSchemaRenderer } from "formkit-form-builder";
+
+const schema = ref([]);
+const data = ref({});
+</script>
+
+<template>
+  <FormSchemaRenderer :schema="schema" v-model="data" @submit="(v) => console.log(v)" />
+</template>
+```
 
 ### FormBuilderConfig
 
