@@ -86,18 +86,9 @@ const emptyPlaceholderClass = computed(() => {
   return 'col-span-12 min-h-[140px] flex items-center justify-center pointer-events-none'
 })
 
-const getPercentWidth = (child: any): string | null => {
-  const outerClass = child?.outerClass
-  if (typeof outerClass !== 'string' || !outerClass) return null
-  const match = outerClass.match(/\bw-\[([0-9.]+%)\]\b/)
-  return match?.[1] ?? null
-}
-
 const itemStyle = (child: any) => {
   if (layout.value === 'row') {
     if (props.items.value.length === 1) return { width: '100%', flex: '0 0 auto' }
-    const width = getPercentWidth(child)
-    if (width) return { width, flex: '0 0 auto' }
     const span = Math.max(1, Math.min(12, getColSpan(child)))
     return { width: `${(span / 12) * 100}%`, flex: '0 0 auto' }
   }
@@ -132,7 +123,7 @@ const itemStyle = (child: any) => {
         :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
         :class="[
           'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-          'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px] min-w-0',
+          'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px] min-w-0 box-border',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
           ((child as any)?.__key && (child as any).__key === props.selectedKey)
             ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'

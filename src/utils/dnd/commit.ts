@@ -94,18 +94,17 @@ function normalizeInsertValues(
       const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
       if (val.$formkit === 'submit') return { ...valObj, __key: nextKey, outerClass: 'col-span-12 pt-2' }
       if (val.$cmp === 'list' || val.$formkit === 'list') {
-        const props = { ...val.props, listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
-        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
+        const props = { ...val.props, listKey: nextKey }
+        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: Array.isArray(val.children) ? val.children : [], outerClass: val.outerClass || 'col-span-12' }
       }
       if (val.$cmp === 'card' || val.$formkit === 'card') {
-        const props = { ...val.props, cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
-        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
+        const props = { ...val.props, cardKey: nextKey }
+        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: Array.isArray(val.children) ? val.children : [], outerClass: val.outerClass || 'col-span-12' }
       }
       if (val.$cmp === 'inputGroup' || val.$formkit === 'inputGroup') {
         const props = {
           ...val.props,
           inputGroupKey: nextKey,
-          modelValue: Array.isArray(val.children) ? val.children : [],
         }
         return {
           ...valObj,
@@ -113,7 +112,7 @@ function normalizeInsertValues(
           name: nextName,
           id: `field_${nextKey}`,
           props,
-          children: props.modelValue,
+          children: Array.isArray(val.children) ? val.children : [],
           outerClass: val.outerClass || 'col-span-12',
         }
       }
@@ -330,7 +329,10 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
       const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
       const children = isInputGroup ? normalizeInputGroupChildren(rawChildren as any) : rawChildren
       const next: any = { ...node, children }
-      if (next.$cmp) next.props = { ...next.props, modelValue: children }
+      if (next.$cmp) {
+        next.props = { ...next.props }
+        if (next.props && typeof next.props === 'object') delete next.props.modelValue
+      }
       return next
     }
     const isList = node.$formkit === 'list' || node.$cmp === 'list'
@@ -338,7 +340,10 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
     if ((isList || isCard || isInputGroup) && !Array.isArray(node.children)) {
       const next = { ...node, children: [] } as any
-      if (next.$cmp) next.props = { ...next.props, modelValue: [] }
+      if (next.$cmp) {
+        next.props = { ...next.props }
+        if (next.props && typeof next.props === 'object') delete next.props.modelValue
+      }
       return next
     }
     return node

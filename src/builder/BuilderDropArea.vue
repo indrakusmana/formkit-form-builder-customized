@@ -82,7 +82,8 @@ const updateContainerChildren = (containerKey: string, children: FormKitSchemaFo
     children: normalizedChildren,
   }
   if (merged.$cmp) {
-    merged.props = { ...merged.props, modelValue: normalizedChildren }
+    merged.props = { ...merged.props }
+    if (merged.props && typeof merged.props === 'object') delete merged.props.modelValue
   }
   nextSchema[nextIndex] = merged as FormKitSchemaFormKit
 

@@ -50,7 +50,6 @@ const widthClassFromSpan = (span: number) => {
 const withWidthClass = (field: FormKitSchemaFormKit, span: number) => {
   const currentOuterClass = typeof field.outerClass === 'string' ? field.outerClass : ''
   let classes = currentOuterClass
-    .replace(/\bcol-span-\d+\b/g, '')
     .replace(/\bw-\[[^\]]+\]\b/g, '')
     .replace(/\s+/g, ' ')
     .trim()
