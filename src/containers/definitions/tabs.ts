@@ -29,7 +29,12 @@ export const tabsContainerDef: ContainerDefinition = {
     const key = (node as any)?.__key as string | undefined
     const normalized = normalize(node)
     const children = Array.isArray(normalized.children)
-      ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => ctx.format(c, i))
+      ? (normalized.children as FormKitSchemaFormKit[]).map((pane: any, idx) => {
+          const paneChildren = Array.isArray(pane?.children)
+            ? (pane.children as FormKitSchemaFormKit[]).map((c, i) => ctx.format(c, i))
+            : []
+          return { ...pane, children: paneChildren, __key: pane?.__key ?? `${idx}` } as any
+        })
       : []
     const schemaIf = (normalized as any).if
     const nextNode: any = {
@@ -51,4 +56,3 @@ export const tabsContainerDef: ContainerDefinition = {
     return nextNode as FormKitSchemaFormKit
   },
 }
-

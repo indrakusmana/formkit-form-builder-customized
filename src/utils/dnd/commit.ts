@@ -75,7 +75,8 @@ function getContainerKey(el: HTMLElement | null | undefined): string | null {
     el.getAttribute('data-list-key') ||
     el.getAttribute('data-card-key') ||
     el.getAttribute('data-input-group-key') ||
-    el.getAttribute('data-tabs-key')
+    el.getAttribute('data-tabs-key') ||
+    el.getAttribute('data-tabs-pane-key')
   return raw && raw.trim() ? raw : null
 }
 
@@ -316,7 +317,9 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
 
   const listMap = new Map<string, FormKitSchemaFormKit[]>()
   const listEls = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-list-key],[data-card-key],[data-input-group-key],[data-tabs-key]'),
+    document.querySelectorAll<HTMLElement>(
+      '[data-list-key],[data-card-key],[data-input-group-key],[data-tabs-key],[data-tabs-pane-key]',
+    ),
   )
   for (const el of listEls) {
     const key = getContainerKey(el)
@@ -341,38 +344,47 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     listMap.set(key, cleaned)
   }
 
-  const nextSchema = rootValues.map((node: any) => {
+  const applyListMap = (node: any): any => {
     if (!node || typeof node !== 'object') return node
     if (node.$formkit === 'submit' && Array.isArray(node.children)) {
       const next = { ...node }
       delete next.children
       return next
     }
+
     const key = node.__key
+    let next: any = node
+
     if (typeof key === 'string' && key && listMap.has(key)) {
       const rawChildren = listMap.get(key) ?? []
       const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
       const children = isInputGroup ? normalizeInputGroupChildren(rawChildren as any) : rawChildren
-      const next: any = { ...node, children }
+      next = { ...node, children }
       if (next.$cmp) {
         next.props = { ...next.props }
         if (next.props && typeof next.props === 'object') delete next.props.modelValue
       }
-      return next
-    }
-    const isList = node.$formkit === 'list' || node.$cmp === 'list'
-    const isCard = node.$formkit === 'card' || node.$cmp === 'card'
-    const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
-    if ((isList || isCard || isInputGroup) && !Array.isArray(node.children)) {
-      const next = { ...node, children: [] } as any
-      if (next.$cmp) {
-        next.props = { ...next.props }
-        if (next.props && typeof next.props === 'object') delete next.props.modelValue
+    } else {
+      const isList = node.$formkit === 'list' || node.$cmp === 'list'
+      const isCard = node.$formkit === 'card' || node.$cmp === 'card'
+      const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
+      const isTabs = node.$formkit === 'tabs' || node.$cmp === 'tabs'
+      if ((isList || isCard || isInputGroup || isTabs) && !Array.isArray(node.children)) {
+        next = { ...node, children: [] }
+        if (next.$cmp) {
+          next.props = { ...next.props }
+          if (next.props && typeof next.props === 'object') delete next.props.modelValue
+        }
       }
-      return next
     }
-    return node
-  }) as FormKitSchemaFormKit[]
+
+    if (Array.isArray(next.children)) {
+      next.children = next.children.map((c: any) => applyListMap(c))
+    }
+    return next
+  }
+
+  const nextSchema = rootValues.map((node: any) => applyListMap(node)) as FormKitSchemaFormKit[]
 
   commitSchema(nextSchema, { reason: 'dnd' })
 

@@ -33,10 +33,9 @@ const deleteField = (index: number) => {
 }
 
 const updateContainerChildren = (containerKey: string, children: FormKitSchemaFormKit[]) => {
-  const currentIndex = formSchema.value.findIndex((n: any) => n?.__key === containerKey)
-  if (currentIndex < 0) return
-  const current = formSchema.value[currentIndex]
-  if (!current) return
+  const currentFound = findSchemaNodeByKey(formSchema.value as any[], containerKey)
+  if (!currentFound) return
+  const current = currentFound.node
   const existingNames = new Set<string>()
   collectSchemaNames(formSchema.value as any, existingNames)
   const ensureIdentity = (node: any): any => {
@@ -59,36 +58,76 @@ const updateContainerChildren = (containerKey: string, children: FormKitSchemaFo
     return next
   }
   const normalizedChildren = children.map((c: any) => ensureIdentity({ ...c }))
+
   const childKeys = new Set<string>()
-  for (const child of normalizedChildren as any[]) {
-    const k = child?.__key
-    if (typeof k === 'string' && k) childKeys.add(k)
-  }
-
-  const prunedSchema = (formSchema.value as any[]).filter((node) => {
-    const k = node?.__key
-    if (typeof k === 'string' && k) {
-      if (k === containerKey) return true
-      return !childKeys.has(k)
+  const collectKeys = (nodes: any[]) => {
+    for (const n of nodes) {
+      const k = n?.__key
+      if (typeof k === 'string' && k) childKeys.add(k)
+      const c = n?.children
+      if (Array.isArray(c)) collectKeys(c)
     }
-    return true
-  })
-
-  const nextSchema = [...(prunedSchema as FormKitSchemaFormKit[])]
-  const nextIndex = nextSchema.findIndex((n: any) => n?.__key === containerKey)
-  if (nextIndex < 0) return
-  const merged: any = {
-    ...(current as any),
-    children: normalizedChildren,
   }
+  collectKeys(normalizedChildren as any[])
+
+  const prune = (nodes: any[]): any[] => {
+    return nodes
+      .filter((node) => {
+        const k = node?.__key
+        if (typeof k === 'string' && k) {
+          if (k === containerKey) return true
+          if (childKeys.has(k)) return false
+        }
+        return true
+      })
+      .map((node) => {
+        if (!node || typeof node !== 'object') return node
+        const c = (node as any).children
+        if (!Array.isArray(c)) return node
+        const nextChildren = prune(c)
+        return { ...(node as any), children: nextChildren }
+      })
+  }
+  const normalizePath = (path: number[]) => path.filter((p) => p !== -1)
+  const updateAtPath = (schema: any[], path: number[], nextNode: any): any[] => {
+    const p = normalizePath(path)
+    if (p.length === 0) return schema
+    const nextSchema = [...schema]
+    const idx0 = p[0]!
+    if (p.length === 1) {
+      nextSchema[idx0] = nextNode
+      return nextSchema
+    }
+    const parent = { ...(nextSchema[idx0] as any) }
+    let cursor: any = parent
+    for (let i = 1; i < p.length - 1; i++) {
+      const idx = p[i]!
+      const arr = Array.isArray(cursor.children) ? [...cursor.children] : []
+      const child = { ...(arr[idx] as any) }
+      arr[idx] = child
+      cursor.children = arr
+      cursor = child
+    }
+    const lastIdx = p[p.length - 1]!
+    const lastArr = Array.isArray(cursor.children) ? [...cursor.children] : []
+    lastArr[lastIdx] = nextNode
+    cursor.children = lastArr
+    nextSchema[idx0] = parent
+    return nextSchema
+  }
+
+  const prunedSchema = prune(formSchema.value as any[]) as FormKitSchemaFormKit[]
+  const found = findSchemaNodeByKey(prunedSchema as any[], containerKey)
+  if (!found) return
+  const merged: any = { ...(found.node as any), children: normalizedChildren }
   if (merged.$cmp) {
     merged.props = { ...merged.props }
     if (merged.props && typeof merged.props === 'object') delete merged.props.modelValue
   }
-  nextSchema[nextIndex] = merged as FormKitSchemaFormKit
-
+  const nextSchema = updateAtPath(prunedSchema as any[], found.path, merged) as FormKitSchemaFormKit[]
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'container-children', merge: true })
 }
+
 
 const selectByKey = (key: string) => {
   const found = findSchemaNodeByKey(formSchema.value as any[], key)

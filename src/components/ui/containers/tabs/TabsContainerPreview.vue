@@ -21,7 +21,7 @@ const modelValue = computed(() => {
 })
 
 const tabLabel = (child: any, idx: number) => {
-  const label = child?.label
+  const label = child?.label ?? child?.props?.label
   if (typeof label === 'string' && label.trim()) return label.trim()
   const name = child?.name
   if (typeof name === 'string' && name.trim()) return name.trim()
@@ -44,7 +44,7 @@ const tabLabel = (child: any, idx: number) => {
         :tab="tabLabel(child, idx)"
       >
         <div class="w-full grid grid-cols-12 gap-x-4 gap-y-2">
-          <FormKitSchema :schema="[child]" />
+          <FormKitSchema :schema="Array.isArray((child as any)?.children) ? (child as any).children : []" />
         </div>
       </n-tab-pane>
     </n-tabs>
