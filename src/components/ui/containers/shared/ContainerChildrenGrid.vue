@@ -81,6 +81,11 @@ const baseUlClass = computed(() => {
   return 'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
 })
 
+const emptyPlaceholderClass = computed(() => {
+  if (layout.value === 'row') return 'w-full min-h-[140px] flex items-center justify-center pointer-events-none'
+  return 'col-span-12 min-h-[140px] flex items-center justify-center pointer-events-none'
+})
+
 const getPercentWidth = (child: any): string | null => {
   const outerClass = child?.outerClass
   if (typeof outerClass !== 'string' || !outerClass) return null
@@ -111,6 +116,7 @@ const itemStyle = (child: any) => {
         baseUlClass,
         props.ulClass,
         props.items.value.length === 0 ? 'min-h-[140px] bg-muted/20 rounded-lg' : '',
+        layout === 'row' && props.items.value.length === 0 ? 'items-center justify-center' : '',
       ]"
       v-bind="props.dataAttrs"
       @dragover.capture="props.setNestedParentOnRoot?.(true)"
@@ -118,12 +124,15 @@ const itemStyle = (child: any) => {
       @dragend.capture="isDragging = false; props.setNestedParentOnRoot?.(false)"
       @drop="isDragging = false; props.setNestedParentOnRoot?.(false)"
     >
+      <li v-if="props.items.value.length === 0" :class="emptyPlaceholderClass">
+        <n-empty :description="props.emptyText" />
+      </li>
       <li
         v-for="(child, idx) in props.items.value"
         :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
         :class="[
           'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-          'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px]',
+          'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px] min-w-0',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
           ((child as any)?.__key && (child as any).__key === props.selectedKey)
             ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
@@ -136,7 +145,7 @@ const itemStyle = (child: any) => {
         @keydown.space.stop.prevent="props.onSelect(child, idx)"
       >
         <div class="flex gap-1.5 p-1 w-full pb-2">
-          <div class="flex-1 w-full">
+          <div class="flex-1 w-full min-w-0">
             <FormKitSchema
               :schema="[renderSchemaNode(child)]"
               :library="schemaLibrary"
@@ -224,8 +233,5 @@ const itemStyle = (child: any) => {
       </li>
     </ul>
 
-    <div v-if="props.items.value.length === 0" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <n-empty :description="props.emptyText" />
-    </div>
   </div>
 </template>
