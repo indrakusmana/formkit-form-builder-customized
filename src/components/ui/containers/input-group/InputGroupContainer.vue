@@ -69,12 +69,12 @@ const deleteChild = (index: number) => {
           :selected-key="selectedKey"
           :empty-text="t('builder.listDropHere')"
           :delete-aria-label="t('builder.deleteField')"
-          :data-attrs="{ 'data-input-group-key': props.inputGroupKey, 'data-dnd-axis': 'x' }"
+          :data-attrs="{ 'data-input-group-key': props.inputGroupKey }"
+          :allowed-insert-directions="{ left: true, right: true, top: false, bottom: false }"
           :set-nested-parent-on-root="dnd.setNestedParentOnRoot"
           :on-select="onSelect"
           :on-delete="deleteChild"
           :on-resize-end="dnd.emitUpdate"
-          layout="row"
           ul-class="p-0"
         />
       </n-input-group>

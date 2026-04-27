@@ -9,6 +9,8 @@ import { useCanvasSchemaContext } from '@/builder/composables/canvas-schema-cont
 import { pluralize, validationCount } from '@/utils/text'
 import { useGridSpanResize } from '@/builder/composables/use-grid-span-resize'
 
+type InsertDirections = Partial<Record<'left' | 'right' | 'top' | 'bottom', boolean>>
+
 const props = defineProps<{
   containerRef: Ref<unknown>
   items: Ref<FormKitSchemaFormKit[]>
@@ -19,7 +21,7 @@ const props = defineProps<{
   deleteTooltipText?: string
   dataAttrs?: Record<string, string | number | boolean | undefined>
   ulClass?: string
-  layout?: 'grid' | 'row'
+  allowedInsertDirections?: InsertDirections
   setNestedParentOnRoot?: (active: boolean) => void
   onSelect: (child: FormKitSchemaFormKit, index: number) => void
   onDelete: (index: number) => void
@@ -62,24 +64,18 @@ const { resizingIndex, startResize } = useGridSpanResize({
   onResizeEnd: props.onResizeEnd,
 })
 
-const layout = computed(() => props.layout ?? 'grid')
-
-const baseUlClass = computed(() => {
-  if (layout.value === 'row') return 'w-full flex flex-row flex-nowrap items-stretch gap-2 list-none p-2 m-0 overflow-x-auto'
-  return 'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
+const axis = computed(() => {
+  const dirs = props.allowedInsertDirections
+  const left = dirs?.left !== false
+  const right = dirs?.right !== false
+  const top = dirs?.top !== false
+  const bottom = dirs?.bottom !== false
+  const allowHorizontal = left || right
+  const allowVertical = top || bottom
+  if (allowHorizontal && !allowVertical) return 'x'
+  if (allowVertical && !allowHorizontal) return 'y'
+  return undefined
 })
-
-const itemStyle = (child: any) => {
-  if (layout.value === 'row') {
-    const span = Math.max(1, Math.min(12, getColSpan(child)))
-    const percent = `${(span / 12) * 100}%`
-    return { flex: `0 0 ${percent}`, width: percent }
-  }
-  return {
-    gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
-    gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
-  }
-}
 </script>
 
 <template>
@@ -87,10 +83,11 @@ const itemStyle = (child: any) => {
     <ul
       :ref="props.containerRef"
       :class="[
-        baseUlClass,
+        'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0',
         props.ulClass,
         props.items.value.length === 0 ? 'min-h-[140px] bg-muted/20 rounded-lg' : '',
       ]"
+      :data-dnd-axis="axis"
       v-bind="props.dataAttrs"
       @dragover.capture="props.setNestedParentOnRoot?.(true)"
       @dragstart.capture="isDragging = true"
@@ -108,7 +105,10 @@ const itemStyle = (child: any) => {
             ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
             : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
         ]"
-        :style="itemStyle(child)"
+        :style="{
+          gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
+          gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
+        }"
         tabindex="0"
         @pointerdown.stop="props.onSelect(child, idx)"
         @keydown.enter.stop.prevent="props.onSelect(child, idx)"
