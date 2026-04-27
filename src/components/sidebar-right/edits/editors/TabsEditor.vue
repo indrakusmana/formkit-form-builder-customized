@@ -7,6 +7,7 @@ import { useFormField } from '../../../../composables/form-fields'
 const { createPropsProp } = useFormField()
 
 const type = createPropsProp<string>('type', 'line')
+const placement = createPropsProp<string>('placement', 'top')
 const size = createPropsProp<string>('size', 'medium')
 const animated = createPropsProp<boolean>('animated', true)
 const closable = createPropsProp<boolean>('closable', false)
@@ -24,6 +25,17 @@ const closable = createPropsProp<boolean>('closable', false)
       { label: 'card', value: 'card' },
     ]"
     @update:value="(v) => (type = v)"
+  />
+  <SelectInput
+    label="placement"
+    :value="placement"
+    :options="[
+      { label: 'top', value: 'top' },
+      { label: 'bottom', value: 'bottom' },
+      { label: 'left', value: 'left' },
+      { label: 'right', value: 'right' },
+    ]"
+    @update:value="(v) => (placement = v)"
   />
   <SelectInput
     label="size"

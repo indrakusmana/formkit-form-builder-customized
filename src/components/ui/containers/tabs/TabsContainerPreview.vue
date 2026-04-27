@@ -11,6 +11,7 @@ const props = defineProps<{
   label?: string
   help?: string
   type?: string
+  placement?: string
   size?: string
   animated?: boolean
   closable?: boolean
@@ -45,6 +46,7 @@ const paneClosable = computed<boolean>(() => Boolean(props.closable ?? false))
     <n-tabs
       v-else
       :type="(props.type as any) || 'line'"
+      :placement="(props.placement as any) || 'top'"
       :size="(props.size as any) || 'small'"
       :animated="props.animated ?? true"
     >
