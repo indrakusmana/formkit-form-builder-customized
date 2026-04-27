@@ -10,6 +10,10 @@ const props = defineProps<{
   modelValue?: FormKitSchemaFormKit[]
   label?: string
   help?: string
+  type?: string
+  size?: string
+  animated?: boolean
+  closable?: boolean
 }>()
 
 const { t } = useFormBuilderI18n()
@@ -27,6 +31,8 @@ const tabLabel = (child: any, idx: number) => {
   if (typeof name === 'string' && name.trim()) return name.trim()
   return `Tab ${idx + 1}`
 }
+
+const paneClosable = computed<boolean>(() => Boolean(props.closable ?? false))
 </script>
 
 <template>
@@ -36,12 +42,18 @@ const tabLabel = (child: any, idx: number) => {
       <div v-if="props.help" class="text-xs text-muted-foreground">{{ props.help }}</div>
     </div>
     <n-empty v-if="modelValue.length === 0" :description="t('builder.listDropHere')" />
-    <n-tabs v-else type="line" size="small">
+    <n-tabs
+      v-else
+      :type="(props.type as any) || 'line'"
+      :size="(props.size as any) || 'small'"
+      :animated="props.animated ?? true"
+    >
       <n-tab-pane
         v-for="(child, idx) in modelValue"
         :key="(child as any)?.__key || idx"
         :name="(child as any)?.__key || idx"
         :tab="tabLabel(child, idx)"
+        :closable="paneClosable"
       >
         <div class="w-full grid grid-cols-12 gap-x-4 gap-y-2">
           <FormKitSchema :schema="Array.isArray((child as any)?.children) ? (child as any).children : []" />

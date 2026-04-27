@@ -28,12 +28,37 @@ const canvasCtx = useCanvasSchemaContext()
 
 const panes = computed<TabsPane[]>(() => (Array.isArray(props.modelValue) ? props.modelValue : []))
 
+const activeKey = ref<string | null>(null)
 const activeIndex = ref(0)
 watch(
   () => panes.value.length,
   (len) => {
     if (len <= 0) activeIndex.value = 0
     else if (activeIndex.value > len - 1) activeIndex.value = len - 1
+  },
+  { immediate: true },
+)
+
+watch(
+  () => panes.value.map((p) => p.__key).join('|'),
+  (next) => {
+    const keys = next ? next.split('|').filter(Boolean) : []
+    if (keys.length === 0) {
+      activeIndex.value = 0
+      activeKey.value = null
+      return
+    }
+    if (!activeKey.value) {
+      activeKey.value = keys[0] ?? null
+      activeIndex.value = 0
+      return
+    }
+    const idx = keys.indexOf(activeKey.value)
+    if (idx >= 0) activeIndex.value = idx
+    else {
+      activeKey.value = keys[0] ?? null
+      activeIndex.value = 0
+    }
   },
   { immediate: true },
 )
@@ -90,12 +115,14 @@ const tabLabel = (pane: TabsPane | undefined, idx: number) => {
 
 const selectTab = (idx: number) => {
   activeIndex.value = idx
+  activeKey.value = panes.value[idx]?.__key ?? null
 }
 
 const addTab = () => {
   const next = [...panes.value, createPane(`Tab ${panes.value.length + 1}`)]
   updatePanes(next)
   activeIndex.value = next.length - 1
+  activeKey.value = next[next.length - 1]?.__key ?? null
 }
 
 const editingIndex = ref<number | null>(null)
@@ -141,8 +168,10 @@ const deleteChild = (index: number) => {
           v-for="(pane, idx) in panes"
           :key="pane.__key || idx"
           :class="[
-            'relative flex items-center rounded-md px-2 py-1 text-xs',
-            idx === activeIndex ? 'bg-background border border-border/60' : 'text-muted-foreground hover:bg-muted/40',
+            'relative flex items-center rounded-md px-2 py-1 text-xs select-none',
+            idx === activeIndex
+              ? 'bg-background border border-[#a277ff] shadow-[0_0_0_3px_rgba(79,110,247,0.12)]'
+              : 'text-muted-foreground border border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
           ]"
           @click="selectTab(idx)"
           @dblclick.stop="startEdit(idx)"
