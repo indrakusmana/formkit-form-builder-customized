@@ -109,7 +109,7 @@ const itemStyle = (child: any) => {
 </script>
 
 <template>
-  <div class="relative">
+  <div :class="['relative w-full', layout === 'row' ? 'min-w-0' : '']">
     <ul
       :ref="props.containerRef"
       :class="[
