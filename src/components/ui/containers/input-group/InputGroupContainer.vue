@@ -71,6 +71,7 @@ const deleteChild = (index: number) => {
           :delete-aria-label="t('builder.deleteField')"
           :data-attrs="{ 'data-input-group-key': props.inputGroupKey }"
           :allowed-insert-directions="{ left: true, right: true, top: false, bottom: false }"
+          layout="row"
           :set-nested-parent-on-root="dnd.setNestedParentOnRoot"
           :on-select="onSelect"
           :on-delete="deleteChild"

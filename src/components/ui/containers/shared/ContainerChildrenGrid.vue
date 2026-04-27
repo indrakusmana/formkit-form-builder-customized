@@ -21,6 +21,7 @@ const props = defineProps<{
   deleteTooltipText?: string
   dataAttrs?: Record<string, string | number | boolean | undefined>
   ulClass?: string
+  layout?: 'grid' | 'row'
   allowedInsertDirections?: InsertDirections
   setNestedParentOnRoot?: (active: boolean) => void
   onSelect: (child: FormKitSchemaFormKit, index: number) => void
@@ -76,6 +77,25 @@ const axis = computed(() => {
   if (allowVertical && !allowHorizontal) return 'y'
   return undefined
 })
+
+const layout = computed(() => props.layout ?? 'grid')
+
+const baseUlClass = computed(() => {
+  if (layout.value === 'row') return 'w-full flex flex-row flex-nowrap items-stretch gap-2 list-none p-2 m-0 overflow-x-auto'
+  return 'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
+})
+
+const itemStyle = (child: any) => {
+  if (layout.value === 'row') {
+    const span = Math.max(1, Math.min(12, getColSpan(child)))
+    const percent = `${(span / 12) * 100}%`
+    return { width: percent, flex: '0 0 auto' }
+  }
+  return {
+    gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
+    gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
+  }
+}
 </script>
 
 <template>
@@ -83,7 +103,7 @@ const axis = computed(() => {
     <ul
       :ref="props.containerRef"
       :class="[
-        'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0',
+        baseUlClass,
         props.ulClass,
         props.items.value.length === 0 ? 'min-h-[140px] bg-muted/20 rounded-lg' : '',
       ]"
@@ -105,10 +125,7 @@ const axis = computed(() => {
             ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
             : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
         ]"
-        :style="{
-          gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
-          gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
-        }"
+        :style="itemStyle(child)"
         tabindex="0"
         @pointerdown.stop="props.onSelect(child, idx)"
         @keydown.enter.stop.prevent="props.onSelect(child, idx)"
