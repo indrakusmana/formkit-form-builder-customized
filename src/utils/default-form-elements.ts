@@ -536,6 +536,22 @@ const defs: DefaultElementDef[] = [
     id: 'naive_divider_static',
   },
   {
+    $formkit: 'naiveAlert',
+    outerClass: 'col-span-12',
+    props: {
+      title: 'Title',
+      content: 'Alert',
+      type: 'default',
+      closable: false,
+      bordered: false,
+      showIcon: true,
+    },
+    nameKey: 'elements.naiveAlert.name',
+    labelKey: 'elements.naiveAlert.label',
+    descriptionKey: 'elements.naiveAlert.description',
+    id: 'naive_alert_static',
+  },
+  {
     $formkit: 'tel',
     nameKey: 'elements.tel.name',
     labelKey: 'elements.tel.label',

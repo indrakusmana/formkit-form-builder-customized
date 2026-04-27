@@ -311,6 +311,13 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/NaiveDividerEditor.vue'),
   },
   {
+    name: 'naiveAlert',
+    tooltipKey: 'fieldProps.tooltip.naiveAlert',
+    icon: 'i-lucide-triangle-alert',
+    category: 'static',
+    editor: () => import('@/components/sidebar-right/edits/editors/NaiveAlertEditor.vue'),
+  },
+  {
     name: 'group',
     tooltipKey: 'fieldProps.tooltip.group',
     icon: 'i-lucide-group',

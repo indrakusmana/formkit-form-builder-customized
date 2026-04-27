@@ -201,6 +201,7 @@ export default {
       naiveOl: 'Typography ordered list',
       naiveLi: 'Typography list item',
       naiveDivider: 'Naive UI divider',
+      naiveAlert: 'Naive UI alert',
       group: 'Allows user to group fields together',
       list: 'Allows user to group fields into an array',
       card: 'Card container',
@@ -266,6 +267,7 @@ export default {
     naiveOl: { name: 'Naive Ol', description: 'Naive UI typography ordered list' },
     naiveLi: { name: 'Naive Li', description: 'Naive UI typography list item' },
     naiveDivider: { name: 'Naive Divider', description: 'Naive UI divider' },
+    naiveAlert: { name: 'Naive Alert', label: 'Alert', description: 'Naive UI alert' },
     tel: {
       name: 'Telephone Number',
       label: 'Tel Field',

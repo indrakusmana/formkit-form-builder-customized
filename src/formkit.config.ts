@@ -30,6 +30,7 @@ import NaiveTypographyUl from './components/ui/structure/NaiveTypographyUl.vue'
 import NaiveTypographyOl from './components/ui/structure/NaiveTypographyOl.vue'
 import NaiveTypographyLi from './components/ui/structure/NaiveTypographyLi.vue'
 import NaiveDivider from './components/ui/structure/NaiveDivider.vue'
+import NaiveAlert from './components/ui/structure/NaiveAlert.vue'
 
 const sharedObservedProps = [
   'props',
@@ -113,5 +114,6 @@ export default defaultConfig({
     naiveOl: createUiInput('NaiveTypographyOl', NaiveTypographyOl),
     naiveLi: createUiInput('NaiveTypographyLi', NaiveTypographyLi),
     naiveDivider: createUiInput('NaiveDivider', NaiveDivider),
+    naiveAlert: createUiInput('NaiveAlert', NaiveAlert),
   },
 })
