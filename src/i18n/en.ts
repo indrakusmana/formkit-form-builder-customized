@@ -115,6 +115,22 @@ export default {
       separatorLabel: 'separator',
       separatorPlaceholder: 'e.g. -',
     },
+    optionsSource: {
+      title: 'Options source',
+      labelList: 'Labels',
+      addPairRow: 'Add row',
+      pairLabelPlaceholder: 'label',
+      pairValuePlaceholder: 'value',
+      endpointPlaceholder: 'https://api.example.com/options',
+      jsonParseError: 'Invalid JSON',
+      jsonArrayError: 'Options must be a JSON array',
+      tabs: {
+        label: 'label',
+        pair: 'pair',
+        json: 'json',
+        endpoint: 'endpoint',
+      },
+    },
     image: {
       srcLabel: 'Image src',
       srcPlaceholder: 'https://...',

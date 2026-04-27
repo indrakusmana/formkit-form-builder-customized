@@ -114,6 +114,22 @@ export default {
       separatorLabel: 'separator',
       separatorPlaceholder: '例如：-',
     },
+    optionsSource: {
+      title: '选项数据来源',
+      labelList: 'Labels',
+      addPairRow: '添加一行',
+      pairLabelPlaceholder: 'label',
+      pairValuePlaceholder: 'value',
+      endpointPlaceholder: 'https://api.example.com/options',
+      jsonParseError: 'JSON 格式错误',
+      jsonArrayError: 'Options 必须是数组 JSON',
+      tabs: {
+        label: 'label',
+        pair: '成对值',
+        json: 'json',
+        endpoint: 'endpoint',
+      },
+    },
     image: {
       srcLabel: '图片地址（src）',
       srcPlaceholder: 'https://...',
