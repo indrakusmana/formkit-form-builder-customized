@@ -22,6 +22,53 @@ import { getVisualRows, setColSpan, adjustColSpansForInsertAtRow } from './grid'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from './schema'
 import { eq } from '../utils'
 
+function widthClassFromSpan(span: number) {
+  const safeSpan = Math.max(1, Math.min(12, Math.round(span)))
+  const map: Record<number, string> = {
+    1: 'w-[8.33%]',
+    2: 'w-[16.67%]',
+    3: 'w-[25%]',
+    4: 'w-[33.33%]',
+    5: 'w-[41.67%]',
+    6: 'w-[50%]',
+    7: 'w-[58.33%]',
+    8: 'w-[66.67%]',
+    9: 'w-[75%]',
+    10: 'w-[83.33%]',
+    11: 'w-[91.67%]',
+    12: 'w-[100%]',
+  }
+  return map[safeSpan] ?? 'w-[100%]'
+}
+
+function withWidthClass(field: any, widthClass: string) {
+  const current = typeof field?.outerClass === 'string' ? field.outerClass : ''
+  const nextOuterClass = `${current.replace(/\bw-\[[^\]]+\]\b/g, '').replace(/\s+/g, ' ').trim()} ${widthClass}`
+    .replace(/\s+/g, ' ')
+    .trim()
+  return { ...(field as any), outerClass: nextOuterClass || undefined } as any
+}
+
+function normalizeInputGroupChildren(children: FormKitSchemaFormKit[]) {
+  const list = Array.isArray(children) ? children : []
+  if (list.length === 0) return []
+  if (list.length === 1) {
+    const only = list[0] as any
+    setColSpan(only, 12)
+    return [withWidthClass(only, 'w-[100%]') as any]
+  }
+  return list.map((child: any) => {
+    const span = (() => {
+      const outerClass = child?.outerClass
+      if (typeof outerClass !== 'string') return 12
+      const match = outerClass.match(/\bcol-span-(\d+)\b/)
+      return match ? parseInt(match[1]!, 10) : 12
+    })()
+    setColSpan(child, span)
+    return withWidthClass(child, widthClassFromSpan(span)) as any
+  })
+}
+
 function getContainerKey(el: HTMLElement | null | undefined): string | null {
   if (!el) return null
   const raw = el.getAttribute('data-list-key') || el.getAttribute('data-card-key') || el.getAttribute('data-input-group-key')
@@ -279,7 +326,12 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     }
     const key = node.__key
     if (typeof key === 'string' && key && listMap.has(key)) {
-      return { ...node, children: listMap.get(key) ?? [] }
+      const rawChildren = listMap.get(key) ?? []
+      const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
+      const children = isInputGroup ? normalizeInputGroupChildren(rawChildren as any) : rawChildren
+      const next: any = { ...node, children }
+      if (next.$cmp) next.props = { ...next.props, modelValue: children }
+      return next
     }
     const isList = node.$formkit === 'list' || node.$cmp === 'list'
     const isCard = node.$formkit === 'card' || node.$cmp === 'card'
