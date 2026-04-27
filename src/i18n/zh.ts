@@ -179,6 +179,7 @@ export default {
       group: '分组',
       list: '列表',
       card: '卡片容器',
+      inputGroup: '输入组（NInputGroup）',
     },
   },
   elements: {
@@ -236,5 +237,6 @@ export default {
     group: { name: '分组', label: '分组', description: '字段对象分组' },
     list: { name: '列表', label: '列表', description: '字段数组分组' },
     card: { name: '卡片容器', label: '卡片', description: '可包含子字段的卡片容器' },
+    inputGroup: { name: '输入组', label: '输入组', description: 'Naive UI NInputGroup 容器（仅左右拖拽）' },
   },
 } as const

@@ -331,6 +331,13 @@ const defs: FieldPropDef[] = [
     category: 'structure',
     editor: () => import('@/components/sidebar-right/edits/editors/CardEditor.vue'),
   },
+  {
+    name: 'inputGroup',
+    tooltipKey: 'fieldProps.tooltip.inputGroup',
+    icon: 'i-lucide-align-horizontal-justify-start',
+    category: 'structure',
+    editor: () => import('@/components/sidebar-right/edits/editors/InputGroupEditor.vue'),
+  },
 ]
 
 const editorCache = new Map<string, Component>()

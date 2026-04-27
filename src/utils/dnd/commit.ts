@@ -24,7 +24,7 @@ import { eq } from '../utils'
 
 function getContainerKey(el: HTMLElement | null | undefined): string | null {
   if (!el) return null
-  const raw = el.getAttribute('data-list-key') || el.getAttribute('data-card-key')
+  const raw = el.getAttribute('data-list-key') || el.getAttribute('data-card-key') || el.getAttribute('data-input-group-key')
   return raw && raw.trim() ? raw : null
 }
 
@@ -54,6 +54,22 @@ function normalizeInsertValues(
         const props = { ...val.props, cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
         return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
       }
+      if (val.$cmp === 'inputGroup' || val.$formkit === 'inputGroup') {
+        const props = {
+          ...val.props,
+          inputGroupKey: nextKey,
+          modelValue: Array.isArray(val.children) ? val.children : [],
+        }
+        return {
+          ...valObj,
+          __key: nextKey,
+          name: nextName,
+          id: `field_${nextKey}`,
+          props,
+          children: props.modelValue,
+          outerClass: val.outerClass || 'col-span-12',
+        }
+      }
       return {
         ...valObj,
         __key: nextKey,
@@ -73,6 +89,9 @@ function adjustColSpansForInsert(
   insertValues: any[],
   isVertical: boolean,
 ) {
+  const parentEl = (insertState.insertPoint as any)?.parent?.el as HTMLElement | undefined
+  if (parentEl?.getAttribute('data-dnd-axis') === 'x') return
+
   if (isVertical) {
     insertValues.forEach((val) => setColSpan(val, 12))
     return
@@ -227,7 +246,7 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   if (rootEl === targetParent.el && targetNextValues) rootValues = targetNextValues
 
   const listMap = new Map<string, FormKitSchemaFormKit[]>()
-  const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key],[data-card-key]'))
+  const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key],[data-card-key],[data-input-group-key]'))
   for (const el of listEls) {
     const key = getContainerKey(el)
     if (!key) continue
@@ -264,7 +283,8 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     }
     const isList = node.$formkit === 'list' || node.$cmp === 'list'
     const isCard = node.$formkit === 'card' || node.$cmp === 'card'
-    if ((isList || isCard) && !Array.isArray(node.children)) {
+    const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
+    if ((isList || isCard || isInputGroup) && !Array.isArray(node.children)) {
       const next = { ...node, children: [] } as any
       if (next.$cmp) next.props = { ...next.props, modelValue: [] }
       return next

@@ -180,6 +180,7 @@ export default {
       group: 'Allows user to group fields together',
       list: 'Allows user to group fields into an array',
       card: 'Card container',
+      inputGroup: 'Input group (NInputGroup)',
     },
   },
   elements: {
@@ -252,5 +253,6 @@ export default {
     group: { name: 'Group', label: 'Group', description: 'Object grouping of fields' },
     list: { name: 'List', label: 'List', description: 'Array grouping of fields' },
     card: { name: 'Card', label: 'Card', description: 'Card container with children' },
+    inputGroup: { name: 'Input Group', label: 'Input Group', description: 'Naive UI NInputGroup container (horizontal only)' },
   },
 } as const

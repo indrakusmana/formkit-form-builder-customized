@@ -614,6 +614,16 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.card.description',
     children: [],
   },
+  {
+    $cmp: 'inputGroup',
+    nameKey: 'elements.inputGroup.name',
+    labelKey: 'elements.inputGroup.label',
+    id: 'input_group_container',
+    outerClass: 'col-span-12',
+    props: { modelValue: [], inputGroupKey: '' },
+    descriptionKey: 'elements.inputGroup.description',
+    children: [],
+  },
 ]
 
 export function createDefaultFormElements(t: (key: string) => string): FormKitSchemaFormKit[] {
