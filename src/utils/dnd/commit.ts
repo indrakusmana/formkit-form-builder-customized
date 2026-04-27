@@ -71,7 +71,11 @@ function normalizeInputGroupChildren(children: FormKitSchemaFormKit[]) {
 
 function getContainerKey(el: HTMLElement | null | undefined): string | null {
   if (!el) return null
-  const raw = el.getAttribute('data-list-key') || el.getAttribute('data-card-key') || el.getAttribute('data-input-group-key')
+  const raw =
+    el.getAttribute('data-list-key') ||
+    el.getAttribute('data-card-key') ||
+    el.getAttribute('data-input-group-key') ||
+    el.getAttribute('data-tabs-key')
   return raw && raw.trim() ? raw : null
 }
 
@@ -106,6 +110,23 @@ function normalizeInsertValues(
           ...val.props,
           inputGroupKey: nextKey,
         }
+        if (props && typeof props === 'object') delete (props as any).modelValue
+        return {
+          ...valObj,
+          __key: nextKey,
+          name: nextName,
+          id: `field_${nextKey}`,
+          props,
+          children: Array.isArray(val.children) ? val.children : [],
+          outerClass: val.outerClass || 'col-span-12',
+        }
+      }
+      if (val.$cmp === 'tabs' || val.$formkit === 'tabs') {
+        const props = {
+          ...val.props,
+          tabsKey: nextKey,
+        }
+        if (props && typeof props === 'object') delete (props as any).modelValue
         return {
           ...valObj,
           __key: nextKey,
@@ -294,7 +315,9 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   if (rootEl === targetParent.el && targetNextValues) rootValues = targetNextValues
 
   const listMap = new Map<string, FormKitSchemaFormKit[]>()
-  const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key],[data-card-key],[data-input-group-key]'))
+  const listEls = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-list-key],[data-card-key],[data-input-group-key],[data-tabs-key]'),
+  )
   for (const el of listEls) {
     const key = getContainerKey(el)
     if (!key) continue

@@ -338,6 +338,13 @@ const defs: FieldPropDef[] = [
     category: 'structure',
     editor: () => import('@/components/sidebar-right/edits/editors/InputGroupEditor.vue'),
   },
+  {
+    name: 'tabs',
+    tooltipKey: 'fieldProps.tooltip.tabs',
+    icon: 'i-lucide-panel-top',
+    category: 'structure',
+    editor: () => import('@/components/sidebar-right/edits/editors/TabsEditor.vue'),
+  },
 ]
 
 const editorCache = new Map<string, Component>()

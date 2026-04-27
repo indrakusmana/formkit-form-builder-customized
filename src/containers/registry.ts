@@ -5,8 +5,9 @@ import type { ContainerDefinition, SchemaNode } from './types'
 import { listContainerDef } from './definitions/list'
 import { cardContainerDef } from './definitions/card'
 import { inputGroupContainerDef } from './definitions/input-group'
+import { tabsContainerDef } from './definitions/tabs'
 
-const defs: ContainerDefinition[] = [listContainerDef, cardContainerDef, inputGroupContainerDef]
+const defs: ContainerDefinition[] = [listContainerDef, cardContainerDef, inputGroupContainerDef, tabsContainerDef]
 
 export function getContainerDefinition(node: unknown): ContainerDefinition | null {
   for (const def of defs) {

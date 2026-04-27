@@ -1,0 +1,52 @@
+<script setup lang="ts">
+import type { FormKitSchemaFormKit } from '@formkit/core'
+import { computed } from 'vue'
+import { FormKitSchema } from '@formkit/vue'
+import { NEmpty, NTabPane, NTabs } from 'naive-ui'
+import { useFormBuilderI18n } from '@/i18n/context'
+
+const props = defineProps<{
+  children?: FormKitSchemaFormKit[]
+  modelValue?: FormKitSchemaFormKit[]
+  label?: string
+  help?: string
+}>()
+
+const { t } = useFormBuilderI18n()
+
+const modelValue = computed(() => {
+  if (Array.isArray(props.modelValue)) return props.modelValue
+  if (Array.isArray(props.children)) return props.children
+  return []
+})
+
+const tabLabel = (child: any, idx: number) => {
+  const label = child?.label
+  if (typeof label === 'string' && label.trim()) return label.trim()
+  const name = child?.name
+  if (typeof name === 'string' && name.trim()) return name.trim()
+  return `Tab ${idx + 1}`
+}
+</script>
+
+<template>
+  <div class="w-full">
+    <div v-if="props.label || props.help" class="flex flex-col gap-0.5 mb-2">
+      <div v-if="props.label" class="text-sm font-medium">{{ props.label }}</div>
+      <div v-if="props.help" class="text-xs text-muted-foreground">{{ props.help }}</div>
+    </div>
+    <n-empty v-if="modelValue.length === 0" :description="t('builder.listDropHere')" />
+    <n-tabs v-else type="line" size="small">
+      <n-tab-pane
+        v-for="(child, idx) in modelValue"
+        :key="(child as any)?.__key || idx"
+        :name="(child as any)?.__key || idx"
+        :tab="tabLabel(child, idx)"
+      >
+        <div class="w-full grid grid-cols-12 gap-x-4 gap-y-2">
+          <FormKitSchema :schema="[child]" />
+        </div>
+      </n-tab-pane>
+    </n-tabs>
+  </div>
+</template>
