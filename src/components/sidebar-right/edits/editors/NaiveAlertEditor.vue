@@ -5,10 +5,11 @@ import TextInput from '../common/TextInput.vue'
 import SelectInput from '../common/SelectInput.vue'
 import SwitchInput from '../common/SwitchInput.vue'
 
-const { createPropsProp, fieldValue } = useFormField()
+const { createPropsProp } = useFormField()
 const { t } = useFormBuilderI18n()
 
 const alertTitle = createPropsProp<string>('title', 'Title')
+const alertContent = createPropsProp<string>('content', 'Alert')
 const alertType = createPropsProp<string>('type', 'default')
 const alertClosable = createPropsProp<boolean>('closable', false)
 const alertBordered = createPropsProp<boolean>('bordered', false)
@@ -25,8 +26,8 @@ const alertShowIcon = createPropsProp<boolean>('showIcon', true)
   <TextInput
     label="content"
     :placeholder="t('edits.placeholder.text')"
-    :value="fieldValue"
-    @update:value="(v) => (fieldValue = v)"
+    :value="alertContent"
+    @update:value="(v) => (alertContent = v)"
   />
   <SelectInput
     label="type"
@@ -44,4 +45,3 @@ const alertShowIcon = createPropsProp<boolean>('showIcon', true)
   <SwitchInput label="bordered" :value="alertBordered" @update:value="(v) => (alertBordered = v)" />
   <SwitchInput label="show-icon" :value="alertShowIcon" @update:value="(v) => (alertShowIcon = v)" />
 </template>
-
