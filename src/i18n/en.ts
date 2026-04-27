@@ -110,6 +110,12 @@ export default {
       addItems: 'Add Items...',
       fieldName: 'field_name',
     },
+    inputProps: {
+      label: 'input-props',
+      keyPlaceholder: 'key',
+      valuePlaceholder: 'value',
+      add: 'Add row',
+    },
     image: {
       srcLabel: 'Image src',
       srcPlaceholder: 'https://...',

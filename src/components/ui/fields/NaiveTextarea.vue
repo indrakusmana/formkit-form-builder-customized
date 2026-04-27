@@ -17,6 +17,11 @@ const disabled = computed<boolean>(() =>
   Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
 const bordered = computed<boolean>(() => (uiProps.value.bordered as boolean | undefined) ?? true)
+const inputProps = computed<Record<string, unknown>>(() => {
+  const raw = uiProps.value.inputProps
+  return raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {}
+})
+const mergedInputProps = computed<Record<string, unknown>>(() => ({ ...(inputProps.value as any), id: props.context.id }))
 
 const value = computed(() => (props.context._value ?? '') as string)
 const placeholder = computed(() => props.context.placeholder as string | undefined)
@@ -34,7 +39,7 @@ function handleUpdateValue(next: string) {
     :clearable="clearable"
     :disabled="disabled"
     :placeholder="placeholder"
-    :input-props="{ id: context.id }"
+    :input-props="mergedInputProps"
     :bordered="bordered"
     @update:value="handleUpdateValue"
     @blur="context.handlers.blur"
