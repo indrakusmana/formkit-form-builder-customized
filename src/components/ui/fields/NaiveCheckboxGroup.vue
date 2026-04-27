@@ -21,6 +21,7 @@ const size = computed<GroupSize>(() => {
 const disabled = computed<boolean>(() =>
   Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
+const horizontal = computed<boolean>(() => (uiProps.value.horizontal as boolean | undefined) ?? false)
 
 const remoteOptions = ref<Array<{ label: string; value: string | number }>>([])
 
@@ -96,7 +97,7 @@ function handleUpdateValue(next: Array<string | number>) {
 
 <template>
   <NCheckboxGroup :value="value" :disabled="disabled" :size="size" @update:value="handleUpdateValue">
-    <div class="flex flex-col gap-2 w-full py-1">
+    <div :class="horizontal ? 'flex flex-row flex-wrap gap-4 w-full py-1' : 'flex flex-col gap-2 w-full py-1'">
       <NCheckbox v-for="opt in options" :key="String(opt.value)" :value="opt.value" :label="opt.label" />
     </div>
   </NCheckboxGroup>

@@ -131,6 +131,9 @@ export default {
         endpoint: 'endpoint',
       },
     },
+    optionsLayout: {
+      horizontal: 'Horizontal',
+    },
     image: {
       srcLabel: 'Image src',
       srcPlaceholder: 'https://...',

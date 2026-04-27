@@ -130,6 +130,9 @@ export default {
         endpoint: 'endpoint',
       },
     },
+    optionsLayout: {
+      horizontal: '水平排列',
+    },
     image: {
       srcLabel: '图片地址（src）',
       srcPlaceholder: 'https://...',
