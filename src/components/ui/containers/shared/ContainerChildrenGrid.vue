@@ -97,6 +97,11 @@ const itemStyle = (child: any) => {
     gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
   }
 }
+
+const resizeHandleClass = computed(() => {
+  if (layout.value === 'row') return 'absolute top-2 right-1 z-30'
+  return 'absolute top-1/2 -translate-y-1/2 -right-3 z-30'
+})
 </script>
 
 <template>
@@ -197,15 +202,15 @@ const itemStyle = (child: any) => {
         <n-button
           text
           size="small"
-          class="absolute top-1/2 -translate-y-1/2 -right-3 z-30
-                opacity-0 pointer-events-none
-                group-hover:opacity-100 group-hover:pointer-events-auto
-                transition-all duration-150
-                !cursor-ew-resize"
+          :class="[
+            resizeHandleClass,
+            'opacity-0 pointer-events-none',
+            'group-hover:opacity-100 group-hover:pointer-events-auto',
+            'transition-all duration-150',
+            '!cursor-ew-resize',
+            resizingIndex === idx ? '!opacity-100 scale-110' : isDragging ? '!opacity-0 !pointer-events-none' : '',
+          ]"
           content-class="!cursor-ew-resize"
-          :class="resizingIndex === idx
-            ? '!opacity-100 scale-110'
-            : isDragging ? '!opacity-0 !pointer-events-none' : ''"
           @pointerdown.stop.prevent="startResize($event, idx)"
         >
           <template #icon>

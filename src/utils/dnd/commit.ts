@@ -136,7 +136,9 @@ function adjustColSpansForInsert(
   isVertical: boolean,
 ) {
   const parentEl = (insertState.insertPoint as any)?.parent?.el as HTMLElement | undefined
-  if (parentEl?.getAttribute('data-dnd-axis') === 'x') return
+  const axis = parentEl?.getAttribute('data-dnd-axis')
+  const isInputGroup = Boolean(parentEl?.getAttribute('data-input-group-key'))
+  if (axis === 'x' && !isInputGroup) return
 
   if (isVertical) {
     insertValues.forEach((val) => setColSpan(val, 12))
