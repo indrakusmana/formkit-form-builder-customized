@@ -47,6 +47,18 @@ const tailwindSafelist = [
   'col-span-10',
   'col-span-11',
   'col-span-12',
+  'w-[8.33%]',
+  'w-[16.67%]',
+  'w-[25%]',
+  'w-[33.33%]',
+  'w-[41.67%]',
+  'w-[50%]',
+  'w-[58.33%]',
+  'w-[66.67%]',
+  'w-[75%]',
+  'w-[83.33%]',
+  'w-[91.67%]',
+  'w-[100%]',
   'row-span-1',
   'row-span-2',
   'row-span-3',
@@ -65,16 +77,24 @@ const { resizingIndex, startResize } = useGridSpanResize({
 const layout = computed(() => props.layout ?? 'grid')
 
 const baseUlClass = computed(() => {
-  if (layout.value === 'row') return 'w-full flex flex-row flex-nowrap items-stretch gap-2 list-none p-2 m-0 overflow-x-hidden'
+  if (layout.value === 'row') return 'w-full flex flex-row flex-nowrap items-stretch gap-0 list-none p-0 m-0 overflow-x-hidden'
   return 'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
 })
+
+const getPercentWidth = (child: any): string | null => {
+  const outerClass = child?.outerClass
+  if (typeof outerClass !== 'string' || !outerClass) return null
+  const match = outerClass.match(/\bw-\[([0-9.]+%)\]\b/)
+  return match?.[1] ?? null
+}
 
 const itemStyle = (child: any) => {
   if (layout.value === 'row') {
     if (props.items.value.length === 1) return { width: '100%', flex: '0 0 auto' }
+    const width = getPercentWidth(child)
+    if (width) return { width, flex: '0 0 auto' }
     const span = Math.max(1, Math.min(12, getColSpan(child)))
-    const percent = `${(span / 12) * 100}%`
-    return { width: percent, flex: '0 0 auto' }
+    return { width: `${(span / 12) * 100}%`, flex: '0 0 auto' }
   }
   return {
     gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
