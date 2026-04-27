@@ -206,4 +206,3 @@ const removePairRow = (idx: number) => {
     </n-tabs>
   </EditsLayout>
 </template>
-
