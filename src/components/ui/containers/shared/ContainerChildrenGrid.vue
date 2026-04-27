@@ -65,12 +65,13 @@ const { resizingIndex, startResize } = useGridSpanResize({
 const layout = computed(() => props.layout ?? 'grid')
 
 const baseUlClass = computed(() => {
-  if (layout.value === 'row') return 'w-full flex flex-row flex-nowrap items-stretch gap-2 list-none p-2 m-0 overflow-x-auto'
+  if (layout.value === 'row') return 'w-full flex flex-row flex-nowrap items-stretch gap-2 list-none p-2 m-0 overflow-x-hidden'
   return 'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
 })
 
 const itemStyle = (child: any) => {
   if (layout.value === 'row') {
+    if (props.items.value.length === 1) return { width: '100%', flex: '0 0 auto' }
     const span = Math.max(1, Math.min(12, getColSpan(child)))
     const percent = `${(span / 12) * 100}%`
     return { width: percent, flex: '0 0 auto' }
