@@ -110,11 +110,10 @@ export default {
       addItems: 'Add Items...',
       fieldName: 'field_name',
     },
-    inputProps: {
-      label: 'input-props',
-      keyPlaceholder: 'key',
-      valuePlaceholder: 'value',
-      add: 'Add row',
+    pair: {
+      label: 'pair',
+      separatorLabel: 'separator',
+      separatorPlaceholder: 'e.g. -',
     },
     image: {
       srcLabel: 'Image src',

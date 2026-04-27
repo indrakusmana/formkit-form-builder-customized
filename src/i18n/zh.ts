@@ -109,11 +109,10 @@ export default {
       addItems: '添加条目...',
       fieldName: '字段名',
     },
-    inputProps: {
-      label: 'input-props',
-      keyPlaceholder: 'key',
-      valuePlaceholder: 'value',
-      add: '添加一行',
+    pair: {
+      label: 'pair',
+      separatorLabel: 'separator',
+      separatorPlaceholder: '例如：-',
     },
     image: {
       srcLabel: '图片地址（src）',
