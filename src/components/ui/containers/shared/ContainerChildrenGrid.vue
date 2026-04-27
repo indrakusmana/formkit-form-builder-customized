@@ -9,8 +9,6 @@ import { useCanvasSchemaContext } from '@/builder/composables/canvas-schema-cont
 import { pluralize, validationCount } from '@/utils/text'
 import { useGridSpanResize } from '@/builder/composables/use-grid-span-resize'
 
-type InsertDirections = Partial<Record<'left' | 'right' | 'top' | 'bottom', boolean>>
-
 const props = defineProps<{
   containerRef: Ref<unknown>
   items: Ref<FormKitSchemaFormKit[]>
@@ -22,7 +20,6 @@ const props = defineProps<{
   dataAttrs?: Record<string, string | number | boolean | undefined>
   ulClass?: string
   layout?: 'grid' | 'row'
-  allowedInsertDirections?: InsertDirections
   setNestedParentOnRoot?: (active: boolean) => void
   onSelect: (child: FormKitSchemaFormKit, index: number) => void
   onDelete: (index: number) => void
@@ -65,19 +62,6 @@ const { resizingIndex, startResize } = useGridSpanResize({
   onResizeEnd: props.onResizeEnd,
 })
 
-const axis = computed(() => {
-  const dirs = props.allowedInsertDirections
-  const left = dirs?.left !== false
-  const right = dirs?.right !== false
-  const top = dirs?.top !== false
-  const bottom = dirs?.bottom !== false
-  const allowHorizontal = left || right
-  const allowVertical = top || bottom
-  if (allowHorizontal && !allowVertical) return 'x'
-  if (allowVertical && !allowHorizontal) return 'y'
-  return undefined
-})
-
 const layout = computed(() => props.layout ?? 'grid')
 
 const baseUlClass = computed(() => {
@@ -107,7 +91,6 @@ const itemStyle = (child: any) => {
         props.ulClass,
         props.items.value.length === 0 ? 'min-h-[140px] bg-muted/20 rounded-lg' : '',
       ]"
-      :data-dnd-axis="axis"
       v-bind="props.dataAttrs"
       @dragover.capture="props.setNestedParentOnRoot?.(true)"
       @dragstart.capture="isDragging = true"
