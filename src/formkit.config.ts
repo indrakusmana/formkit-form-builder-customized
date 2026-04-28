@@ -1,6 +1,7 @@
 // formkit.config.ts
 import { rootClasses } from './formkit.theme.ts'
 import { defaultConfig, createInput } from '@formkit/vue'
+import { createI18nPlugin, en, zh } from '@formkit/i18n'
 import CustomButton from './components/ui/fields/CustomButton.vue'
 import NaiveTextInput from './components/ui/fields/NaiveTextInput.vue'
 import NaiveTextarea from './components/ui/fields/NaiveTextarea.vue'
@@ -69,6 +70,9 @@ function createUiInput(
 }
 
 export default defaultConfig({
+  plugins: [createI18nPlugin({ en, zh })],
+  locales: { en, zh },
+  locale: 'zh',
   config: {
     rootClasses,
   },

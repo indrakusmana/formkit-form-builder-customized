@@ -29,6 +29,9 @@ importers:
       '@formkit/drag-and-drop':
         specifier: ^0.5.0
         version: 0.5.3
+      '@formkit/i18n':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@formkit/vue':
         specifier: ^2.0.0
         version: 2.0.0(vue@3.5.32(typescript@6.0.2))

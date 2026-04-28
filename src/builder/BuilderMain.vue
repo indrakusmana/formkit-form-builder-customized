@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { NConfigProvider, NLayout, darkTheme, type ConfigProviderProps } from 'naive-ui'
 import { useColorMode, usePreferredDark } from '@vueuse/core'
+import { changeLocale } from '@formkit/vue'
 
 import SidebarLeft from '../components/sidebar-left/SidebarLeft.vue'
 import SidebarRight from '../components/sidebar-right/SidebarRight.vue'
@@ -27,6 +28,14 @@ const cfg = useFormBuilderConfig() as FormBuilderConfig
 
 const initialLocale: RuntimeLocale = cfg?.locale === 'en' ? 'en' : 'zh-CN'
 const runtimeLocale = provideRuntimeLocale(initialLocale)
+
+watch(
+  () => runtimeLocale.locale.value,
+  (next) => {
+    changeLocale(next === 'en' ? 'en' : 'zh')
+  },
+  { immediate: true },
+)
 
 provideFormBuilderI18n({
   locale: computed(() => runtimeLocale.locale.value),
