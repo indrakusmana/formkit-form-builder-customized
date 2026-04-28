@@ -72,8 +72,8 @@ const onBuilderBlankPointerDown = (e: PointerEvent) => {
     <n-layout has-sider class="h-screen w-full">
       <SidebarLeft />
       <n-layout has-sider sider-placement="right" class="flex-1">
-        <n-layout class="relative h-full" :native-scrollbar="false">
-          <div class="p-4 flex flex-1 min-h-0 flex-col" @pointerdown.capture="onBuilderBlankPointerDown">
+        <n-layout class="relative h-full" :native-scrollbar="false" @pointerdown.capture="onBuilderBlankPointerDown">
+          <div class="p-4 flex flex-1 min-h-0 flex-col">
             <BuilderHeader />
             <BuilderDropArea class="flex-1 min-h-0" />
           </div>
