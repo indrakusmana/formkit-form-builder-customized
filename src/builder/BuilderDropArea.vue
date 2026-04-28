@@ -28,15 +28,19 @@ const { t } = useFormBuilderI18n()
 const isZh = computed(() => locale.value === 'zh-CN')
 
 const canvasFormClass = computed(() => {
-  if (formMeta.value.labelPosition !== 'left') return ''
+  const common = [
+    '[&_.formkit-label]:text-sm',
+    '[&_.formkit-label]:font-bold',
+  ].join(' ')
+  if (formMeta.value.labelPosition !== 'left') return common
   return [
+    common,
     '[&_.formkit-wrapper]:flex',
     '[&_.formkit-wrapper]:flex-row',
     '[&_.formkit-wrapper]:items-start',
     '[&_.formkit-wrapper]:gap-3',
     '[&_.formkit-label]:mb-0',
     '[&_.formkit-label]:w-[var(--fk-label-width)]',
-    '[&_.formkit-label]:font-bold',
     '[&_.formkit-label]:shrink-0',
     '[&_.formkit-label]:pt-1',
     '[&_.formkit-inner]:flex-1',

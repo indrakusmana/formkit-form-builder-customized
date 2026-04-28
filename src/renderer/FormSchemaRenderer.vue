@@ -120,9 +120,14 @@ const resolvedLabelWidth = computed<number>(() => {
 
 const resolvedFormClass = computed(() => {
   const base = props.formClass
+  const common = [
+    '[&_.formkit-label]:text-sm',
+    '[&_.formkit-label]:font-bold',
+  ].join(' ')
   if (resolvedLabelPosition.value === 'left') {
     return [
       base,
+      common,
       'fk-label-left',
       '[&_.formkit-wrapper]:flex',
       '[&_.formkit-wrapper]:flex-row',
@@ -130,14 +135,13 @@ const resolvedFormClass = computed(() => {
       '[&_.formkit-wrapper]:gap-3',
       '[&_.formkit-label]:mb-0',
       '[&_.formkit-label]:w-[var(--fk-label-width)]',
-      '[&_.formkit-label]:font-bold',
       '[&_.formkit-label]:shrink-0',
       '[&_.formkit-label]:pt-1',
       '[&_.formkit-inner]:flex-1',
       '[&_.formkit-inner]:min-w-0',
     ].join(' ')
   }
-  return base
+  return [base, common].join(' ')
 })
 
 const formattedSchema = createFormattedSchema(schemaBody)
