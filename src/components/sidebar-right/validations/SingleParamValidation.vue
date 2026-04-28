@@ -23,7 +23,7 @@ const {
   useFormField()
 
 const active = isActive(isValidationChecked, props.value)
-const paramValue = createValidationValue(props.value, active.value)
+const paramValue = createValidationValue(props.value)
 const messageValue = createValidationMessageValue(props.value)
 
 const inputValue = computed({
@@ -50,10 +50,12 @@ const dateValue = computed({
 })
 
 const toggleSwitch = () => {
-  const willActivate = !active.value
-  if (!willActivate && props.value === 'matches') messageValue.value = ''
-  if (willActivate && props.value === 'matches' && !paramValue.value) paramValue.value = '/[0-9]/'
-  updateValidationString(`${props.value}:${paramValue.value}`, !active.value)
+  const currentlyActive = active.value
+  const nextActive = !currentlyActive
+  let nextParam = paramValue.value
+  if (nextActive && props.value === 'matches' && !nextParam) nextParam = '/[0-9]/'
+  if (!nextActive && props.value === 'matches') messageValue.value = ''
+  updateValidationString(`${props.value}:${nextParam}`, nextActive)
 }
 </script>
 
