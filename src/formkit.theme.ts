@@ -72,6 +72,7 @@ export function rootClasses(
         [semanticKey]: true,
         block: true,
         "text-xs": true,
+        "text-sm": true,
         "font-bold": true,
         "mb-1": true,
         "text-neutral-700": true,
