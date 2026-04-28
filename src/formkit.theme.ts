@@ -36,8 +36,24 @@ export function rootClasses(
     : "";
   const type = (node.props as any)?.$formkit || node.props.type;
   if (node.props.family === "naive") {
-    if (sectionName === "outer" || sectionName === "wrapper") {
+    const labelPosition = ((node as any)?.root?.props?.labelPosition ?? "top") as string;
+    const isHorizontal = labelPosition === "left";
+    if (sectionName === "outer") {
       return { [semanticKey]: true, "w-full": true };
+    }
+    if (sectionName === "wrapper") {
+      return {
+        [semanticKey]: true,
+        "w-full": true,
+        ...(isHorizontal
+          ? {
+              flex: true,
+              "flex-row": true,
+              "items-start": true,
+              "gap-3": true,
+            }
+          : {}),
+      };
     }
     if (sectionName === "inner") {
       return {
@@ -47,6 +63,7 @@ export function rootClasses(
         "!border-none": true,
         "!bg-transparent": true,
         "!shadow-none": true,
+        ...(isHorizontal ? { "flex-1": true, "min-w-0": true } : {}),
       };
     }
     if (sectionName === "input") {
@@ -67,7 +84,9 @@ export function rootClasses(
         block: true,
         "text-xs": true,
         "font-bold": true,
-        "mb-1": true,
+        ...(isHorizontal
+          ? { "mb-0": true, "w-[var(--fk-label-width)]": true, "shrink-0": true, "pt-1": true }
+          : { "mb-1": true }),
         "text-neutral-700": true,
         "dark:text-zinc-300": true,
       };

@@ -1,7 +1,7 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import type { WritableComputedRef } from 'vue'
 import { computed, ref } from 'vue'
-import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
+import { formMeta, formSchema, selectedIndex, selectedKey, selectedTarget } from '../utils/default-form-elements'
 import { commitSchema } from './schema-history'
 
 export const isLoading = ref(false)
@@ -476,7 +476,8 @@ export function useFormField() {
     },
   })
 
-  const hasField = computed(() => !!formSchema.value[selectedIndex.value])
+  const selectedIsForm = computed(() => selectedTarget.value === 'form')
+  const hasField = computed(() => selectedIsForm.value || !!formSchema.value[selectedIndex.value])
 
   const isValidationChecked = (validationType: string) => {
     if (!hasField.value) return false
@@ -494,10 +495,35 @@ export function useFormField() {
 
   const currentFieldType = computed(() => {
     if (!hasField.value) return null
+    if (selectedIsForm.value) return 'form'
     const current: any = selectedField.value as any
     if (typeof current?.$formkit === 'string' && current.$formkit) return current.$formkit
     if (typeof current?.$cmp === 'string' && current.$cmp) return current.$cmp
     return null
+  })
+
+  const formName = computed<string>({
+    get: () => formMeta.value.name,
+    set: (value: string) => {
+      const next = value.trim()
+      formMeta.value = { ...formMeta.value, name: next || 'form' }
+    },
+  })
+
+  const formLabelPosition = computed<'top' | 'left'>({
+    get: () => formMeta.value.labelPosition,
+    set: (value: 'top' | 'left') => {
+      formMeta.value = { ...formMeta.value, labelPosition: value }
+    },
+  })
+
+  const formLabelWidth = computed<number>({
+    get: () => formMeta.value.labelWidth,
+    set: (value: number) => {
+      const n = Number(value)
+      const next = Number.isFinite(n) ? Math.max(40, Math.min(480, Math.round(n))) : 120
+      formMeta.value = { ...formMeta.value, labelWidth: next }
+    },
   })
 
   const availableFieldNames = computed(() => {
@@ -573,6 +599,10 @@ export function useFormField() {
     currentFieldType,
     availableFieldNames,
     hasField,
+    selectedIsForm,
+    formName,
+    formLabelPosition,
+    formLabelWidth,
     help,
     whichNumber,
     validationString,

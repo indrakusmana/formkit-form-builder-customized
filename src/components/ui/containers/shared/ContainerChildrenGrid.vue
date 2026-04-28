@@ -22,6 +22,7 @@ const props = defineProps<{
   layout?: 'grid' | 'row'
   setNestedParentOnRoot?: (active: boolean) => void
   onSelect: (child: FormKitSchemaFormKit, index: number) => void
+  onSelectBlank?: () => void
   onDelete: (index: number) => void
   onResizeEnd: () => void
 }>()
@@ -115,6 +116,7 @@ const resizeHandleClass = computed(() => {
         layout === 'row' && props.items.value.length === 0 ? 'items-center justify-center' : '',
       ]"
       v-bind="props.dataAttrs"
+      @pointerdown.self="props.onSelectBlank?.()"
       @dragover.capture="props.setNestedParentOnRoot?.(true)"
       @dragstart.capture="isDragging = true"
       @dragend.capture="isDragging = false; props.setNestedParentOnRoot?.(false)"

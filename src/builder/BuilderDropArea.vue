@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
-import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
+import { formSchema, selectedIndex, selectedKey, selectedTarget } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { isLoading, canvasView } from '../composables/form-fields'
@@ -132,6 +132,7 @@ const updateContainerChildren = (containerKey: string, children: FormKitSchemaFo
 const selectByKey = (key: string) => {
   const found = findSchemaNodeByKey(formSchema.value as any[], key)
   if (!found) return
+  selectedTarget.value = 'field'
   selectedIndex.value = found.rootIndex
   selectedKey.value = key
 }
@@ -175,8 +176,14 @@ const dropAreaUlClass = computed(() =>
 
 const onSelectRoot = (child: FormKitSchemaFormKit, index: number) => {
   const key = (child as any)?.__key as string | undefined
+  selectedTarget.value = 'field'
   if (key) selectByKey(key)
   else selectedIndex.value = index
+}
+
+const onSelectBlank = () => {
+  selectedTarget.value = 'form'
+  selectedKey.value = null
 }
 
 const onResizeEnd = () => {
@@ -277,6 +284,7 @@ provideCanvasSchemaContext({
           :data-attrs="{ 'data-testid': 'drop-area' }"
           :ul-class="dropAreaUlClass"
           :on-select="onSelectRoot"
+          :on-select-blank="onSelectBlank"
           :on-delete="deleteField"
           :on-resize-end="onResizeEnd"
         />

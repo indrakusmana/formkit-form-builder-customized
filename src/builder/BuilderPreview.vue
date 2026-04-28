@@ -22,6 +22,9 @@
         v-model="data"
         :actions="props.actions"
         :form-class="props.formClass"
+        :form-name="formMeta.name"
+        :label-position="formMeta.labelPosition"
+        :label-width="formMeta.labelWidth"
         :interactive-containers="props.interactiveContainers"
         @submit="handleSubmit"
       />
@@ -37,7 +40,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { NModal } from 'naive-ui'
-import { formSchema } from '../utils/default-form-elements'
+import { formMeta, formSchema } from '../utils/default-form-elements'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { useFormBuilderI18n } from '../i18n/context'
 import { canvasView, type CanvasView } from '../composables/form-fields'

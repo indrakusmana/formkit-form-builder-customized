@@ -49,6 +49,14 @@ export default {
     failedGenerateDownload: '生成下载失败：JSON 无效',
     unknownError: '未知错误',
   },
+  formSettings: {
+    title: '表单设置',
+    name: '表单名称',
+    labelPosition: 'Label 方向',
+    labelWidth: 'Label 宽度',
+    positionTop: '上方',
+    positionLeft: '左侧',
+  },
   expression: {
     useExpressionValue: '使用表达式值',
     placeholder: '例如：$my_variable + 1',

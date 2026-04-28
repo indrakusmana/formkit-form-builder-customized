@@ -49,6 +49,14 @@ export default {
     failedGenerateDownload: 'Failed to generate download: Invalid JSON',
     unknownError: 'Unknown error',
   },
+  formSettings: {
+    title: 'Form settings',
+    name: 'Form name',
+    labelPosition: 'Label position',
+    labelWidth: 'Label width',
+    positionTop: 'Top',
+    positionLeft: 'Left',
+  },
   expression: {
     useExpressionValue: 'Use expression value',
     placeholder: 'e.g. $my_variable + 1',

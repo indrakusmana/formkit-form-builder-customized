@@ -17,6 +17,9 @@ const props = withDefaults(
     modelValue?: ModelValue
     actions?: boolean
     formClass?: string
+    formName?: string
+    labelPosition?: 'top' | 'left'
+    labelWidth?: number
     schemaLibrary?: Record<string, Component>
     interactiveContainers?: boolean
   }>(),
@@ -80,7 +83,42 @@ const schemaLibrary = computed<Record<string, Component>>(() => {
   return getPreviewSchemaLibrary()
 })
 
-const formattedSchema = createFormattedSchema(internalSchema)
+const formWrapper = computed<any | null>(() => {
+  const only = internalSchema.value.length === 1 ? (internalSchema.value[0] as any) : null
+  if (!only || typeof only !== 'object') return null
+  if (only.$formkit !== 'form') return null
+  if (!Array.isArray(only.children)) return null
+  return only
+})
+
+const schemaBody = computed<FormKitSchemaFormKit[]>(() => {
+  if (formWrapper.value) return formWrapper.value.children as FormKitSchemaFormKit[]
+  return internalSchema.value
+})
+
+const resolvedFormName = computed(() => {
+  const fromSchema = formWrapper.value?.name
+  if (typeof fromSchema === 'string' && fromSchema.trim()) return fromSchema
+  const fromProps = props.formName
+  if (typeof fromProps === 'string' && fromProps.trim()) return fromProps
+  return undefined
+})
+
+const resolvedLabelPosition = computed<'top' | 'left'>(() => {
+  const fromSchema = formWrapper.value?.props?.labelPosition
+  if (fromSchema === 'left' || fromSchema === 'top') return fromSchema
+  return props.labelPosition === 'left' ? 'left' : 'top'
+})
+
+const resolvedLabelWidth = computed<number>(() => {
+  const fromSchema = Number(formWrapper.value?.props?.labelWidth)
+  if (Number.isFinite(fromSchema)) return fromSchema
+  const fromProps = Number(props.labelWidth)
+  if (Number.isFinite(fromProps)) return fromProps
+  return 120
+})
+
+const formattedSchema = createFormattedSchema(schemaBody)
 
 type Found = { node: FormKitSchemaFormKit; path: number[] } | null
 
@@ -353,7 +391,17 @@ const handleSubmit = (formData: Record<string, unknown>) => {
 </script>
 
 <template>
-  <FormKit type="form" :actions="props.actions" v-model="data" @submit="handleSubmit" :form-class="props.formClass">
+  <FormKit
+    type="form"
+    :name="resolvedFormName"
+    :actions="props.actions"
+    v-model="data"
+    @submit="handleSubmit"
+    :form-class="props.formClass"
+    :labelPosition="resolvedLabelPosition"
+    :labelWidth="resolvedLabelWidth"
+    :style="{ '--fk-label-width': `${resolvedLabelWidth}px` }"
+  >
     <FormKitSchema :schema="formattedSchema" :data="data" :library="schemaLibrary" />
   </FormKit>
 </template>

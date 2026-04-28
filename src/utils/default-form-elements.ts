@@ -17,6 +17,20 @@ export const formSchema = ref<FormKitSchemaFormKit[]>([
 export const selectedIndex = ref(0)
 export const selectedKey = ref<string | null>(null)
 
+export type FormLabelPosition = 'top' | 'left'
+
+export const formMeta = ref<{
+  name: string
+  labelPosition: FormLabelPosition
+  labelWidth: number
+}>({
+  name: 'form',
+  labelPosition: 'top',
+  labelWidth: 120,
+})
+
+export const selectedTarget = ref<'field' | 'form'>('field')
+
 type DefaultElementDef = Omit<
   FormKitSchemaFormKit,
   'name' | 'label' | 'placeholder' | 'help' | 'description'
