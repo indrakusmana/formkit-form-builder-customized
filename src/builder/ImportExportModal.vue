@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { NModal, NInput, NButton, NSpace } from 'naive-ui'
-import { formSchema } from '../utils/default-form-elements'
+import { formMeta, formSchema } from '../utils/default-form-elements'
 import { commitSchema } from '../composables/schema-history'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { toast } from 'vue-sonner'
@@ -19,11 +19,25 @@ const { t } = useFormBuilderI18n()
 
 const jsonContent = ref('')
 
+const exportSchema = (): FormKitSchemaFormKit[] => {
+  return [
+    {
+      $formkit: 'form',
+      name: formMeta.value.name,
+      props: {
+        labelPosition: formMeta.value.labelPosition,
+        labelWidth: formMeta.value.labelWidth,
+      },
+      children: formSchema.value as any,
+    } as any,
+  ]
+}
+
 watch(
   () => props.show,
   (newVal) => {
     if (newVal) {
-      jsonContent.value = JSON.stringify(formSchema.value, null, 2)
+      jsonContent.value = JSON.stringify(exportSchema(), null, 2)
     }
   }
 )
@@ -38,7 +52,24 @@ const handleSaveAndImport = () => {
     if (!Array.isArray(parsed)) {
       throw new Error(t('importExport.schemaMustBeArray'))
     }
-    commitSchema(parsed as FormKitSchemaFormKit[], { reason: 'import' })
+    const first = parsed[0]
+    if (
+      parsed.length === 1 &&
+      first &&
+      typeof first === 'object' &&
+      (first as any).$formkit === 'form' &&
+      Array.isArray((first as any).children)
+    ) {
+      const rawName = (first as any).name
+      const name = typeof rawName === 'string' && rawName.trim() ? rawName.trim() : 'form'
+      const labelPosition = (first as any)?.props?.labelPosition === 'left' ? 'left' : 'top'
+      const labelWidthRaw = Number((first as any)?.props?.labelWidth)
+      const labelWidth = Number.isFinite(labelWidthRaw) ? labelWidthRaw : 120
+      formMeta.value = { name, labelPosition, labelWidth }
+      commitSchema((first as any).children as FormKitSchemaFormKit[], { reason: 'import' })
+    } else {
+      commitSchema(parsed as FormKitSchemaFormKit[], { reason: 'import' })
+    }
     toast.success(t('importExport.importSuccess'))
     handleClose()
   } catch (error: unknown) {
@@ -91,7 +122,7 @@ const cloneSchema = (schema: FormKitSchemaFormKit[]) => {
 }
 
 const exportAsJs = () => {
-  const schema = cloneSchema(formSchema.value as any)
+  const schema = cloneSchema(exportSchema() as any)
   const bindVarMap: Record<string, Record<string, unknown>> = {}
 
   const visit = (nodes: any[]) => {

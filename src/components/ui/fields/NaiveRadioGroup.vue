@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormKitFrameworkContext } from '@formkit/core'
 import { NRadio, NRadioGroup } from 'naive-ui'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { getSchemaProps } from './schema-props'
 
 const props = defineProps<{
@@ -21,8 +21,51 @@ const size = computed<GroupSize>(() => {
 const disabled = computed<boolean>(() =>
   Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
+const horizontal = computed<boolean>(() => (uiProps.value.horizontal as boolean | undefined) ?? false)
+
+const remoteOptions = ref<Array<{ label: string; value: string | number }>>([])
+
+const endpoint = computed<string | null>(() => {
+  const raw = props.context.options as unknown
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const url = (raw as any).endpoint
+  return typeof url === 'string' && url.trim() ? url.trim() : null
+})
+
+watch(
+  endpoint,
+  async (url) => {
+    if (!url) {
+      remoteOptions.value = []
+      return
+    }
+    try {
+      const res = await fetch(url)
+      const json = (await res.json()) as unknown
+      if (!Array.isArray(json)) {
+        remoteOptions.value = []
+        return
+      }
+      remoteOptions.value = json
+        .map((opt) => {
+          if (typeof opt === 'string' || typeof opt === 'number') return { label: String(opt), value: opt }
+          if (opt && typeof opt === 'object') {
+            const value = (opt as Record<string, unknown>).value
+            const label = (opt as Record<string, unknown>).label
+            if (typeof value === 'string' || typeof value === 'number') return { label: String(label ?? value), value }
+          }
+          return null
+        })
+        .filter((v): v is { label: string; value: string | number } => v !== null)
+    } catch {
+      remoteOptions.value = []
+    }
+  },
+  { immediate: true },
+)
 
 const options = computed(() => {
+  if (endpoint.value) return remoteOptions.value
   const raw = props.context.options as unknown
   if (!Array.isArray(raw)) return []
   return raw
@@ -49,7 +92,7 @@ function handleUpdateValue(next: string | number) {
 
 <template>
   <NRadioGroup :value="value" :disabled="disabled" :size="size" @update:value="handleUpdateValue">
-    <div class="flex flex-col gap-2 w-full py-1">
+    <div :class="horizontal ? 'flex flex-row flex-wrap gap-4 w-full py-1' : 'flex flex-col gap-2 w-full py-1'">
       <NRadio v-for="opt in options" :key="String(opt.value)" :value="opt.value">
         {{ opt.label }}
       </NRadio>

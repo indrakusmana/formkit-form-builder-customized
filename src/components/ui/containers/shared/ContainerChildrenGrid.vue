@@ -19,8 +19,10 @@ const props = defineProps<{
   deleteTooltipText?: string
   dataAttrs?: Record<string, string | number | boolean | undefined>
   ulClass?: string
+  layout?: 'grid' | 'row'
   setNestedParentOnRoot?: (active: boolean) => void
   onSelect: (child: FormKitSchemaFormKit, index: number) => void
+  onSelectBlank?: () => void
   onDelete: (index: number) => void
   onResizeEnd: () => void
 }>()
@@ -46,6 +48,18 @@ const tailwindSafelist = [
   'col-span-10',
   'col-span-11',
   'col-span-12',
+  'w-[8.33%]',
+  'w-[16.67%]',
+  'w-[25%]',
+  'w-[33.33%]',
+  'w-[41.67%]',
+  'w-[50%]',
+  'w-[58.33%]',
+  'w-[66.67%]',
+  'w-[75%]',
+  'w-[83.33%]',
+  'w-[91.67%]',
+  'w-[100%]',
   'row-span-1',
   'row-span-2',
   'row-span-3',
@@ -60,45 +74,81 @@ const { resizingIndex, startResize } = useGridSpanResize({
   containerRef: props.containerRef,
   onResizeEnd: props.onResizeEnd,
 })
+
+const layout = computed(() => props.layout ?? 'grid')
+
+const baseUlClass = computed(() => {
+  if (layout.value === 'row')
+    return 'w-full flex-1 flex flex-row flex-nowrap items-stretch gap-0 list-none p-0 m-0 overflow-x-hidden'
+  return 'w-full flex-1 grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
+})
+
+const emptyPlaceholderClass = computed(() => {
+  if (layout.value === 'row') return 'w-full min-h-[140px] flex items-center justify-center pointer-events-none'
+  return 'col-span-12 min-h-[140px] flex items-center justify-center pointer-events-none'
+})
+
+const itemStyle = (child: any) => {
+  if (layout.value === 'row') {
+    if (props.items.value.length === 1) return { width: '100%', flex: '0 0 auto' }
+    const span = Math.max(1, Math.min(12, getColSpan(child)))
+    return { width: `${(span / 12) * 100}%`, flex: '0 0 auto' }
+  }
+  return {
+    gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
+    gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
+  }
+}
+
+const resizeHandleClass = computed(() => {
+  if (layout.value === 'row') return 'absolute top-2 right-1 z-30'
+  return 'absolute top-1/2 -translate-y-1/2 -right-3 z-30'
+})
 </script>
 
 <template>
-  <div class="relative">
+  <div
+    :class="['relative w-full flex flex-col flex-1 min-h-0', layout === 'row' ? 'min-w-0' : '']"
+    @pointerdown.self="props.onSelectBlank?.()"
+  >
     <ul
       :ref="props.containerRef"
-      class="w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0"
+      :class="[
+        baseUlClass,
+        props.ulClass,
+        props.items.value.length === 0 ? 'min-h-[140px] bg-muted/20 rounded-lg' : '',
+        layout === 'row' && props.items.value.length === 0 ? 'items-center justify-center' : '',
+      ]"
       v-bind="props.dataAttrs"
+      @pointerdown.self="props.onSelectBlank?.()"
       @dragover.capture="props.setNestedParentOnRoot?.(true)"
       @dragstart.capture="isDragging = true"
       @dragend.capture="isDragging = false; props.setNestedParentOnRoot?.(false)"
       @drop="isDragging = false; props.setNestedParentOnRoot?.(false)"
-      :class="[
-        props.ulClass,
-        props.items.value.length === 0 ? 'min-h-[140px] bg-muted/20 rounded-lg' : '',
-      ]"
     >
+      <li v-if="props.items.value.length === 0" :class="emptyPlaceholderClass">
+        <n-empty :description="props.emptyText" />
+      </li>
       <li
         v-for="(child, idx) in props.items.value"
         :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
+        data-canvas-item="true"
         :class="[
           'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-          'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px]',
+          'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px] min-w-0 box-border',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
           ((child as any)?.__key && (child as any).__key === props.selectedKey)
             ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
             : 'border-dashed border-transparent hover:border-[#7c9ef8] hover:bg-[#f0f4ff] dark:hover:bg-[rgba(100,130,255,0.07)]',
         ]"
-        :style="{
-          gridColumn: `span ${getColSpan(child)} / span ${getColSpan(child)}`,
-          gridRow: `span ${getRowSpan(child)} / span ${getRowSpan(child)}`,
-        }"
+        :style="itemStyle(child)"
         tabindex="0"
         @pointerdown.stop="props.onSelect(child, idx)"
         @keydown.enter.stop.prevent="props.onSelect(child, idx)"
         @keydown.space.stop.prevent="props.onSelect(child, idx)"
       >
         <div class="flex gap-1.5 p-1 w-full pb-2">
-          <div class="flex-1 w-full">
+          <div class="flex-1 w-full min-w-0">
             <FormKitSchema
               :schema="[renderSchemaNode(child)]"
               :library="schemaLibrary"
@@ -159,15 +209,15 @@ const { resizingIndex, startResize } = useGridSpanResize({
         <n-button
           text
           size="small"
-          class="absolute top-1/2 -translate-y-1/2 -right-3 z-30
-                opacity-0 pointer-events-none
-                group-hover:opacity-100 group-hover:pointer-events-auto
-                transition-all duration-150
-                !cursor-ew-resize"
+          :class="[
+            resizeHandleClass,
+            'opacity-0 pointer-events-none',
+            'group-hover:opacity-100 group-hover:pointer-events-auto',
+            'transition-all duration-150',
+            '!cursor-ew-resize',
+            resizingIndex === idx ? '!opacity-100 scale-110' : isDragging ? '!opacity-0 !pointer-events-none' : '',
+          ]"
           content-class="!cursor-ew-resize"
-          :class="resizingIndex === idx
-            ? '!opacity-100 scale-110'
-            : isDragging ? '!opacity-0 !pointer-events-none' : ''"
           @pointerdown.stop.prevent="startResize($event, idx)"
         >
           <template #icon>
@@ -186,8 +236,5 @@ const { resizingIndex, startResize } = useGridSpanResize({
       </li>
     </ul>
 
-    <div v-if="props.items.value.length === 0" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <n-empty :description="props.emptyText" />
-    </div>
   </div>
 </template>

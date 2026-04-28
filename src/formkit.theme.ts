@@ -36,8 +36,14 @@ export function rootClasses(
     : "";
   const type = (node.props as any)?.$formkit || node.props.type;
   if (node.props.family === "naive") {
-    if (sectionName === "outer" || sectionName === "wrapper") {
+    if (sectionName === "outer") {
       return { [semanticKey]: true, "w-full": true };
+    }
+    if (sectionName === "wrapper") {
+      return {
+        [semanticKey]: true,
+        "w-full": true,
+      };
     }
     if (sectionName === "inner") {
       return {
@@ -65,8 +71,8 @@ export function rootClasses(
       return {
         [semanticKey]: true,
         block: true,
-        "text-xs": true,
-        "font-bold": true,
+        "!text-xs": true,
+        "!font-bold": true,
         "mb-1": true,
         "text-neutral-700": true,
         "dark:text-zinc-300": true,

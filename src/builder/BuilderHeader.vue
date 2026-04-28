@@ -12,7 +12,7 @@ const { t } = useFormBuilderI18n()
 const clearForm = () => {
   commitSchema([], { reason: 'clear' })
 }
-const previewRef = ref<InstanceType<typeof BuilderPreview>>()
+const showPreview = ref(false)
 </script>
 
 <template>
@@ -39,7 +39,7 @@ const previewRef = ref<InstanceType<typeof BuilderPreview>>()
               secondary
               circle
               size="small"
-              @click="previewRef?.open()"
+              @click="showPreview = true"
               class="h-5 w-5 !p-2"
             >
               <template #icon><span class="i-lucide-eye h-4 w-4 dark:text-green-200"></span></template>
@@ -47,7 +47,7 @@ const previewRef = ref<InstanceType<typeof BuilderPreview>>()
           </template>
           {{ t('builder.previewForm') }}
         </n-tooltip>
-        <BuilderPreview ref="previewRef" />
+        <BuilderPreview v-model:show="showPreview" />
       </div>
 
       <div class="flex justify-center">

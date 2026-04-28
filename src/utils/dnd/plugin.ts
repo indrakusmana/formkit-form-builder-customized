@@ -187,16 +187,19 @@ export function moveBetween<T>(data: ParentRecord<T>, state: DragState<T>) {
       const rect = data.el.getBoundingClientRect()
       const scrollLeft = window.scrollX || document.documentElement.scrollLeft
       const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const axis = data.el.getAttribute('data-dnd-axis')
+      const onlyX = axis === 'x'
       Object.assign(insertState.insertPoint.el.style, {
         position: 'absolute',
         display: 'block',
-        top: `${rect.top + rect.height / 2 + scrollTop - 2}px`,
-        left: `${rect.left + scrollLeft}px`,
-        width: `${rect.width}px`,
-        height: '4px',
+        top: onlyX ? `${rect.top + scrollTop}px` : `${rect.top + rect.height / 2 + scrollTop - 2}px`,
+        left: onlyX ? `${rect.left + rect.width / 2 + scrollLeft - 2}px` : `${rect.left + scrollLeft}px`,
+        width: onlyX ? '4px' : `${rect.width}px`,
+        height: onlyX ? `${rect.height}px` : '4px',
         transform: '',
       })
     }
+    insertState.verticalInsert = data.el.getAttribute('data-dnd-axis') === 'x' ? false : true
     insertState.targetIndex = 0
     insertState.ascending = true
     return

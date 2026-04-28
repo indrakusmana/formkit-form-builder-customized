@@ -23,6 +23,8 @@ const disabled = computed<boolean>(() =>
 const bordered = computed<boolean>(() => (uiProps.value.bordered as boolean | undefined) ?? true)
 
 const pickerType = computed<DatePickerProps['type']>(() => {
+  const configured = uiProps.value.type
+  if (typeof configured === 'string' && configured.trim()) return configured as DatePickerProps['type']
   const t = props.context.type
   if (t === 'naiveDateTime') return 'datetime'
   return 'date'
@@ -36,13 +38,16 @@ const valueFormat = computed(() => {
 
 const placeholder = computed(() => props.context.placeholder as string | undefined)
 
-const formattedValue = computed<string | null>({
+type FormattedValue = string | [string, string] | null
+
+const formattedValue = computed<FormattedValue>({
   get: () => {
     const raw = props.context._value as unknown
     if (raw === null || raw === undefined || raw === '') return null
+    if (Array.isArray(raw) && raw.length === 2) return [String(raw[0]), String(raw[1])] as [string, string]
     return String(raw)
   },
-  set: (next) => {
+  set: (next: FormattedValue) => {
     props.context.node.input(next)
   },
 })

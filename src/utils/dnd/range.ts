@@ -26,6 +26,9 @@ export function defineRanges(parent: HTMLElement) {
   const parentData = parents.get(parent)
   if (!parentData) return
 
+  const axis = parent.getAttribute('data-dnd-axis')
+  const onlyX = axis === 'x'
+
   const enabledNodes = parentData.enabledNodes as NodeRecord<any>[]
 
   enabledNodes.forEach((node) => {
@@ -57,17 +60,18 @@ export function defineRanges(parent: HTMLElement) {
       vertical: false,
     }
 
-    rangeData.top = {
-      x: [left + horizontalThreshold, right - horizontalThreshold],
-      y: [top, top + height / 2],
-      vertical: true,
-    }
+    if (!onlyX) {
+      rangeData.top = {
+        x: [left + horizontalThreshold, right - horizontalThreshold],
+        y: [top, top + height / 2],
+        vertical: true,
+      }
 
-    rangeData.bottom = {
-      x: [left + horizontalThreshold, right - horizontalThreshold],
-      y: [top + height / 2, bottom],
-      vertical: true,
+      rangeData.bottom = {
+        x: [left + horizontalThreshold, right - horizontalThreshold],
+        y: [top + height / 2, bottom],
+        vertical: true,
+      }
     }
   })
 }
-

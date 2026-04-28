@@ -1,7 +1,7 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import type { WritableComputedRef } from 'vue'
 import { computed, ref } from 'vue'
-import { formSchema, selectedIndex, selectedKey } from '../utils/default-form-elements'
+import { formMeta, formSchema, selectedIndex, selectedKey, selectedTarget } from '../utils/default-form-elements'
 import { commitSchema } from './schema-history'
 
 export const isLoading = ref(false)
@@ -196,6 +196,29 @@ export function useFormField() {
     })
   }
 
+  const createValidationMessageValue = (validationType: string) => {
+    return computed<string>({
+      get: () => {
+        const current: any = selectedField.value as any
+        const msgs = current?.validationMessages
+        if (!msgs || typeof msgs !== 'object') return ''
+        const v = (msgs as any)[validationType]
+        if (v === null || v === undefined) return ''
+        return String(v)
+      },
+      set: (value: string) => {
+        const current: any = selectedField.value as any
+        const prev = current?.validationMessages
+        const next: Record<string, unknown> =
+          prev && typeof prev === 'object' ? { ...(prev as Record<string, unknown>) } : {}
+        const trimmed = value.trim()
+        if (!trimmed) delete next[validationType]
+        else next[validationType] = trimmed
+        setFieldProp('validationMessages', Object.keys(next).length ? next : undefined)
+      },
+    })
+  }
+
   const fieldName = computed({
     get: () => selectedField.value?.name || '',
     set: (newName: string) => {
@@ -285,14 +308,8 @@ export function useFormField() {
   const validationString = computed({
     get: () => selectedField.value?.validation || '',
     set: (value: string) => {
-      if (formSchema.value.length > 0) {
-        const updatedSchema = [...formSchema.value]
-        updatedSchema[selectedIndex.value] = {
-          ...updatedSchema[selectedIndex.value],
-          validation: value,
-        } as FormKitSchemaFormKit
-        commitSchema(updatedSchema, { reason: 'field-edit', merge: true })
-      }
+      const next = value.trim()
+      setFieldProp('validation', next ? next : undefined)
     },
   })
 
@@ -459,7 +476,8 @@ export function useFormField() {
     },
   })
 
-  const hasField = computed(() => !!formSchema.value[selectedIndex.value])
+  const selectedIsForm = computed(() => selectedTarget.value === 'form')
+  const hasField = computed(() => selectedIsForm.value || !!formSchema.value[selectedIndex.value])
 
   const isValidationChecked = (validationType: string) => {
     if (!hasField.value) return false
@@ -477,10 +495,35 @@ export function useFormField() {
 
   const currentFieldType = computed(() => {
     if (!hasField.value) return null
+    if (selectedIsForm.value) return 'form'
     const current: any = selectedField.value as any
     if (typeof current?.$formkit === 'string' && current.$formkit) return current.$formkit
     if (typeof current?.$cmp === 'string' && current.$cmp) return current.$cmp
     return null
+  })
+
+  const formName = computed<string>({
+    get: () => formMeta.value.name,
+    set: (value: string) => {
+      const next = value.trim()
+      formMeta.value = { ...formMeta.value, name: next || 'form' }
+    },
+  })
+
+  const formLabelPosition = computed<'top' | 'left'>({
+    get: () => formMeta.value.labelPosition,
+    set: (value: 'top' | 'left') => {
+      formMeta.value = { ...formMeta.value, labelPosition: value }
+    },
+  })
+
+  const formLabelWidth = computed<number>({
+    get: () => formMeta.value.labelWidth,
+    set: (value: number) => {
+      const n = Number(value)
+      const next = Number.isFinite(n) ? Math.max(0, Math.min(2000, Math.round(n))) : 120
+      formMeta.value = { ...formMeta.value, labelWidth: next }
+    },
   })
 
   const availableFieldNames = computed(() => {
@@ -551,10 +594,15 @@ export function useFormField() {
     updateValidationString,
     isActive,
     createValidationValue,
+    createValidationMessageValue,
     validationStringLength,
     currentFieldType,
     availableFieldNames,
     hasField,
+    selectedIsForm,
+    formName,
+    formLabelPosition,
+    formLabelWidth,
     help,
     whichNumber,
     validationString,

@@ -22,9 +22,61 @@ import { getVisualRows, setColSpan, adjustColSpansForInsertAtRow } from './grid'
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from './schema'
 import { eq } from '../utils'
 
+function widthClassFromSpan(span: number) {
+  const safeSpan = Math.max(1, Math.min(12, Math.round(span)))
+  const map: Record<number, string> = {
+    1: 'w-[8.33%]',
+    2: 'w-[16.67%]',
+    3: 'w-[25%]',
+    4: 'w-[33.33%]',
+    5: 'w-[41.67%]',
+    6: 'w-[50%]',
+    7: 'w-[58.33%]',
+    8: 'w-[66.67%]',
+    9: 'w-[75%]',
+    10: 'w-[83.33%]',
+    11: 'w-[91.67%]',
+    12: 'w-[100%]',
+  }
+  return map[safeSpan] ?? 'w-[100%]'
+}
+
+function withWidthClass(field: any, widthClass: string) {
+  const current = typeof field?.outerClass === 'string' ? field.outerClass : ''
+  const nextOuterClass = `${current.replace(/\bw-\[[^\]]+\]\b/g, '').replace(/\s+/g, ' ').trim()} ${widthClass}`
+    .replace(/\s+/g, ' ')
+    .trim()
+  return { ...(field as any), outerClass: nextOuterClass || undefined } as any
+}
+
+function normalizeInputGroupChildren(children: FormKitSchemaFormKit[]) {
+  const list = Array.isArray(children) ? children : []
+  if (list.length === 0) return []
+  if (list.length === 1) {
+    const only = list[0] as any
+    setColSpan(only, 12)
+    return [withWidthClass(only, 'w-[100%]') as any]
+  }
+  return list.map((child: any) => {
+    const span = (() => {
+      const outerClass = child?.outerClass
+      if (typeof outerClass !== 'string') return 12
+      const match = outerClass.match(/\bcol-span-(\d+)\b/)
+      return match ? parseInt(match[1]!, 10) : 12
+    })()
+    setColSpan(child, span)
+    return withWidthClass(child, widthClassFromSpan(span)) as any
+  })
+}
+
 function getContainerKey(el: HTMLElement | null | undefined): string | null {
   if (!el) return null
-  const raw = el.getAttribute('data-list-key') || el.getAttribute('data-card-key')
+  const raw =
+    el.getAttribute('data-list-key') ||
+    el.getAttribute('data-card-key') ||
+    el.getAttribute('data-input-group-key') ||
+    el.getAttribute('data-tabs-key') ||
+    el.getAttribute('data-tabs-pane-key')
   return raw && raw.trim() ? raw : null
 }
 
@@ -47,12 +99,44 @@ function normalizeInsertValues(
       const nextName = val.$formkit === 'submit' ? val.name : ensureUniqueName(base, existingNames)
       if (val.$formkit === 'submit') return { ...valObj, __key: nextKey, outerClass: 'col-span-12 pt-2' }
       if (val.$cmp === 'list' || val.$formkit === 'list') {
-        const props = { ...val.props, listKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
-        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
+        const props = { ...val.props, listKey: nextKey }
+        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: Array.isArray(val.children) ? val.children : [], outerClass: val.outerClass || 'col-span-12' }
       }
       if (val.$cmp === 'card' || val.$formkit === 'card') {
-        const props = { ...val.props, cardKey: nextKey, modelValue: Array.isArray(val.children) ? val.children : [] }
-        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: props.modelValue, outerClass: val.outerClass || 'col-span-12' }
+        const props = { ...val.props, cardKey: nextKey }
+        return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: Array.isArray(val.children) ? val.children : [], outerClass: val.outerClass || 'col-span-12' }
+      }
+      if (val.$cmp === 'inputGroup' || val.$formkit === 'inputGroup') {
+        const props = {
+          ...val.props,
+          inputGroupKey: nextKey,
+        }
+        if (props && typeof props === 'object') delete (props as any).modelValue
+        return {
+          ...valObj,
+          __key: nextKey,
+          name: nextName,
+          id: `field_${nextKey}`,
+          props,
+          children: Array.isArray(val.children) ? val.children : [],
+          outerClass: val.outerClass || 'col-span-12',
+        }
+      }
+      if (val.$cmp === 'tabs' || val.$formkit === 'tabs') {
+        const props = {
+          ...val.props,
+          tabsKey: nextKey,
+        }
+        if (props && typeof props === 'object') delete (props as any).modelValue
+        return {
+          ...valObj,
+          __key: nextKey,
+          name: nextName,
+          id: `field_${nextKey}`,
+          props,
+          children: Array.isArray(val.children) ? val.children : [],
+          outerClass: val.outerClass || 'col-span-12',
+        }
       }
       return {
         ...valObj,
@@ -73,6 +157,11 @@ function adjustColSpansForInsert(
   insertValues: any[],
   isVertical: boolean,
 ) {
+  const parentEl = (insertState.insertPoint as any)?.parent?.el as HTMLElement | undefined
+  const axis = parentEl?.getAttribute('data-dnd-axis')
+  const isInputGroup = Boolean(parentEl?.getAttribute('data-input-group-key'))
+  if (axis === 'x' && !isInputGroup) return
+
   if (isVertical) {
     insertValues.forEach((val) => setColSpan(val, 12))
     return
@@ -227,7 +316,11 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   if (rootEl === targetParent.el && targetNextValues) rootValues = targetNextValues
 
   const listMap = new Map<string, FormKitSchemaFormKit[]>()
-  const listEls = Array.from(document.querySelectorAll<HTMLElement>('[data-list-key],[data-card-key]'))
+  const listEls = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      '[data-list-key],[data-card-key],[data-input-group-key],[data-tabs-key],[data-tabs-pane-key]',
+    ),
+  )
   for (const el of listEls) {
     const key = getContainerKey(el)
     if (!key) continue
@@ -251,26 +344,47 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     listMap.set(key, cleaned)
   }
 
-  const nextSchema = rootValues.map((node: any) => {
+  const applyListMap = (node: any): any => {
     if (!node || typeof node !== 'object') return node
     if (node.$formkit === 'submit' && Array.isArray(node.children)) {
       const next = { ...node }
       delete next.children
       return next
     }
+
     const key = node.__key
+    let next: any = node
+
     if (typeof key === 'string' && key && listMap.has(key)) {
-      return { ...node, children: listMap.get(key) ?? [] }
+      const rawChildren = listMap.get(key) ?? []
+      const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
+      const children = isInputGroup ? normalizeInputGroupChildren(rawChildren as any) : rawChildren
+      next = { ...node, children }
+      if (next.$cmp) {
+        next.props = { ...next.props }
+        if (next.props && typeof next.props === 'object') delete next.props.modelValue
+      }
+    } else {
+      const isList = node.$formkit === 'list' || node.$cmp === 'list'
+      const isCard = node.$formkit === 'card' || node.$cmp === 'card'
+      const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
+      const isTabs = node.$formkit === 'tabs' || node.$cmp === 'tabs'
+      if ((isList || isCard || isInputGroup || isTabs) && !Array.isArray(node.children)) {
+        next = { ...node, children: [] }
+        if (next.$cmp) {
+          next.props = { ...next.props }
+          if (next.props && typeof next.props === 'object') delete next.props.modelValue
+        }
+      }
     }
-    const isList = node.$formkit === 'list' || node.$cmp === 'list'
-    const isCard = node.$formkit === 'card' || node.$cmp === 'card'
-    if ((isList || isCard) && !Array.isArray(node.children)) {
-      const next = { ...node, children: [] } as any
-      if (next.$cmp) next.props = { ...next.props, modelValue: [] }
-      return next
+
+    if (Array.isArray(next.children)) {
+      next.children = next.children.map((c: any) => applyListMap(c))
     }
-    return node
-  }) as FormKitSchemaFormKit[]
+    return next
+  }
+
+  const nextSchema = rootValues.map((node: any) => applyListMap(node)) as FormKitSchemaFormKit[]
 
   commitSchema(nextSchema, { reason: 'dnd' })
 

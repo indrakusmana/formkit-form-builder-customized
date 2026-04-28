@@ -143,13 +143,6 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/NaiveSwitchEditor.vue'),
   },
   {
-    name: 'naiveCheckbox',
-    tooltipKey: 'fieldProps.tooltip.naiveCheckbox',
-    icon: 'i-lucide-square-check',
-    category: 'fields',
-    editor: () => import('@/components/sidebar-right/edits/editors/NaiveCheckboxEditor.vue'),
-  },
-  {
     name: 'naiveAvatar',
     tooltipKey: 'fieldProps.tooltip.naiveAvatar',
     icon: 'i-stash:user-avatar',
@@ -311,6 +304,20 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/NaiveDividerEditor.vue'),
   },
   {
+    name: 'naiveAlert',
+    tooltipKey: 'fieldProps.tooltip.naiveAlert',
+    icon: 'i-lucide-triangle-alert',
+    category: 'static',
+    editor: () => import('@/components/sidebar-right/edits/editors/NaiveAlertEditor.vue'),
+  },
+  {
+    name: 'naiveBackTop',
+    tooltipKey: 'fieldProps.tooltip.naiveBackTop',
+    icon: 'i-lucide-arrow-up-to-line',
+    category: 'static',
+    editor: () => import('@/components/sidebar-right/edits/editors/NaiveBackTopEditor.vue'),
+  },
+  {
     name: 'group',
     tooltipKey: 'fieldProps.tooltip.group',
     icon: 'i-lucide-group',
@@ -330,6 +337,20 @@ const defs: FieldPropDef[] = [
     icon: 'i-lucide-credit-card',
     category: 'structure',
     editor: () => import('@/components/sidebar-right/edits/editors/CardEditor.vue'),
+  },
+  {
+    name: 'inputGroup',
+    tooltipKey: 'fieldProps.tooltip.inputGroup',
+    icon: 'i-lucide-align-horizontal-justify-start',
+    category: 'structure',
+    editor: () => import('@/components/sidebar-right/edits/editors/InputGroupEditor.vue'),
+  },
+  {
+    name: 'tabs',
+    tooltipKey: 'fieldProps.tooltip.tabs',
+    icon: 'i-lucide-panel-top',
+    category: 'structure',
+    editor: () => import('@/components/sidebar-right/edits/editors/TabsEditor.vue'),
   },
 ]
 

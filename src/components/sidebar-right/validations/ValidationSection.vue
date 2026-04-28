@@ -12,6 +12,11 @@ const { currentFieldType } = useFormField()
 const validations = computed(() => ({
   singleValue: [
     {
+      value: 'accepted',
+      label: t('validation.accepted.label'),
+      tooltip: t('validation.accepted.tooltip'),
+    },
+    {
       value: 'required',
       label: t('validation.required.label'),
       tooltip: t('validation.required.tooltip'),
@@ -47,9 +52,34 @@ const validations = computed(() => ({
       tooltip: t('validation.alpha.tooltip'),
     },
     {
+      value: 'alpha_spaces',
+      label: t('validation.alpha_spaces.label'),
+      tooltip: t('validation.alpha_spaces.tooltip'),
+    },
+    {
       value: 'alphanumeric',
       label: t('validation.alphanumeric.label'),
       tooltip: t('validation.alphanumeric.tooltip'),
+    },
+    {
+      value: 'symbol',
+      label: t('validation.symbol.label'),
+      tooltip: t('validation.symbol.tooltip'),
+    },
+    {
+      value: 'contains_alpha',
+      label: t('validation.contains_alpha.label'),
+      tooltip: t('validation.contains_alpha.tooltip'),
+    },
+    {
+      value: 'contains_alphanumeric',
+      label: t('validation.contains_alphanumeric.label'),
+      tooltip: t('validation.contains_alphanumeric.tooltip'),
+    },
+    {
+      value: 'contains_alpha_spaces',
+      label: t('validation.contains_alpha_spaces.label'),
+      tooltip: t('validation.contains_alpha_spaces.tooltip'),
     },
     {
       value: 'contains_symbol',
@@ -73,6 +103,12 @@ const validations = computed(() => ({
     },
   ],
   singleParam: [
+    {
+      value: 'confirm',
+      label: t('validation.confirm.label'),
+      tooltip: t('validation.confirm.tooltip'),
+      placeholder: t('validation.confirm.placeholder'),
+    },
     {
       value: 'min',
       label: t('validation.min.label'),
@@ -115,6 +151,30 @@ const validations = computed(() => ({
       tooltip: t('validation.date_before.tooltip'),
       placeholder: t('validation.date_before.placeholder'),
     },
+    {
+      value: 'date_format',
+      label: t('validation.date_format.label'),
+      tooltip: t('validation.date_format.tooltip'),
+      placeholder: t('validation.date_format.placeholder'),
+    },
+    {
+      value: 'is',
+      label: t('validation.is.label'),
+      tooltip: t('validation.is.tooltip'),
+      placeholder: t('validation.is.placeholder'),
+    },
+    {
+      value: 'not',
+      label: t('validation.not.label'),
+      tooltip: t('validation.not.tooltip'),
+      placeholder: t('validation.not.placeholder'),
+    },
+    {
+      value: 'require_one',
+      label: t('validation.require_one.label'),
+      tooltip: t('validation.require_one.tooltip'),
+      placeholder: t('validation.require_one.placeholder'),
+    },
   ],
   doubleParam: [
     {
@@ -152,6 +212,7 @@ const validations = computed(() => ({
 
 const showForFieldType = (validationType: string, fieldType: string | null) => {
   const validationMap: Record<string, string[]> = {
+    accepted: ['checkbox'],
     required: [
       'text',
       'textarea',
@@ -159,7 +220,6 @@ const showForFieldType = (validationType: string, fieldType: string | null) => {
       'date',
       'radio',
       'checkbox',
-      'naiveCheckbox',
       'email',
       'url',
       'color',
@@ -176,12 +236,18 @@ const showForFieldType = (validationType: string, fieldType: string | null) => {
       'naiveSwitch',
       'tel',
     ],
-    alpha: ['password'],
-    alphanumeric: ['password'],
-    contains_symbol: ['password'],
-    contains_uppercase: ['password'],
-    contains_lowercase: ['password'],
-    contains_numeric: ['password'],
+    alpha: ['text', 'textarea', 'password'],
+    alpha_spaces: ['text', 'textarea', 'password'],
+    alphanumeric: ['text', 'textarea', 'password'],
+    symbol: ['text', 'textarea', 'password'],
+    contains_alpha: ['text', 'textarea', 'password'],
+    contains_alphanumeric: ['text', 'textarea', 'password'],
+    contains_alpha_spaces: ['text', 'textarea', 'password'],
+    contains_symbol: ['text', 'textarea', 'password'],
+    contains_uppercase: ['text', 'textarea', 'password'],
+    contains_lowercase: ['text', 'textarea', 'password'],
+    contains_numeric: ['text', 'textarea', 'password'],
+    confirm: ['password', 'text'],
     email: ['text', 'email'],
     number: ['text', 'number', 'naiveRate'],
     lowercase: ['text', 'textarea', 'password'],
@@ -195,6 +261,10 @@ const showForFieldType = (validationType: string, fieldType: string | null) => {
     date_after: ['date', 'naiveDateTime'],
     date_before: ['date', 'naiveDateTime'],
     date_between: ['date', 'naiveDateTime'],
+    date_format: ['date', 'naiveDateTime', 'text'],
+    is: ['text', 'textarea', 'password', 'url', 'tel', 'email', 'number'],
+    not: ['text', 'textarea', 'password', 'url', 'tel', 'email', 'number'],
+    require_one: ['checkbox', 'radio', 'select'],
     length: ['text', 'textarea', 'password', 'url', 'tel', 'email', 'naiveMention'],
     between: ['number'],
   }

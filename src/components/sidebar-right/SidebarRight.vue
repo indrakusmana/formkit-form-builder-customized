@@ -6,12 +6,27 @@ import { createFieldProps } from '../../utils/field-props'
 import { useFormField } from '../../composables/form-fields'
 import { useFormBuilderI18n } from '../../i18n/context'
 
-const { currentFieldType } = useFormField()
+const { currentFieldType, selectedIsForm, formName } = useFormField()
 const { t } = useFormBuilderI18n()
 const fieldProps = computed(() => createFieldProps(t))
 const currentProp = computed(() =>
   fieldProps.value.find((prop) => prop.name === currentFieldType.value),
 )
+
+const headerTitle = computed(() => {
+  if (selectedIsForm.value) return t('formSettings.title')
+  return currentProp.value?.tooltip ?? ''
+})
+
+const headerSubtitle = computed(() => {
+  if (selectedIsForm.value) return formName.value
+  return currentFieldType.value ?? ''
+})
+
+const headerIcon = computed(() => {
+  if (selectedIsForm.value) return 'i-lucide-panel-top'
+  return currentProp.value?.icon ?? ''
+})
 </script>
 
 <template>
@@ -28,14 +43,14 @@ const currentProp = computed(() =>
     <div class="p-3 border-b">
       <div class="flex items-center gap-3">
         <div class="h-11 w-11 rounded-md bg-ring/20 flex items-center justify-center shrink-0">
-          <span :class="`${currentProp?.icon ?? ''} h-8 w-8 text-green-700 dark:text-white/70`"></span>
+          <span :class="`${headerIcon} h-8 w-8 text-green-700 dark:text-white/70`"></span>
         </div>
         <div class="min-w-0 flex-1">
           <div class="text-sm font-medium text-foreground truncate">
-            {{ currentProp?.tooltip ?? '' }}
+            {{ headerTitle }}
           </div>
           <div class="text-[11px] text-muted-foreground truncate">
-            {{ currentFieldType ?? '' }}
+            {{ headerSubtitle }}
           </div>
         </div>
       </div>

@@ -41,7 +41,12 @@ const modelValue = computed(() => {
   if (Array.isArray(props.children)) return props.children
   return []
 })
-const showAddButton = computed(() => props.isPlaceholder !== true && (isLast ? isLast(nodeKey.value) : true))
+const canRemove = computed(() => props.isPlaceholder !== true && typeof remove === 'function')
+const canRestore = computed(() => props.isPlaceholder === true && typeof restore === 'function')
+const canDuplicate = computed(
+  () => props.isPlaceholder !== true && typeof duplicate === 'function' && (isLast ? isLast(nodeKey.value) : true),
+)
+const showAddButton = computed(() => canDuplicate.value)
 const wrapperClass = computed(() => (showAddButton.value ? 'p-2 relative pb-10' : 'p-2'))
 </script>
 
@@ -49,7 +54,7 @@ const wrapperClass = computed(() => (showAddButton.value ? 'p-2 relative pb-10' 
   <div class="w-full rounded-xl border border-border/50 bg-card/50">
     <div v-if="showHeader" class="flex items-center justify-between px-3 py-2 border-b border-border/50">
       <div v-if="title" class="text-xs text-muted-foreground">{{ title }}</div>
-      <n-button-group v-if="props.isPlaceholder !== true" class="shrink-0">
+      <n-button-group v-if="canRemove" class="shrink-0">
         <n-tooltip placement="top">
           <template #trigger>
             <n-button quaternary size="small" @click.stop="remove?.(nodeKey)">
@@ -65,7 +70,7 @@ const wrapperClass = computed(() => (showAddButton.value ? 'p-2 relative pb-10' 
       <div v-if="props.isPlaceholder === true" class="min-h-[140px] flex items-center justify-center">
         <div class="flex flex-col items-center gap-3">
           <n-empty :description="t('builder.listRemove')" />
-          <n-button secondary @click="restore?.(nodeKey)">
+          <n-button v-if="canRestore" secondary @click="restore?.(nodeKey)">
             <template #icon><span class="i-lucide-plus h-4 w-4"></span></template>
             {{ t('builder.addListContainer') }}
           </n-button>

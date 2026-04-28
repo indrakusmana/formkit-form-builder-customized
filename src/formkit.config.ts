@@ -1,6 +1,7 @@
 // formkit.config.ts
 import { rootClasses } from './formkit.theme.ts'
 import { defaultConfig, createInput } from '@formkit/vue'
+import { createI18nPlugin, en, zh } from '@formkit/i18n'
 import CustomButton from './components/ui/fields/CustomButton.vue'
 import NaiveTextInput from './components/ui/fields/NaiveTextInput.vue'
 import NaiveTextarea from './components/ui/fields/NaiveTextarea.vue'
@@ -16,7 +17,6 @@ import NaiveColorPicker from './components/ui/fields/NaiveColorPicker.vue'
 import NaiveAvatar from './components/ui/fields/NaiveAvatar.vue'
 import NaiveImage from './components/ui/fields/NaiveImage.vue'
 import NaiveCascader from './components/ui/fields/NaiveCascader.vue'
-import NaiveCheckbox from './components/ui/fields/NaiveCheckbox.vue'
 import NaiveMention from './components/ui/fields/NaiveMention.vue'
 import NaiveRate from './components/ui/fields/NaiveRate.vue'
 import NaiveSwitch from './components/ui/fields/NaiveSwitch.vue'
@@ -30,6 +30,8 @@ import NaiveTypographyUl from './components/ui/structure/NaiveTypographyUl.vue'
 import NaiveTypographyOl from './components/ui/structure/NaiveTypographyOl.vue'
 import NaiveTypographyLi from './components/ui/structure/NaiveTypographyLi.vue'
 import NaiveDivider from './components/ui/structure/NaiveDivider.vue'
+import NaiveAlert from './components/ui/structure/NaiveAlert.vue'
+import NaiveBackTop from './components/ui/structure/NaiveBackTop.vue'
 
 const sharedObservedProps = [
   'props',
@@ -68,6 +70,9 @@ function createUiInput(
 }
 
 export default defaultConfig({
+  plugins: [createI18nPlugin({ en, zh })],
+  locales: { en, zh },
+  locale: 'zh',
   config: {
     rootClasses,
   },
@@ -94,7 +99,6 @@ export default defaultConfig({
     naiveAvatar: createUiInput('NaiveAvatar', NaiveAvatar),
     naiveImage: createUiInput('NaiveImage', NaiveImage),
     naiveCascader: createUiInput('NaiveCascader', NaiveCascader),
-    naiveCheckbox: createUiInput('NaiveCheckbox', NaiveCheckbox),
     naiveMention: createUiInput('NaiveMention', NaiveMention),
     naiveRate: createUiInput('NaiveRate', NaiveRate),
     naiveSwitch: createUiInput('NaiveSwitch', NaiveSwitch),
@@ -113,5 +117,7 @@ export default defaultConfig({
     naiveOl: createUiInput('NaiveTypographyOl', NaiveTypographyOl),
     naiveLi: createUiInput('NaiveTypographyLi', NaiveTypographyLi),
     naiveDivider: createUiInput('NaiveDivider', NaiveDivider),
+    naiveAlert: createUiInput('NaiveAlert', NaiveAlert),
+    naiveBackTop: createUiInput('NaiveBackTop', NaiveBackTop),
   },
 })

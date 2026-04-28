@@ -17,6 +17,20 @@ export const formSchema = ref<FormKitSchemaFormKit[]>([
 export const selectedIndex = ref(0)
 export const selectedKey = ref<string | null>(null)
 
+export type FormLabelPosition = 'top' | 'left'
+
+export const formMeta = ref<{
+  name: string
+  labelPosition: FormLabelPosition
+  labelWidth: number
+}>({
+  name: 'form',
+  labelPosition: 'top',
+  labelWidth: 80,
+})
+
+export const selectedTarget = ref<'field' | 'form'>('form')
+
 type DefaultElementDef = Omit<
   FormKitSchemaFormKit,
   'name' | 'label' | 'placeholder' | 'help' | 'description'
@@ -127,7 +141,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.date.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    props: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_VALUE_FORMAT },
+    props: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_VALUE_FORMAT, type: 'date' },
     id: 'date_field',
     validation: '',
     validationVisibility: 'live',
@@ -151,7 +165,13 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.dateTime.label',
     helpKey: 'elements.common.help',
     outerClass: 'col-span-12',
-    props: { size: 'medium', disabled: false, clearable: true, valueFormat: DEFAULT_DATE_TIME_VALUE_FORMAT },
+    props: {
+      size: 'medium',
+      disabled: false,
+      clearable: true,
+      valueFormat: DEFAULT_DATE_TIME_VALUE_FORMAT,
+      type: 'datetime',
+    },
     id: 'date_time_field',
     validation: '',
     validationVisibility: 'live',
@@ -342,19 +362,6 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.naiveSwitch.description',
   },
   {
-    $formkit: 'naiveCheckbox',
-    nameKey: 'elements.naiveCheckbox.name',
-    labelKey: 'elements.naiveCheckbox.label',
-    helpKey: 'elements.common.help',
-    outerClass: 'col-span-12',
-    props: { size: 'medium', disabled: false },
-    value: false,
-    id: 'naive_checkbox_field',
-    validation: '',
-    validationVisibility: 'live',
-    descriptionKey: 'elements.naiveCheckbox.description',
-  },
-  {
     $formkit: 'naiveAvatar',
     nameKey: 'elements.naiveAvatar.name',
     labelKey: 'elements.naiveAvatar.label',
@@ -536,6 +543,35 @@ const defs: DefaultElementDef[] = [
     id: 'naive_divider_static',
   },
   {
+    $formkit: 'naiveAlert',
+    outerClass: 'col-span-12',
+    props: {
+      title: 'Title',
+      content: 'Alert',
+      type: 'default',
+      closable: false,
+      bordered: false,
+      showIcon: true,
+    },
+    nameKey: 'elements.naiveAlert.name',
+    labelKey: 'elements.naiveAlert.label',
+    descriptionKey: 'elements.naiveAlert.description',
+    id: 'naive_alert_static',
+  },
+  {
+    $formkit: 'naiveBackTop',
+    outerClass: 'col-span-12',
+    props: {
+      show: true,
+      right: 40,
+      bottom: 40,
+      visibilityHeight: 0,
+    },
+    nameKey: 'elements.naiveBackTop.name',
+    descriptionKey: 'elements.naiveBackTop.description',
+    id: 'naive_back_top_static',
+  },
+  {
     $formkit: 'tel',
     nameKey: 'elements.tel.name',
     labelKey: 'elements.tel.label',
@@ -612,6 +648,26 @@ const defs: DefaultElementDef[] = [
     outerClass: 'col-span-12',
     props: { size: 'medium', bordered: true, embedded: false, hoverable: false, modelValue: [], cardKey: '' },
     descriptionKey: 'elements.card.description',
+    children: [],
+  },
+  {
+    $cmp: 'inputGroup',
+    nameKey: 'elements.inputGroup.name',
+    labelKey: 'elements.inputGroup.label',
+    id: 'input_group_container',
+    outerClass: 'col-span-12',
+    props: { modelValue: [], inputGroupKey: '' },
+    descriptionKey: 'elements.inputGroup.description',
+    children: [],
+  },
+  {
+    $cmp: 'tabs',
+    nameKey: 'elements.tabs.name',
+    labelKey: 'elements.tabs.label',
+    id: 'tabs_container',
+    outerClass: 'col-span-12',
+    props: { modelValue: [], tabsKey: '' },
+    descriptionKey: 'elements.tabs.description',
     children: [],
   },
 ]

@@ -65,6 +65,7 @@ const groupedElements = computed(() => {
     <n-tabs
       v-else
       type="line"
+      size="small"
       justify-content="space-evenly"
       class="h-full flex flex-col"
       pane-class="flex-1 overflow-hidden"

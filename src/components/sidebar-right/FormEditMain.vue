@@ -9,12 +9,14 @@ import ExpressionEditor from './edits/ExpressionEditor.vue'
 import IfConditionEditor from './edits/IfConditionEditor.vue'
 import BindEditor from './edits/BindEditor.vue'
 import { createFieldProps } from '../../utils/field-props'
+import FormEditor from './edits/editors/FormEditor.vue'
 
-const { hasField, currentFieldType } = useFormField()
+const { hasField, currentFieldType, selectedIsForm } = useFormField()
 const { t } = useFormBuilderI18n()
 const fieldProps = computed(() => createFieldProps(t))
 
 const isFieldsCategory = computed(() => {
+  if (selectedIsForm.value) return false
   if (!currentFieldType.value) return false
   const prop = fieldProps.value.find((p) => p.name === currentFieldType.value)
   return (prop?.category || 'fields') === 'fields'
@@ -22,19 +24,17 @@ const isFieldsCategory = computed(() => {
 </script>
 
 <template>
-  <div v-if="!hasField" class="flex p-2 h-full text-[11px] md:text-xs text-muted-foreground">
-    {{ t('common.selectFieldToEdit') }}
-  </div>
-  <template v-else>
-    <div class="p-2">
-      <div class="space-y-2 md:space-y-3">
+  <div class="p-2">
+    <div class="space-y-2 md:space-y-3">
+      <FormEditor v-if="!hasField || selectedIsForm" />
+      <template v-else>
         <ExpressionEditor v-if="isFieldsCategory" />
         <IfConditionEditor />
         <BindEditor />
         <EditsSection />
         <n-divider />
         <ValidationSection />
-      </div>
+      </template>
     </div>
-  </template>
+  </div>
 </template>
