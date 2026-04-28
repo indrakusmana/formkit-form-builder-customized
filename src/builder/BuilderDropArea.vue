@@ -217,7 +217,7 @@ provideCanvasSchemaContext({
 </script>
 
 <template>
-  <div class="flex flex-1 flex-row justify-start mb-15 pt-10" @pointerdown="onRootBlankPointerDown">
+  <div class="flex flex-1 flex-row justify-start pb-15 pt-10" @pointerdown="onRootBlankPointerDown">
 
     <!-- Left side controls -->
     <div class="w-16 shrink-0 flex flex-col items-center">
