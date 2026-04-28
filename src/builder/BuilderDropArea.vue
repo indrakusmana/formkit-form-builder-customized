@@ -29,7 +29,7 @@ const isZh = computed(() => locale.value === 'zh-CN')
 
 const canvasFormClass = computed(() => {
   const common = [
-    '[&_.formkit-label]:text-sm',
+    '[&_.formkit-label]:text-xs',
     '[&_.formkit-label]:font-bold',
   ].join(' ')
   if (formMeta.value.labelPosition !== 'left') return common

@@ -121,7 +121,7 @@ const resolvedLabelWidth = computed<number>(() => {
 const resolvedFormClass = computed(() => {
   const base = props.formClass
   const common = [
-    '[&_.formkit-label]:text-sm',
+    '[&_.formkit-label]:text-xs',
     '[&_.formkit-label]:font-bold',
   ].join(' ')
   if (resolvedLabelPosition.value === 'left') {
