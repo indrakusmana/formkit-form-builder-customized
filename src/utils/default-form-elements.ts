@@ -552,6 +552,19 @@ const defs: DefaultElementDef[] = [
     id: 'naive_alert_static',
   },
   {
+    $formkit: 'naiveBackTop',
+    outerClass: 'col-span-12',
+    props: {
+      show: true,
+      right: 40,
+      bottom: 40,
+      visibilityHeight: 0,
+    },
+    nameKey: 'elements.naiveBackTop.name',
+    descriptionKey: 'elements.naiveBackTop.description',
+    id: 'naive_back_top_static',
+  },
+  {
     $formkit: 'tel',
     nameKey: 'elements.tel.name',
     labelKey: 'elements.tel.label',

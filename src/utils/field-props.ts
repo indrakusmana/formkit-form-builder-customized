@@ -318,6 +318,13 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/NaiveAlertEditor.vue'),
   },
   {
+    name: 'naiveBackTop',
+    tooltipKey: 'fieldProps.tooltip.naiveBackTop',
+    icon: 'i-lucide-arrow-up-to-line',
+    category: 'static',
+    editor: () => import('@/components/sidebar-right/edits/editors/NaiveBackTopEditor.vue'),
+  },
+  {
     name: 'group',
     tooltipKey: 'fieldProps.tooltip.group',
     icon: 'i-lucide-group',

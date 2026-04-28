@@ -202,6 +202,7 @@ export default {
       naiveLi: 'Typography list item',
       naiveDivider: 'Naive UI divider',
       naiveAlert: 'Naive UI alert',
+      naiveBackTop: 'BackTop (floating button)',
       group: 'Allows user to group fields together',
       list: 'Allows user to group fields into an array',
       card: 'Card container',
@@ -268,6 +269,7 @@ export default {
     naiveLi: { name: 'Naive Li', description: 'Naive UI typography list item' },
     naiveDivider: { name: 'Naive Divider', description: 'Naive UI divider' },
     naiveAlert: { name: 'Naive Alert', label: 'Alert', description: 'Naive UI alert' },
+    naiveBackTop: { name: 'BackTop', description: 'Naive UI back-top button (can be used as a floating button)' },
     tel: {
       name: 'Telephone Number',
       label: 'Tel Field',

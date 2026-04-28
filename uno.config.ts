@@ -26,6 +26,7 @@ export default defineConfig({
     "i-lucide-phone",
     "i-lucide-sliders-horizontal",
     "i-lucide-triangle-alert",
+    "i-lucide-arrow-up-to-line",
     "i-lucide-square-check",
     "i-lucide-type",
     "i-lucide-pipette",
