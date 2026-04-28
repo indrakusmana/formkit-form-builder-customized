@@ -132,6 +132,7 @@ const resizeHandleClass = computed(() => {
       <li
         v-for="(child, idx) in props.items.value"
         :key="(child as any)?.__key || child.name || `${child.$formkit}-${idx}`"
+        data-canvas-item="true"
         :class="[
           'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
           'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px] min-w-0 box-border',
