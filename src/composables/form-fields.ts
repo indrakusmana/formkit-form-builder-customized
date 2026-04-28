@@ -521,7 +521,7 @@ export function useFormField() {
     get: () => formMeta.value.labelWidth,
     set: (value: number) => {
       const n = Number(value)
-      const next = Number.isFinite(n) ? Math.max(40, Math.min(480, Math.round(n))) : 120
+      const next = Number.isFinite(n) ? Math.max(0, Math.min(2000, Math.round(n))) : 120
       formMeta.value = { ...formMeta.value, labelWidth: next }
     },
   })

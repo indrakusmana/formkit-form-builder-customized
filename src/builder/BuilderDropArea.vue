@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { NButton, NButtonGroup, NSpin, NCard, NTooltip } from 'naive-ui'
 import { customInsertPlugin } from '../utils/custom-insert-plugin'
-import { formSchema, selectedIndex, selectedKey, selectedTarget } from '../utils/default-form-elements'
+import { formMeta, formSchema, selectedIndex, selectedKey, selectedTarget } from '../utils/default-form-elements'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { isLoading, canvasView } from '../composables/form-fields'
@@ -26,6 +26,22 @@ const { setLocale, locale } = useRuntimeLocale()
 const { t } = useFormBuilderI18n()
 
 const isZh = computed(() => locale.value === 'zh-CN')
+
+const canvasFormClass = computed(() => {
+  if (formMeta.value.labelPosition !== 'left') return ''
+  return [
+    '[&_.formkit-wrapper]:flex',
+    '[&_.formkit-wrapper]:flex-row',
+    '[&_.formkit-wrapper]:items-start',
+    '[&_.formkit-wrapper]:gap-3',
+    '[&_.formkit-label]:mb-0',
+    '[&_.formkit-label]:w-[var(--fk-label-width)]',
+    '[&_.formkit-label]:shrink-0',
+    '[&_.formkit-label]:pt-1',
+    '[&_.formkit-inner]:flex-1',
+    '[&_.formkit-inner]:min-w-0',
+  ].join(' ')
+})
 const deleteField = (index: number) => {
   const nextSchema = formSchema.value.filter((_: unknown, i: number) => i !== index)
   commitSchema(nextSchema as FormKitSchemaFormKit[], { reason: 'delete' })
@@ -267,8 +283,10 @@ provideCanvasSchemaContext({
       </div>
 
       <n-card
+        :style="{ '--fk-label-width': `${formMeta.labelWidth}px` }"
         :class="cn(
           'relative min-h-[80%] !h-fit rounded-xl shadow-md transition-[width] duration-300 flex flex-col',
+          canvasFormClass,
           canvasView === 'desktop' ? 'w-full lg:w-[80%]' : '',
           canvasView === 'tablet' ? 'w-[768px]' : '',
           canvasView === 'mobile' ? 'w-[375px]' : ''
