@@ -63,6 +63,7 @@ export default defineConfig({
     "i-lucide-upload",
     "i-lucide-rotate-ccw",
     "i-lucide-plus",
+    "i-lucide-align-horizontal-justify-start",
   ],
   presets: [
     presetWind3(),
