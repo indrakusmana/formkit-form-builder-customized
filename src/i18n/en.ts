@@ -99,7 +99,12 @@ export default {
       label: 'Matches',
       tooltip:
         'Input must match a particular value or pattern. If you pass multiple arguments, it checks each until a match is found',
-      placeholder: 'Value',
+      placeholder: '/[0-9]/',
+    },
+    matchesMessage: {
+      label: 'Matches message',
+      tooltip: 'Custom validation error message for matches rule',
+      placeholder: 'Passwords must include a number.',
     },
     starts_with: { label: 'Starts with', tooltip: 'Value must start with given string', placeholder: 'Value' },
     ends_with: { label: 'Ends with', tooltip: 'Value must end with given string', placeholder: 'Value' },

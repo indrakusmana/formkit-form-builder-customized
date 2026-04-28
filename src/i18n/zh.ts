@@ -94,7 +94,12 @@ export default {
     matches: {
       label: '匹配',
       tooltip: '输入必须匹配指定的值或正则；多个参数时将逐个尝试直到匹配',
-      placeholder: '值',
+      placeholder: '/[0-9]/',
+    },
+    matchesMessage: {
+      label: '错误信息',
+      tooltip: 'matches 规则的自定义错误提示',
+      placeholder: '密码必须包含数字。',
     },
     starts_with: { label: '前缀', tooltip: '必须以指定字符串开头', placeholder: '值' },
     ends_with: { label: '后缀', tooltip: '必须以指定字符串结尾', placeholder: '值' },

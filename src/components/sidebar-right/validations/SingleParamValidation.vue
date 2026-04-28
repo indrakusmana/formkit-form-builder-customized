@@ -3,6 +3,7 @@ import { useFormField } from '../../../composables/form-fields'
 import { NInput, NDatePicker } from 'naive-ui'
 import { ValidationCard, ValidationSwitch } from '../../ui/validation-card'
 import { computed } from 'vue'
+import { useFormBuilderI18n } from '../../../i18n/context'
 
 const props = defineProps<{
   value: string
@@ -11,11 +12,19 @@ const props = defineProps<{
   placeholder: string
 }>()
 
-const { isActive, createValidationValue, updateValidationString, isValidationChecked } =
+const { t } = useFormBuilderI18n()
+const {
+  isActive,
+  createValidationValue,
+  createValidationMessageValue,
+  updateValidationString,
+  isValidationChecked,
+} =
   useFormField()
 
 const active = isActive(isValidationChecked, props.value)
 const paramValue = createValidationValue(props.value, active.value)
+const messageValue = createValidationMessageValue(props.value)
 
 const inputValue = computed({
   get: () => paramValue.value || '',
@@ -41,6 +50,9 @@ const dateValue = computed({
 })
 
 const toggleSwitch = () => {
+  const willActivate = !active.value
+  if (!willActivate && props.value === 'matches') messageValue.value = ''
+  if (willActivate && props.value === 'matches' && !paramValue.value) paramValue.value = '/[0-9]/'
   updateValidationString(`${props.value}:${paramValue.value}`, !active.value)
 }
 </script>
@@ -59,6 +71,14 @@ const toggleSwitch = () => {
       v-model:value="inputValue"
       size="small"
       :placeholder="props.placeholder"
+      class="text-[10px]"
+      style="font-size: 10px"
+    />
+    <n-input
+      v-if="active && props.value === 'matches'"
+      v-model:value="messageValue"
+      size="small"
+      :placeholder="t('validation.matchesMessage.placeholder')"
       class="text-[10px]"
       style="font-size: 10px"
     />

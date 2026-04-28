@@ -196,6 +196,29 @@ export function useFormField() {
     })
   }
 
+  const createValidationMessageValue = (validationType: string) => {
+    return computed<string>({
+      get: () => {
+        const current: any = selectedField.value as any
+        const msgs = current?.validationMessages
+        if (!msgs || typeof msgs !== 'object') return ''
+        const v = (msgs as any)[validationType]
+        if (v === null || v === undefined) return ''
+        return String(v)
+      },
+      set: (value: string) => {
+        const current: any = selectedField.value as any
+        const prev = current?.validationMessages
+        const next: Record<string, unknown> =
+          prev && typeof prev === 'object' ? { ...(prev as Record<string, unknown>) } : {}
+        const trimmed = value.trim()
+        if (!trimmed) delete next[validationType]
+        else next[validationType] = trimmed
+        setFieldProp('validationMessages', Object.keys(next).length ? next : undefined)
+      },
+    })
+  }
+
   const fieldName = computed({
     get: () => selectedField.value?.name || '',
     set: (newName: string) => {
@@ -551,6 +574,7 @@ export function useFormField() {
     updateValidationString,
     isActive,
     createValidationValue,
+    createValidationMessageValue,
     validationStringLength,
     currentFieldType,
     availableFieldNames,
