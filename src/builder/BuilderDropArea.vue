@@ -186,6 +186,16 @@ const onSelectBlank = () => {
   selectedKey.value = null
 }
 
+const onRootBlankPointerDown = (e: PointerEvent) => {
+  const el = e.target as HTMLElement | null
+  if (!el) return
+  if (el.closest('[data-canvas-item="true"]')) return
+  if (el.closest('button,a,input,textarea,select,option,[role="button"],[role="switch"],[contenteditable="true"]'))
+    return
+  if (el.closest('.n-button,.n-input,.n-select,.n-switch,.n-dropdown,.n-popover')) return
+  onSelectBlank()
+}
+
 const onResizeEnd = () => {
   commitSchema(fields.value as FormKitSchemaFormKit[], { reason: 'resize', merge: true })
 }
@@ -207,7 +217,7 @@ provideCanvasSchemaContext({
 </script>
 
 <template>
-  <div class="flex flex-1 flex-row justify-start mb-15 pt-10">
+  <div class="flex flex-1 flex-row justify-start mb-15 pt-10" @pointerdown="onRootBlankPointerDown">
 
     <!-- Left side controls -->
     <div class="w-16 shrink-0 flex flex-col items-center">

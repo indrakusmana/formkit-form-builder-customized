@@ -12,7 +12,6 @@ import { useFormBuilderConfig } from '../composables/use-config'
 import type { FormBuilderConfig } from '../types/env'
 import { provideFormBuilderI18n } from '../i18n/context'
 import { provideRuntimeLocale, type RuntimeLocale } from '../i18n/runtime-locale'
-import { selectedKey, selectedTarget } from '../utils/default-form-elements'
 
 
 const props = defineProps<ConfigProviderProps>()
@@ -43,18 +42,6 @@ provideFormBuilderI18n({
   messages: computed(() => cfg?.messages as Record<string, any> | undefined),
 })
 
-const onLeftLayoutPointerDown = (e: PointerEvent) => {
-  const el = e.target as HTMLElement | null
-  if (!el) return
-
-  if (el.closest('[data-canvas-item="true"]')) return
-  if (el.closest('button,a,input,textarea,select,option,[role="button"],[role="switch"],[contenteditable="true"]'))
-    return
-  if (el.closest('.n-button,.n-input,.n-select,.n-switch,.n-dropdown,.n-popover')) return
-
-  selectedTarget.value = 'form'
-  selectedKey.value = null
-}
 </script>
 
 <template>
@@ -73,7 +60,7 @@ const onLeftLayoutPointerDown = (e: PointerEvent) => {
       <SidebarLeft />
       <n-layout has-sider sider-placement="right" class="flex-1">
         <n-layout class="relative" :native-scrollbar="false">
-          <div class="p-4 h-full flex flex-col" @pointerdown="onLeftLayoutPointerDown">
+          <div class="p-4 h-full flex flex-col">
             <BuilderHeader />
             <BuilderDropArea />
           </div>
