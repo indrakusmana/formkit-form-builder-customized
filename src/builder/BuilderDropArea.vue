@@ -282,7 +282,7 @@ provideCanvasSchemaContext({
           :empty-text="t('builder.listDropHere')"
           :delete-aria-label="t('builder.deleteField')"
           :data-attrs="{ 'data-testid': 'drop-area' }"
-          :ul-class="dropAreaUlClass"
+          :ul-class="`${dropAreaUlClass} min-h-full`"
           :on-select="onSelectRoot"
           :on-select-blank="onSelectBlank"
           :on-delete="deleteField"

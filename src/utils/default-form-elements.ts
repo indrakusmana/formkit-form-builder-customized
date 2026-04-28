@@ -29,7 +29,7 @@ export const formMeta = ref<{
   labelWidth: 120,
 })
 
-export const selectedTarget = ref<'field' | 'form'>('field')
+export const selectedTarget = ref<'field' | 'form'>('form')
 
 type DefaultElementDef = Omit<
   FormKitSchemaFormKit,

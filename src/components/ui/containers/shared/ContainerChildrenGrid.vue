@@ -78,8 +78,9 @@ const { resizingIndex, startResize } = useGridSpanResize({
 const layout = computed(() => props.layout ?? 'grid')
 
 const baseUlClass = computed(() => {
-  if (layout.value === 'row') return 'w-full flex flex-row flex-nowrap items-stretch gap-0 list-none p-0 m-0 overflow-x-hidden'
-  return 'w-full grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
+  if (layout.value === 'row')
+    return 'w-full flex-1 flex flex-row flex-nowrap items-stretch gap-0 list-none p-0 m-0 overflow-x-hidden'
+  return 'w-full flex-1 grid grid-cols-12 gap-x-4 gap-y-2 list-none p-2 m-0'
 })
 
 const emptyPlaceholderClass = computed(() => {
@@ -106,7 +107,10 @@ const resizeHandleClass = computed(() => {
 </script>
 
 <template>
-  <div :class="['relative w-full', layout === 'row' ? 'min-w-0' : '']">
+  <div
+    :class="['relative w-full flex flex-col flex-1 min-h-0', layout === 'row' ? 'min-w-0' : '']"
+    @pointerdown.self="props.onSelectBlank?.()"
+  >
     <ul
       :ref="props.containerRef"
       :class="[

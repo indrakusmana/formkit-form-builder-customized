@@ -24,22 +24,17 @@ const isFieldsCategory = computed(() => {
 </script>
 
 <template>
-  <div v-if="!hasField" class="flex p-2 h-full text-[11px] md:text-xs text-muted-foreground">
-    {{ t('common.selectFieldToEdit') }}
-  </div>
-  <template v-else>
-    <div class="p-2">
-      <div class="space-y-2 md:space-y-3">
-        <FormEditor v-if="selectedIsForm" />
-        <template v-else>
-          <ExpressionEditor v-if="isFieldsCategory" />
-          <IfConditionEditor />
-          <BindEditor />
-          <EditsSection />
-          <n-divider />
-          <ValidationSection />
-        </template>
-      </div>
+  <div class="p-2">
+    <div class="space-y-2 md:space-y-3">
+      <FormEditor v-if="!hasField || selectedIsForm" />
+      <template v-else>
+        <ExpressionEditor v-if="isFieldsCategory" />
+        <IfConditionEditor />
+        <BindEditor />
+        <EditsSection />
+        <n-divider />
+        <ValidationSection />
+      </template>
     </div>
-  </template>
+  </div>
 </template>
