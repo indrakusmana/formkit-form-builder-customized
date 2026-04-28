@@ -26,7 +26,7 @@ export const formMeta = ref<{
 }>({
   name: 'form',
   labelPosition: 'top',
-  labelWidth: 120,
+  labelWidth: 80,
 })
 
 export const selectedTarget = ref<'field' | 'form'>('form')

@@ -36,6 +36,7 @@ const canvasFormClass = computed(() => {
     '[&_.formkit-wrapper]:gap-3',
     '[&_.formkit-label]:mb-0',
     '[&_.formkit-label]:w-[var(--fk-label-width)]',
+    '[&_.formkit-label]:font-bold',
     '[&_.formkit-label]:shrink-0',
     '[&_.formkit-label]:pt-1',
     '[&_.formkit-inner]:flex-1',
