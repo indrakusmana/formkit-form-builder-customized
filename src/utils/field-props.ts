@@ -143,13 +143,6 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/NaiveSwitchEditor.vue'),
   },
   {
-    name: 'naiveCheckbox',
-    tooltipKey: 'fieldProps.tooltip.naiveCheckbox',
-    icon: 'i-lucide-square-check',
-    category: 'fields',
-    editor: () => import('@/components/sidebar-right/edits/editors/NaiveCheckboxEditor.vue'),
-  },
-  {
     name: 'naiveAvatar',
     tooltipKey: 'fieldProps.tooltip.naiveAvatar',
     icon: 'i-stash:user-avatar',

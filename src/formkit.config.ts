@@ -16,7 +16,6 @@ import NaiveColorPicker from './components/ui/fields/NaiveColorPicker.vue'
 import NaiveAvatar from './components/ui/fields/NaiveAvatar.vue'
 import NaiveImage from './components/ui/fields/NaiveImage.vue'
 import NaiveCascader from './components/ui/fields/NaiveCascader.vue'
-import NaiveCheckbox from './components/ui/fields/NaiveCheckbox.vue'
 import NaiveMention from './components/ui/fields/NaiveMention.vue'
 import NaiveRate from './components/ui/fields/NaiveRate.vue'
 import NaiveSwitch from './components/ui/fields/NaiveSwitch.vue'
@@ -96,7 +95,6 @@ export default defaultConfig({
     naiveAvatar: createUiInput('NaiveAvatar', NaiveAvatar),
     naiveImage: createUiInput('NaiveImage', NaiveImage),
     naiveCascader: createUiInput('NaiveCascader', NaiveCascader),
-    naiveCheckbox: createUiInput('NaiveCheckbox', NaiveCheckbox),
     naiveMention: createUiInput('NaiveMention', NaiveMention),
     naiveRate: createUiInput('NaiveRate', NaiveRate),
     naiveSwitch: createUiInput('NaiveSwitch', NaiveSwitch),

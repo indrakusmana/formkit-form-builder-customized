@@ -212,7 +212,7 @@ const validations = computed(() => ({
 
 const showForFieldType = (validationType: string, fieldType: string | null) => {
   const validationMap: Record<string, string[]> = {
-    accepted: ['checkbox', 'naiveCheckbox'],
+    accepted: ['checkbox'],
     required: [
       'text',
       'textarea',
@@ -220,7 +220,6 @@ const showForFieldType = (validationType: string, fieldType: string | null) => {
       'date',
       'radio',
       'checkbox',
-      'naiveCheckbox',
       'email',
       'url',
       'color',
@@ -265,7 +264,7 @@ const showForFieldType = (validationType: string, fieldType: string | null) => {
     date_format: ['date', 'naiveDateTime', 'text'],
     is: ['text', 'textarea', 'password', 'url', 'tel', 'email', 'number'],
     not: ['text', 'textarea', 'password', 'url', 'tel', 'email', 'number'],
-    require_one: ['checkbox', 'naiveCheckbox', 'radio', 'select'],
+    require_one: ['checkbox', 'radio', 'select'],
     length: ['text', 'textarea', 'password', 'url', 'tel', 'email', 'naiveMention'],
     between: ['number'],
   }
