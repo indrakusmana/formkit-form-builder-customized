@@ -308,14 +308,8 @@ export function useFormField() {
   const validationString = computed({
     get: () => selectedField.value?.validation || '',
     set: (value: string) => {
-      if (formSchema.value.length > 0) {
-        const updatedSchema = [...formSchema.value]
-        updatedSchema[selectedIndex.value] = {
-          ...updatedSchema[selectedIndex.value],
-          validation: value,
-        } as FormKitSchemaFormKit
-        commitSchema(updatedSchema, { reason: 'field-edit', merge: true })
-      }
+      const next = value.trim()
+      setFieldProp('validation', next ? next : undefined)
     },
   })
 
