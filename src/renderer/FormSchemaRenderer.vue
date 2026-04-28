@@ -118,6 +118,27 @@ const resolvedLabelWidth = computed<number>(() => {
   return 120
 })
 
+const resolvedFormClass = computed(() => {
+  const base = props.formClass
+  if (resolvedLabelPosition.value === 'left') {
+    return [
+      base,
+      'fk-label-left',
+      '[&_.formkit-wrapper]:flex',
+      '[&_.formkit-wrapper]:flex-row',
+      '[&_.formkit-wrapper]:items-start',
+      '[&_.formkit-wrapper]:gap-3',
+      '[&_.formkit-label]:mb-0',
+      '[&_.formkit-label]:w-[var(--fk-label-width)]',
+      '[&_.formkit-label]:shrink-0',
+      '[&_.formkit-label]:pt-1',
+      '[&_.formkit-inner]:flex-1',
+      '[&_.formkit-inner]:min-w-0',
+    ].join(' ')
+  }
+  return base
+})
+
 const formattedSchema = createFormattedSchema(schemaBody)
 
 type Found = { node: FormKitSchemaFormKit; path: number[] } | null
@@ -397,9 +418,7 @@ const handleSubmit = (formData: Record<string, unknown>) => {
     :actions="props.actions"
     v-model="data"
     @submit="handleSubmit"
-    :form-class="props.formClass"
-    :labelPosition="resolvedLabelPosition"
-    :labelWidth="resolvedLabelWidth"
+    :form-class="resolvedFormClass"
     :style="{ '--fk-label-width': `${resolvedLabelWidth}px` }"
   >
     <FormKitSchema :schema="formattedSchema" :data="data" :library="schemaLibrary" />
