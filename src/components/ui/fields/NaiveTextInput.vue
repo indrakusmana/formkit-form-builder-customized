@@ -18,6 +18,18 @@ const disabled = computed<boolean>(() =>
   Boolean((uiProps.value.disabled as boolean | undefined) ?? props.context.disabled ?? false),
 )
 const bordered = computed<boolean>(() => (uiProps.value.bordered as boolean | undefined) ?? true)
+const readonly = computed<boolean>(() => (uiProps.value.readonly as boolean | undefined) ?? false)
+const round = computed<boolean>(() => (uiProps.value.round as boolean | undefined) ?? false)
+const autofocus = computed<boolean>(() => (uiProps.value.autofocus as boolean | undefined) ?? false)
+const showCount = computed<boolean>(() => (uiProps.value.showCount as boolean | undefined) ?? false)
+const maxlength = computed<number | undefined>(() => {
+  const v = uiProps.value.maxlength as number | null | undefined
+  return v == null ? undefined : v
+})
+const minlength = computed<number | undefined>(() => {
+  const v = uiProps.value.minlength as number | null | undefined
+  return v == null ? undefined : v
+})
 const pair = computed<boolean>(() => Boolean((uiProps.value.pair as boolean | undefined) ?? false))
 const separator = computed<string>(() => (uiProps.value.separator as string | undefined) ?? '-')
 
@@ -81,6 +93,12 @@ const handleBlur = async (e: FocusEvent) => {
     :placeholder="placeholder"
     :input-props="{ id: context.id }"
     :bordered="bordered"
+    :readonly="readonly"
+    :round="round"
+    :autofocus="autofocus"
+    :show-count="showCount"
+    :maxlength="maxlength"
+    :minlength="minlength"
     :pair="pair"
     :separator="separator"
     @update:value="handleUpdateValue"

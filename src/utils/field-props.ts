@@ -84,7 +84,7 @@ const defs: FieldPropDef[] = [
     tooltipKey: 'fieldProps.tooltip.password',
     icon: 'i-lucide-lock',
     category: 'fields',
-    editor: () => import('@/components/sidebar-right/edits/editors/TextLikeEditor.vue'),
+    editor: () => import('@/components/sidebar-right/edits/editors/PasswordEditor.vue'),
   },
   {
     name: 'radio',
