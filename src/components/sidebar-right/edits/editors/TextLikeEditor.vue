@@ -8,6 +8,17 @@ import PairSection from '../common/PairSection.vue'
 <template>
   <LabelHelpSection />
   <PlaceholderSection />
-  <NaiveBasicSection :size="true" :disabled="true" :clearable="true" />
+  <NaiveBasicSection
+    :size="true"
+    :disabled="true"
+    :clearable="true"
+    :bordered="true"
+    :readonly="true"
+    :round="true"
+    :autofocus="true"
+    :show-count="true"
+    :maxlength="true"
+    :minlength="true"
+  />
   <PairSection />
 </template>

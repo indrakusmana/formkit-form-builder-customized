@@ -2,7 +2,6 @@
 import LabelHelpSection from '../common/LabelHelpSection.vue'
 import PlaceholderSection from '../common/PlaceholderSection.vue'
 import NaiveBasicSection from '../common/NaiveBasicSection.vue'
-import PairSection from '../common/PairSection.vue'
 </script>
 
 <template>
@@ -17,8 +16,8 @@ import PairSection from '../common/PairSection.vue'
     :round="true"
     :autofocus="true"
     :show-count="true"
+    :show-password-on="true"
     :maxlength="true"
     :minlength="true"
   />
-  <PairSection />
 </template>

@@ -39,6 +39,11 @@ const inputType = computed(() => {
   return 'text'
 })
 
+const showPasswordOn = computed<InputProps['showPasswordOn']>(() => {
+  if (inputType.value !== 'password') return undefined
+  return uiProps.value.showPasswordOn as InputProps['showPasswordOn'] | undefined
+})
+
 const value = computed(() => {
   const raw = props.context._value as unknown
   if (!pair.value) return (raw ?? '') as string
@@ -87,6 +92,7 @@ const handleBlur = async (e: FocusEvent) => {
   <NInput
     :value="value"
     :type="inputType"
+    :show-password-on="showPasswordOn"
     :size="size"
     :clearable="clearable"
     :disabled="disabled"
