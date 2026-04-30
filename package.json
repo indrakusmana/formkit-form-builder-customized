@@ -67,6 +67,7 @@
     "@formkit/addons": "^2.0.0",
     "@formkit/core": "^2.0.0",
     "@formkit/i18n": "^2.0.0",
+    "@formkit/inputs": "^2.0.0",
     "@formkit/vue": "^2.0.0",
     "@formkit/drag-and-drop": "^0.5.0"
   },
