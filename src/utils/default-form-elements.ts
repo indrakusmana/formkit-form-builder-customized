@@ -662,14 +662,6 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.tabs.description',
     children: [],
   },
-  {
-    $formkit: 'repeater',
-    nameKey: 'elements.elementsContainer.name',
-    id: 'elements_container',
-    outerClass: 'col-span-12',
-    descriptionKey: 'elements.elementsContainer.description',
-    children: [],
-  },
 ]
 
 export function createDefaultFormElements(t: (key: string) => string): FormKitSchemaFormKit[] {

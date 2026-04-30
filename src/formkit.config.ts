@@ -2,8 +2,6 @@
 import { rootClasses } from './formkit.theme.ts'
 import { defaultConfig, createInput } from '@formkit/vue'
 import { createI18nPlugin, en, zh } from '@formkit/i18n'
-import { createAutoAnimatePlugin } from '@formkit/addons'
-import { list } from '@formkit/inputs'
 import CustomButton from './components/ui/fields/CustomButton.vue'
 import NaiveTextInput from './components/ui/fields/NaiveTextInput.vue'
 import NaiveTextarea from './components/ui/fields/NaiveTextarea.vue'
@@ -72,13 +70,7 @@ function createUiInput(
 }
 
 export default defaultConfig({
-  plugins: [
-    createAutoAnimatePlugin(
-      { duration: 250, easing: 'ease-in-out' },
-      { global: ['outer', 'inner'], form: ['form'], repeater: ['items'] },
-    ),
-    createI18nPlugin({ en, zh }),
-  ],
+  plugins: [createI18nPlugin({ en, zh })],
   locales: { en, zh },
   locale: 'zh',
   config: {
@@ -127,6 +119,5 @@ export default defaultConfig({
     naiveDivider: createUiInput('NaiveDivider', NaiveDivider),
     naiveAlert: createUiInput('NaiveAlert', NaiveAlert),
     naiveBackTop: createUiInput('NaiveBackTop', NaiveBackTop),
-    repeater: list,
   },
 })
