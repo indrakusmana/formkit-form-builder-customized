@@ -15,6 +15,9 @@ const props = defineProps<{
   selectedKey: string | null
   emptyText: string
   deleteAriaLabel: string
+  resizeAriaLabel?: string
+  dragHandle?: boolean
+  dragEnabled?: boolean
   showDeleteTooltip?: boolean
   deleteTooltipText?: string
   dataAttrs?: Record<string, string | number | boolean | undefined>
@@ -76,6 +79,8 @@ const { resizingIndex, startResize } = useGridSpanResize({
 })
 
 const layout = computed(() => props.layout ?? 'grid')
+const dragEnabled = computed(() => props.dragEnabled !== false)
+const dragHandle = computed(() => props.dragHandle === true)
 
 const baseUlClass = computed(() => {
   if (layout.value === 'row')
@@ -135,7 +140,8 @@ const resizeHandleClass = computed(() => {
         data-canvas-item="true"
         :class="[
           'group rounded-xl transition-[border-color,background-color,box-shadow] duration-150',
-          'px-2 py-1 pr-4 !cursor-grab h-full !z-20 relative border-[1.5px] min-w-0 box-border',
+          'px-2 py-1 pr-4 h-full !z-20 relative border-[1.5px] min-w-0 box-border',
+          dragEnabled ? (dragHandle ? '!cursor-default' : '!cursor-grab') : '!cursor-default',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a277ff] focus-visible:ring-offset-2',
           ((child as any)?.__key && (child as any).__key === props.selectedKey)
             ? 'border-solid border-[#a277ff] bg-[#a277ff]/[0.05] shadow-[0_0_0_3px_rgba(79,110,247,0.12)] dark:bg-[#a277ff]/[0.08]'
@@ -147,6 +153,17 @@ const resizeHandleClass = computed(() => {
         @keydown.enter.stop.prevent="props.onSelect(child, idx)"
         @keydown.space.stop.prevent="props.onSelect(child, idx)"
       >
+        <button
+          v-if="dragEnabled && dragHandle"
+          type="button"
+          tabindex="-1"
+          aria-label="Drag to reorder"
+          draggable="false"
+          data-dnd-handle="true"
+          class="absolute top-2 left-2 z-40 text-muted-foreground/70 hover:text-muted-foreground !cursor-grab"
+        >
+          <span aria-hidden="true" class="i-lucide-grip-vertical h-4 w-4"></span>
+        </button>
         <div class="flex gap-1.5 p-1 w-full pb-2">
           <div class="flex-1 w-full min-w-0">
             <FormKitSchema
@@ -180,9 +197,9 @@ const resizeHandleClass = computed(() => {
                       hover:!bg-red-100 hover:!text-red-600
                       active:!scale-95 active:!bg-red-200 active:!text-red-700
                       dark:hover:!bg-red-950/50 dark:hover:!text-red-400
-                      transition-all duration-150"
+                      transition-[transform,background-color,color,opacity] duration-150"
               >
-                <template #icon><span class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
+                <template #icon><span aria-hidden="true" class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
               </n-button>
             </template>
             {{ props.deleteTooltipText }}
@@ -200,20 +217,21 @@ const resizeHandleClass = computed(() => {
                   hover:!bg-red-100 hover:!text-red-600
                   active:!scale-95 active:!bg-red-200 active:!text-red-700
                   dark:hover:!bg-red-950/50 dark:hover:!text-red-400
-                  transition-all duration-150"
+                  transition-[transform,background-color,color,opacity] duration-150"
           >
-            <template #icon><span class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
+            <template #icon><span aria-hidden="true" class="i-lucide-trash-2 !h-[13px] !w-[13px]"></span></template>
           </n-button>
         </div>
 
         <n-button
           text
           size="small"
+          :aria-label="props.resizeAriaLabel ?? 'Resize'"
           :class="[
             resizeHandleClass,
             'opacity-0 pointer-events-none',
             'group-hover:opacity-100 group-hover:pointer-events-auto',
-            'transition-all duration-150',
+            'transition-[transform,opacity] duration-150',
             '!cursor-ew-resize',
             resizingIndex === idx ? '!opacity-100 scale-110' : isDragging ? '!opacity-0 !pointer-events-none' : '',
           ]"
@@ -221,7 +239,7 @@ const resizeHandleClass = computed(() => {
           @pointerdown.stop.prevent="startResize($event, idx)"
         >
           <template #icon>
-            <span class="i-lucide-more-vertical h-5 w-5"></span>
+            <span aria-hidden="true" class="i-lucide-more-vertical h-5 w-5"></span>
           </template>
         </n-button>
 

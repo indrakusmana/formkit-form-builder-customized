@@ -123,6 +123,7 @@ const deleteChild = (index: number) => {
           :selected-key="selectedKey"
           :empty-text="t('builder.listDropHere')"
           :delete-aria-label="t('builder.deleteField')"
+          :resize-aria-label="t('builder.resizeFieldWidth')"
           :data-attrs="{ 'data-input-group-key': props.inputGroupKey, 'data-dnd-axis': 'x' }"
           layout="row"
           :set-nested-parent-on-root="dnd.setNestedParentOnRoot"

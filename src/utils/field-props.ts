@@ -318,13 +318,6 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/NaiveBackTopEditor.vue'),
   },
   {
-    name: 'group',
-    tooltipKey: 'fieldProps.tooltip.group',
-    icon: 'i-lucide-group',
-    category: 'structure',
-    editor: () => import('@/components/sidebar-right/edits/editors/GroupEditor.vue'),
-  },
-  {
     name: 'list',
     tooltipKey: 'fieldProps.tooltip.list',
     icon: 'i-lucide-list-tree',

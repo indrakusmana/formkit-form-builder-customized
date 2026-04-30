@@ -623,14 +623,6 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.reset.label',
   },
   {
-    $formkit: 'group',
-    nameKey: 'elements.group.name',
-    labelKey: 'elements.group.label',
-    id: 'group_field',
-    outerClass: 'col-span-12',
-    descriptionKey: 'elements.group.description',
-  },
-  {
     $cmp: 'list',
     nameKey: 'elements.list.name',
     labelKey: 'elements.list.label',

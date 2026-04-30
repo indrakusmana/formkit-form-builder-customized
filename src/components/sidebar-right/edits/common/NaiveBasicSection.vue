@@ -13,6 +13,7 @@ const props = defineProps<{
   round?: boolean
   autofocus?: boolean
   showCount?: boolean
+  showPasswordOn?: boolean
   maxlength?: boolean
   minlength?: boolean
 }>()
@@ -27,6 +28,7 @@ const naiveReadonly = createPropsProp<boolean>('readonly', false)
 const naiveRound = createPropsProp<boolean>('round', false)
 const naiveAutofocus = createPropsProp<boolean>('autofocus', false)
 const naiveShowCount = createPropsProp<boolean>('showCount', false)
+const naiveShowPasswordOn = createPropsProp<string>('showPasswordOn', 'click')
 const naiveMaxlength = createPropsProp<number | null>('maxlength', null)
 const naiveMinlength = createPropsProp<number | null>('minlength', null)
 </script>
@@ -85,6 +87,16 @@ const naiveMinlength = createPropsProp<number | null>('minlength', null)
     label="showCount"
     :value="naiveShowCount"
     @update:value="(v) => (naiveShowCount = v)"
+  />
+  <SelectInput
+    v-if="props.showPasswordOn"
+    label="show-password-on"
+    :value="naiveShowPasswordOn"
+    :options="[
+      { label: 'click', value: 'click' },
+      { label: 'mousedown', value: 'mousedown' },
+    ]"
+    @update:value="(v) => (naiveShowPasswordOn = v)"
   />
   <NumberInput
     v-if="props.maxlength"
