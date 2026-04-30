@@ -1,7 +1,6 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import type { ContainerDefinition, SchemaNode } from '../types'
 import ListContainer from '@/components/ui/containers/list/ListContainer.vue'
-import ElementsContainerPreview from '@/components/ui/containers/elements/ElementsContainerPreview.vue'
 
 function isElementsContainer(node: any) {
   if (!node || typeof node !== 'object') return false
@@ -24,7 +23,6 @@ export const elementsContainerDef: ContainerDefinition = {
   id: 'elementsContainer',
   match: isElementsContainer,
   canvas: { libraryKey: 'elementsContainer', component: ListContainer as any },
-  preview: { libraryKey: 'elementsContainer', component: ElementsContainerPreview as any },
   normalize,
   formatPreview: (node, ctx) => {
     const key = (node as any)?.__key as string | undefined
@@ -33,18 +31,18 @@ export const elementsContainerDef: ContainerDefinition = {
       ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => ctx.format(c, i))
       : []
     const schemaIf = (normalized as any).if
+    const label = ((normalized as any)?.props?.label as string | undefined) ?? ''
+    const name = (key && key.trim() ? key.trim() : 'elements') as string
     const nextNode: any = {
       $el: 'div',
       attrs: { class: (normalized as any).outerClass || 'col-span-12' },
       children: [
         {
-          $cmp: 'elementsContainer',
-          props: {
-            ...(normalized as any).props,
-            nodeKey: key ?? '',
-            modelValue: children,
-            isPlaceholder: ctx.isPlaceholder,
-          },
+          $formkit: 'repeater',
+          name,
+          label: label && label.trim() ? label.trim() : undefined,
+          value: [{}],
+          children,
         },
       ],
     }
