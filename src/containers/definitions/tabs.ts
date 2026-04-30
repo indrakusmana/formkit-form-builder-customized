@@ -37,17 +37,24 @@ export const tabsContainerDef: ContainerDefinition = {
         })
       : []
     const schemaIf = (normalized as any).if
+    const groupName = typeof (normalized as any).name === 'string' && (normalized as any).name ? (normalized as any).name : key ?? 'container'
     const nextNode: any = {
       $el: 'div',
       attrs: { class: (normalized as any).outerClass || 'col-span-12' },
       children: [
         {
-          $cmp: 'tabs',
-          props: {
-            ...(normalized as any).props,
-            tabsKey: ((normalized as any).props?.tabsKey as string | undefined) ?? key ?? '',
-            modelValue: children,
-          },
+          $formkit: 'group',
+          name: groupName,
+          children: [
+            {
+              $cmp: 'tabs',
+              props: {
+                ...(normalized as any).props,
+                tabsKey: ((normalized as any).props?.tabsKey as string | undefined) ?? key ?? '',
+                modelValue: children,
+              },
+            },
+          ],
         },
       ],
     }

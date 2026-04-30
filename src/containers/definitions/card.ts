@@ -32,17 +32,24 @@ export const cardContainerDef: ContainerDefinition = {
       ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => ctx.format(c, i))
       : []
     const schemaIf = (normalized as any).if
+    const groupName = typeof (normalized as any).name === 'string' && (normalized as any).name ? (normalized as any).name : key ?? 'container'
     const nextNode: any = {
       $el: 'div',
       attrs: { class: (normalized as any).outerClass || 'col-span-12' },
       children: [
         {
-          $cmp: 'card',
-          props: {
-            ...(normalized as any).props,
-            cardKey: ((normalized as any).props?.cardKey as string | undefined) ?? key ?? '',
-            modelValue: children,
-          },
+          $formkit: 'group',
+          name: groupName,
+          children: [
+            {
+              $cmp: 'card',
+              props: {
+                ...(normalized as any).props,
+                cardKey: ((normalized as any).props?.cardKey as string | undefined) ?? key ?? '',
+                modelValue: children,
+              },
+            },
+          ],
         },
       ],
     }

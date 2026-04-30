@@ -33,6 +33,7 @@ export const listContainerDef: ContainerDefinition = {
       ? (normalized.children as FormKitSchemaFormKit[]).map((c, i) => ctx.format(c, i))
       : []
     const schemaIf = (normalized as any).if
+    const listName = typeof (normalized as any).name === 'string' && (normalized as any).name ? (normalized as any).name : key ?? 'list'
     const nextNode: any = {
       $el: 'div',
       attrs: { class: (normalized as any).outerClass || 'col-span-12' },
@@ -42,7 +43,7 @@ export const listContainerDef: ContainerDefinition = {
           props: {
             ...(normalized as any).props,
             listKey: ((normalized as any).props?.listKey as string | undefined) ?? key ?? '',
-            modelValue: children,
+            modelValue: [{ $formkit: 'list', name: listName, value: [{}], children }],
             isPlaceholder: ctx.isPlaceholder,
           },
         },
