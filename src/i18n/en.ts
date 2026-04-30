@@ -145,6 +145,8 @@ export default {
       dividerTitle: 'Divider title',
       addItems: 'Add Items...',
       fieldName: 'field_name',
+      prefix: 'Text or i-xxx icon class',
+      suffix: 'Text or i-xxx icon class',
     },
     pair: {
       label: 'pair',

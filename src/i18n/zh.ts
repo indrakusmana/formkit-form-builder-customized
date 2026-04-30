@@ -136,6 +136,8 @@ export default {
       dividerTitle: '请输入分割线标题',
       addItems: '添加条目...',
       fieldName: '字段名',
+      prefix: '文字或 i-xxx 图标类名',
+      suffix: '文字或 i-xxx 图标类名',
     },
     pair: {
       label: 'pair',
