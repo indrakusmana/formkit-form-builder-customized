@@ -45,29 +45,15 @@ const safeClone = <T,>(value: T): T => {
 
 const internalSchema = ref<FormKitSchemaFormKit[]>([])
 const data = ref<ModelValue>({})
-const formKitData = ref<ModelValue>({})
-const listItemSeq = ref<Record<string, number>>({})
 const lastComputedValueByName = ref<Record<string, string>>({})
 const lastDepsSigByName = ref<Record<string, string>>({})
-const syncingFromExternal = ref(false)
-const getSchemaBodyNow = () => {
-  const only = internalSchema.value.length === 1 ? (internalSchema.value[0] as any) : null
-  if (only && typeof only === 'object' && only.$formkit === 'form' && Array.isArray(only.children)) {
-    return only.children as FormKitSchemaFormKit[]
-  }
-  return internalSchema.value
-}
 
 watch(
   () => props.schema,
   (next) => {
     internalSchema.value = safeClone(Array.isArray(next) ? next : [])
-    listItemSeq.value = {}
     lastComputedValueByName.value = {}
     lastDepsSigByName.value = {}
-    if (!syncingFromExternal.value) {
-      formKitData.value = fromStructuredData(getSchemaBodyNow(), data.value)
-    }
   },
   { immediate: true, deep: true },
 )
@@ -77,21 +63,15 @@ watch(
   (next) => {
     if (!next) return
     if (next === data.value) return
-    syncingFromExternal.value = true
     data.value = safeClone(next)
-    formKitData.value = fromStructuredData(getSchemaBodyNow(), next)
-    syncingFromExternal.value = false
   },
   { immediate: true, deep: true },
 )
 
 watch(
-  [internalSchema, formKitData],
-  () => {
-    if (syncingFromExternal.value) return
-    const structured = toStructuredData(getSchemaBodyNow(), formKitData.value)
-    data.value = structured
-    emit('update:modelValue', structured)
+  data,
+  (next) => {
+    emit('update:modelValue', next)
   },
   { deep: true },
 )
@@ -114,71 +94,42 @@ const schemaBody = computed<FormKitSchemaFormKit[]>(() => {
   return internalSchema.value
 })
 
-function canonicalBaseName(value: unknown) {
-  const safe = toSafeName(value)
-  const match = safe.match(/^(.*)_\d+$/)
-  return match?.[1] || safe
+const applyContainerDataShape = (schema: FormKitSchemaFormKit[]) => {
+  const listCounters = new Map<string, number>()
+  const joinPath = (prefix: string, next: string) => (prefix ? `${prefix}.${next}` : next)
+  const clone = (nodes: FormKitSchemaFormKit[], prefix: string): FormKitSchemaFormKit[] => {
+    return nodes.map((n: any) => {
+      if (!n || typeof n !== 'object') return n
+      const kind = getContainerKind(n)
+      const rawChildren = Array.isArray(n.children) ? (n.children as FormKitSchemaFormKit[]) : []
+      if (kind) {
+        const containerName = toSafeName(n.name || kind)
+        if (kind === 'list') {
+          const counterKey = `${prefix}::${containerName}`
+          const idx = listCounters.get(counterKey) ?? 0
+          listCounters.set(counterKey, idx + 1)
+          const nextPrefix = joinPath(prefix, `${containerName}[${idx}]`)
+          const children = clone(rawChildren, nextPrefix)
+          const props =
+            typeof n.props === 'object' && n.props ? { ...(n.props as any), modelValue: children } : { modelValue: children }
+          return { ...n, children, props } as any
+        }
+        const nextPrefix = joinPath(prefix, containerName)
+        const children = clone(rawChildren, nextPrefix)
+        const props =
+          typeof n.props === 'object' && n.props ? { ...(n.props as any), modelValue: children } : { modelValue: children }
+        return { ...n, children, props } as any
+      }
+      const next: any = { ...n }
+      if (typeof next.name === 'string' && next.name && prefix) next.name = joinPath(prefix, next.name)
+      if (Array.isArray(next.children)) next.children = clone(next.children as any, prefix)
+      return next
+    })
+  }
+  return clone(schema, '')
 }
 
-function toStructuredData(schema: FormKitSchemaFormKit[], flat: ModelValue) {
-  const build = (nodes: FormKitSchemaFormKit[], ctx: ModelValue, inListItem: boolean) => {
-    const result: ModelValue = {}
-    for (const node of nodes as any[]) {
-      if (!node || typeof node !== 'object') continue
-      const kind = getContainerKind(node)
-      const children = Array.isArray(node.children) ? (node.children as FormKitSchemaFormKit[]) : []
-      if (kind) {
-        const containerName = toSafeName(node.name || kind)
-        if (kind === 'list') {
-          const item = build(children, {}, true)
-          const arr = (result[containerName] as any[]) || []
-          arr.push(item)
-          result[containerName] = arr
-        } else {
-          result[containerName] = build(children, {}, false)
-        }
-        continue
-      }
-      const rawName = typeof node.name === 'string' ? node.name : ''
-      if (!rawName) continue
-      const key = inListItem ? canonicalBaseName(rawName) : rawName
-      result[key] = (flat as any)[rawName]
-    }
-    return result
-  }
-  return build(schema, {}, false)
-}
-
-function fromStructuredData(schema: FormKitSchemaFormKit[], structured: ModelValue) {
-  const result: ModelValue = {}
-  const fill = (nodes: FormKitSchemaFormKit[], ctx: any, listIndices: Map<string, number>, inListItem: boolean) => {
-    for (const node of nodes as any[]) {
-      if (!node || typeof node !== 'object') continue
-      const kind = getContainerKind(node)
-      const children = Array.isArray(node.children) ? (node.children as FormKitSchemaFormKit[]) : []
-      if (kind) {
-        const containerName = toSafeName(node.name || kind)
-        if (kind === 'list') {
-          const idx = listIndices.get(containerName) ?? 0
-          listIndices.set(containerName, idx + 1)
-          const arr = Array.isArray(ctx?.[containerName]) ? ctx[containerName] : []
-          const itemCtx = arr[idx] && typeof arr[idx] === 'object' ? arr[idx] : {}
-          fill(children, itemCtx, new Map(), true)
-        } else {
-          const obj = ctx?.[containerName] && typeof ctx?.[containerName] === 'object' ? ctx[containerName] : {}
-          fill(children, obj, new Map(), false)
-        }
-        continue
-      }
-      const rawName = typeof node.name === 'string' ? node.name : ''
-      if (!rawName) continue
-      const key = inListItem ? canonicalBaseName(rawName) : rawName
-      ;(result as any)[rawName] = ctx?.[key]
-    }
-  }
-  fill(schema, structured, new Map(), false)
-  return result
-}
+const scopedSchemaBody = computed<FormKitSchemaFormKit[]>(() => applyContainerDataShape(schemaBody.value))
 
 const resolvedFormName = computed(() => {
   const fromSchema = formWrapper.value?.name
@@ -228,7 +179,7 @@ const resolvedFormClass = computed(() => {
   return [base, common].join(' ')
 })
 
-const formattedSchema = createFormattedSchema(schemaBody)
+const formattedSchema = createFormattedSchema(scopedSchemaBody)
 
 type Found = { node: FormKitSchemaFormKit; path: number[] } | null
 
@@ -315,41 +266,14 @@ const isStructureNode = (node: any) => {
   return ['group'].includes(String(node?.$formkit ?? ''))
 }
 
-const collectLeafBases = (node: any, bases: Set<string>) => {
-  if (!node || typeof node !== 'object') return
-  if (!isStructureNode(node) && node.$formkit !== 'submit') {
-    const rawName = node.name || node.$formkit || node.$cmp || 'field'
-    const base = canonicalBaseName(rawName)
-    if (base) bases.add(base)
-  }
-  if (Array.isArray(node.children)) {
-    for (const c of node.children) collectLeafBases(c, bases)
-  }
-}
-
-const cloneNodeWithFreshIdentity = (node: any, existingNames: Set<string>, listSuffix: number) => {
+const cloneNodeWithFreshIdentity = (node: any) => {
   if (!node || typeof node !== 'object') return node
   const nextKey = generateKey()
   const next: any = { ...node, __key: nextKey }
   const kind = getContainerKind(node)
-  if (node.$formkit !== 'submit') {
-    if (!isStructureNode(node)) {
-      const rawName = node.name || node.$formkit || node.$cmp || 'field'
-      const base = canonicalBaseName(rawName)
-      let candidate = listSuffix > 0 ? `${base}_${listSuffix}` : base
-      let i = 1
-      while (existingNames.has(candidate) || existingNames.has(toSafeName(candidate))) {
-        candidate = `${base}_${listSuffix}_${i}`
-        i++
-      }
-      next.name = candidate
-      existingNames.add(candidate)
-      existingNames.add(toSafeName(candidate))
-    }
-    next.id = `field_${nextKey}`
-  }
+  if (node.$formkit !== 'submit') next.id = `field_${nextKey}`
   if (Array.isArray(node.children)) {
-    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c, existingNames, listSuffix))
+    next.children = node.children.map((c: any) => cloneNodeWithFreshIdentity(c))
   }
   if (kind) {
     const baseProps = typeof next.props === 'object' && next.props ? next.props : {}
@@ -387,21 +311,7 @@ provide('previewListDuplicate', (key: string) => {
   if (!props.interactiveContainers) return
   const found = findSchemaNodeByKey(internalSchema.value as any[], key)
   if (!found) return
-  const existingNames = new Set<string>()
-  collectSchemaNamesSafe(internalSchema.value as any, existingNames)
-  const bases = new Set<string>()
-  collectLeafBases(found.node as any, bases)
-  let nextSuffix = (listItemSeq.value[key] ?? 0) + 1
-  const isFree = (suffix: number) => {
-    for (const base of bases) {
-      const candidate = `${base}_${suffix}`
-      if (existingNames.has(candidate) || existingNames.has(toSafeName(candidate))) return false
-    }
-    return true
-  }
-  while (!isFree(nextSuffix)) nextSuffix++
-  listItemSeq.value = { ...listItemSeq.value, [key]: nextSuffix }
-  const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any), existingNames, nextSuffix)
+  const cloned = cloneNodeWithFreshIdentity(safeClone(found.node as any))
   internalSchema.value = insertAfterAtPath(internalSchema.value as any[], found.path, cloned) as any
 })
 
@@ -455,9 +365,9 @@ provide('previewListRestore', (key: string) => {
 })
 
 watchEffect(() => {
-  const currentData = formKitData.value as Record<string, unknown>
+  const currentData = data.value as Record<string, unknown>
   let nextData: Record<string, unknown> | null = null
-  eachField(schemaBody.value as FormKitSchemaFormKit[], (field) => {
+  eachField(scopedSchemaBody.value as FormKitSchemaFormKit[], (field) => {
     if (!field || typeof field !== 'object') return
     if (!field.useExpressionValue) return
     if (typeof field.name !== 'string' || !field.name) return
@@ -490,11 +400,11 @@ watchEffect(() => {
     }
   })
 
-  if (nextData) formKitData.value = nextData
+  if (nextData) data.value = nextData
 })
 
-const handleSubmit = (_formData: Record<string, unknown>) => {
-  emit('submit', data.value)
+const handleSubmit = (formData: Record<string, unknown>) => {
+  emit('submit', formData)
 }
 </script>
 
@@ -503,11 +413,11 @@ const handleSubmit = (_formData: Record<string, unknown>) => {
     type="form"
     :name="resolvedFormName"
     :actions="props.actions"
-    v-model="formKitData"
+    v-model="data"
     @submit="handleSubmit"
     :form-class="resolvedFormClass"
     :style="{ '--fk-label-width': `${resolvedLabelWidth}px` }"
   >
-    <FormKitSchema :schema="formattedSchema" :data="formKitData" :library="schemaLibrary" />
+    <FormKitSchema :schema="formattedSchema" :data="data" :library="schemaLibrary" />
   </FormKit>
 </template>
