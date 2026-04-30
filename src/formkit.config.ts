@@ -72,7 +72,13 @@ function createUiInput(
 }
 
 export default defaultConfig({
-  plugins: [createAutoAnimatePlugin(), createI18nPlugin({ en, zh })],
+  plugins: [
+    createAutoAnimatePlugin(
+      { duration: 250, easing: 'ease-in-out' },
+      { global: ['outer', 'inner'], form: ['form'], repeater: ['items'] },
+    ),
+    createI18nPlugin({ en, zh }),
+  ],
   locales: { en, zh },
   locale: 'zh',
   config: {
