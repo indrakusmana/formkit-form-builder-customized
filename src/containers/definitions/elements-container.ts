@@ -1,6 +1,6 @@
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import type { ContainerDefinition, SchemaNode } from '../types'
-import ElementsContainer from '@/components/ui/containers/elements/ElementsContainer.vue'
+import ListContainer from '@/components/ui/containers/list/ListContainer.vue'
 import ElementsContainerPreview from '@/components/ui/containers/elements/ElementsContainerPreview.vue'
 
 function isElementsContainer(node: any) {
@@ -13,10 +13,9 @@ function normalize(node: SchemaNode): SchemaNode {
   next.$cmp = next.$cmp || 'elementsContainer'
   next.children = Array.isArray(next.children) ? next.children : []
   const props = typeof next.props === 'object' && next.props ? { ...next.props } : {}
-  props.elementsKey = typeof props.elementsKey === 'string' && props.elementsKey ? props.elementsKey : (next.__key as string | undefined) ?? ''
+  props.listKey = typeof props.listKey === 'string' && props.listKey ? props.listKey : (next.__key as string | undefined) ?? ''
   props.modelValue = next.children
-  if (props.dndEnabled === undefined) props.dndEnabled = true
-  if (props.useDragHandle === undefined) props.useDragHandle = false
+  if (props.showActions === undefined) props.showActions = false
   next.props = props
   return next
 }
@@ -24,7 +23,7 @@ function normalize(node: SchemaNode): SchemaNode {
 export const elementsContainerDef: ContainerDefinition = {
   id: 'elementsContainer',
   match: isElementsContainer,
-  canvas: { libraryKey: 'elementsContainer', component: ElementsContainer as any },
+  canvas: { libraryKey: 'elementsContainer', component: ListContainer as any },
   preview: { libraryKey: 'elementsContainer', component: ElementsContainerPreview as any },
   normalize,
   formatPreview: (node, ctx) => {
@@ -42,7 +41,7 @@ export const elementsContainerDef: ContainerDefinition = {
           $cmp: 'elementsContainer',
           props: {
             ...(normalized as any).props,
-            elementsKey: ((normalized as any).props?.elementsKey as string | undefined) ?? key ?? '',
+            nodeKey: key ?? '',
             modelValue: children,
             isPlaceholder: ctx.isPlaceholder,
           },
@@ -54,4 +53,3 @@ export const elementsContainerDef: ContainerDefinition = {
     return nextNode as FormKitSchemaFormKit
   },
 }
-

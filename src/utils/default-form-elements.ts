@@ -676,7 +676,7 @@ const defs: DefaultElementDef[] = [
     labelKey: 'elements.elementsContainer.label',
     id: 'elements_container',
     outerClass: 'col-span-12',
-    props: { modelValue: [], elementsKey: '', dndEnabled: true, useDragHandle: false },
+    props: { showActions: false, modelValue: [], listKey: '' },
     descriptionKey: 'elements.elementsContainer.description',
     children: [],
   },

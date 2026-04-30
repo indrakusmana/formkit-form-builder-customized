@@ -357,7 +357,7 @@ const defs: FieldPropDef[] = [
     tooltipKey: 'fieldProps.tooltip.elementsContainer',
     icon: 'i-lucide-box',
     category: 'structure',
-    editor: () => import('@/components/sidebar-right/edits/editors/ElementsContainerEditor.vue'),
+    editor: () => import('@/components/sidebar-right/edits/editors/GroupEditor.vue'),
   },
 ]
 
