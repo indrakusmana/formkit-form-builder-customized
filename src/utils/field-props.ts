@@ -353,7 +353,7 @@ const defs: FieldPropDef[] = [
     editor: () => import('@/components/sidebar-right/edits/editors/TabsEditor.vue'),
   },
   {
-    name: 'elementsContainer',
+    name: 'repeater',
     tooltipKey: 'fieldProps.tooltip.elementsContainer',
     icon: 'i-lucide-box',
     category: 'structure',

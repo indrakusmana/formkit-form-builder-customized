@@ -671,12 +671,10 @@ const defs: DefaultElementDef[] = [
     children: [],
   },
   {
-    $cmp: 'elementsContainer',
+    $formkit: 'repeater',
     nameKey: 'elements.elementsContainer.name',
-    labelKey: 'elements.elementsContainer.label',
     id: 'elements_container',
     outerClass: 'col-span-12',
-    props: { showActions: false, modelValue: [], listKey: '' },
     descriptionKey: 'elements.elementsContainer.description',
     children: [],
   },

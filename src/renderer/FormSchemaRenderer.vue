@@ -234,7 +234,7 @@ const canonicalBaseName = (value: unknown) => {
 const isStructureNode = (node: any) => {
   const kind = getContainerKind(node)
   if (kind) return true
-  return ['group'].includes(String(node?.$formkit ?? ''))
+  return ['group', 'repeater'].includes(String(node?.$formkit ?? ''))
 }
 
 const collectLeafBases = (node: any, bases: Set<string>) => {

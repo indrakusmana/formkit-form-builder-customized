@@ -15,6 +15,24 @@ export default function createFormattedSchema(fields: Ref<FormKitSchemaFormKit[]
         format: formatOne,
       })
       if (formattedContainer) return formattedContainer
+      if (field.$formkit === 'repeater') {
+        const children = Array.isArray((field as any).children)
+          ? ((field as any).children as FormKitSchemaFormKit[]).map((c, i) => formatOne(c, i))
+          : []
+        const schemaIf = (field as any).if
+        const nextNode: any = {
+          $formkit: 'repeater',
+          name: field.name || (key ? `field_${key}` : `field_${index}`),
+          id: field.id || (key ? `preview_field_${key}` : `preview_field_${index}`),
+          label: field.label,
+          help: (field as any).help,
+          outerClass: (field as any).outerClass,
+          children,
+        }
+        if (typeof schemaIf === 'string' && schemaIf.trim()) nextNode.if = schemaIf
+        else if (typeof schemaIf === 'boolean') nextNode.if = schemaIf
+        return nextNode
+      }
       const {
         $formkit,
         label,

@@ -215,6 +215,21 @@ const schemaLibrary = canvasSchemaLibrary
 
 const renderCanvasSchemaNode = (field: any): any => {
   if (!field || typeof field !== 'object') return field
+  const type = String(field?.$formkit ?? '')
+  if (type === 'repeater') {
+    const key = typeof field.__key === 'string' && field.__key ? field.__key : ''
+    const outerClass = typeof field.outerClass === 'string' ? field.outerClass : undefined
+    const label = typeof field.label === 'string' && field.label.trim() ? field.label.trim() : undefined
+    const children = Array.isArray(field.children) ? field.children : []
+    const next = normalizeContainerNode({
+      $cmp: 'list',
+      __key: key || undefined,
+      outerClass,
+      children,
+      props: { listKey: key || undefined, label, showActions: false },
+    })
+    return toCanvasSchemaNode(next as FormKitSchemaFormKit)
+  }
   const next = normalizeContainerNode(field)
   return toCanvasSchemaNode(next as FormKitSchemaFormKit)
 }
