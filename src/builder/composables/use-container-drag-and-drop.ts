@@ -1,4 +1,4 @@
-import { computed, ref, watch, type ComputedRef } from 'vue'
+import { computed, ref, unref, watch, type ComputedRef } from 'vue'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 import { parents, setParentValues } from '@formkit/drag-and-drop'
 import { customInsertPlugin } from '@/utils/custom-insert-plugin'
@@ -10,16 +10,22 @@ export function useContainerDragAndDrop<T>(params: {
   onUpdateModelValue: (value: T[]) => void
   rootSelector?: string
   insertPoint?: () => HTMLElement
+  enabled?: boolean | ComputedRef<boolean>
+  dragHandle?: string | ComputedRef<string | undefined>
 }) {
   const rootSelector = computed(() => params.rootSelector ?? '[data-testid="drop-area"]')
   const insertPoint = computed(() => params.insertPoint ?? createDefaultInsertPointElement)
+  const enabled = computed(() => unref(params.enabled) ?? true)
+  const dragHandle = computed(() => unref(params.dragHandle))
 
-  const [containerRef, items] = useDragAndDrop<T>(params.modelValue.value, {
+  const [containerRef, items, updateConfig] = useDragAndDrop<T>(params.modelValue.value, {
     group: 'form-builder',
     nativeDrag: true,
     accepts: () => true,
-    sortable: true,
+    sortable: enabled.value,
     draggable: () => true,
+    disabled: !enabled.value,
+    dragHandle: dragHandle.value,
     plugins: [
       customInsertPlugin({
         insertPoint: insertPoint.value,
@@ -67,6 +73,14 @@ export function useContainerDragAndDrop<T>(params: {
     { deep: true },
   )
 
+  watch([enabled, dragHandle], ([nextEnabled, nextDragHandle]) => {
+    updateConfig({
+      sortable: nextEnabled,
+      disabled: !nextEnabled,
+      dragHandle: nextEnabled ? nextDragHandle : undefined,
+    })
+  })
+
   const emitUpdate = () => {
     if (syncingFromProps.value) return
     params.onUpdateModelValue([...items.value])
@@ -79,4 +93,3 @@ export function useContainerDragAndDrop<T>(params: {
     setNestedParentOnRoot,
   }
 }
-

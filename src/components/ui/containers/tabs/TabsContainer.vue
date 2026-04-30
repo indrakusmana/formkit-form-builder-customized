@@ -201,6 +201,7 @@ const deleteChild = (index: number) => {
         :selected-key="selectedKey"
         :empty-text="t('builder.listDropHere')"
         :delete-aria-label="t('builder.deleteField')"
+        :resize-aria-label="t('builder.resizeFieldWidth')"
         :show-delete-tooltip="true"
         :delete-tooltip-text="t('builder.deleteField')"
         :data-attrs="{ 'data-tabs-pane-key': activePaneKey }"

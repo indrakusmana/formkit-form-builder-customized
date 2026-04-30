@@ -6,8 +6,15 @@ import { listContainerDef } from './definitions/list'
 import { cardContainerDef } from './definitions/card'
 import { inputGroupContainerDef } from './definitions/input-group'
 import { tabsContainerDef } from './definitions/tabs'
+import { elementsContainerDef } from './definitions/elements-container'
 
-const defs: ContainerDefinition[] = [listContainerDef, cardContainerDef, inputGroupContainerDef, tabsContainerDef]
+const defs: ContainerDefinition[] = [
+  listContainerDef,
+  cardContainerDef,
+  inputGroupContainerDef,
+  tabsContainerDef,
+  elementsContainerDef,
+]
 
 export function getContainerDefinition(node: unknown): ContainerDefinition | null {
   for (const def of defs) {

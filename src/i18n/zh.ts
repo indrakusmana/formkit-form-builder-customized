@@ -236,6 +236,7 @@ export default {
       card: '卡片容器',
       inputGroup: '输入组（NInputGroup）',
       tabs: 'Tabs 容器',
+      elementsContainer: '元素容器',
     },
   },
   elements: {
@@ -296,5 +297,6 @@ export default {
     card: { name: '卡片容器', label: '卡片', description: '可包含子字段的卡片容器' },
     inputGroup: { name: '输入组', label: '输入组', description: 'Naive UI NInputGroup 容器（仅左右拖拽）' },
     tabs: { name: 'Tabs', label: 'Tabs', description: 'Naive UI Tabs 容器' },
+    elementsContainer: { name: '元素容器', label: '元素容器', description: '可拖拽排序的字段容器（容器内排序）' },
   },
 } as const

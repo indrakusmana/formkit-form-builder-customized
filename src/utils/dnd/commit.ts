@@ -74,6 +74,7 @@ function getContainerKey(el: HTMLElement | null | undefined): string | null {
   const raw =
     el.getAttribute('data-list-key') ||
     el.getAttribute('data-card-key') ||
+    el.getAttribute('data-elements-key') ||
     el.getAttribute('data-input-group-key') ||
     el.getAttribute('data-tabs-key') ||
     el.getAttribute('data-tabs-pane-key')
@@ -105,6 +106,18 @@ function normalizeInsertValues(
       if (val.$cmp === 'card' || val.$formkit === 'card') {
         const props = { ...val.props, cardKey: nextKey }
         return { ...valObj, __key: nextKey, name: nextName, id: `field_${nextKey}`, props, children: Array.isArray(val.children) ? val.children : [], outerClass: val.outerClass || 'col-span-12' }
+      }
+      if (val.$cmp === 'elementsContainer' || val.$formkit === 'elementsContainer') {
+        const props = { ...val.props, elementsKey: nextKey }
+        return {
+          ...valObj,
+          __key: nextKey,
+          name: nextName,
+          id: `field_${nextKey}`,
+          props,
+          children: Array.isArray(val.children) ? val.children : [],
+          outerClass: val.outerClass || 'col-span-12',
+        }
       }
       if (val.$cmp === 'inputGroup' || val.$formkit === 'inputGroup') {
         const props = {
@@ -318,7 +331,7 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
   const listMap = new Map<string, FormKitSchemaFormKit[]>()
   const listEls = Array.from(
     document.querySelectorAll<HTMLElement>(
-      '[data-list-key],[data-card-key],[data-input-group-key],[data-tabs-key],[data-tabs-pane-key]',
+      '[data-list-key],[data-card-key],[data-elements-key],[data-input-group-key],[data-tabs-key],[data-tabs-pane-key]',
     ),
   )
   for (const el of listEls) {
@@ -367,9 +380,10 @@ export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragS
     } else {
       const isList = node.$formkit === 'list' || node.$cmp === 'list'
       const isCard = node.$formkit === 'card' || node.$cmp === 'card'
+      const isElementsContainer = node.$formkit === 'elementsContainer' || node.$cmp === 'elementsContainer'
       const isInputGroup = node.$formkit === 'inputGroup' || node.$cmp === 'inputGroup'
       const isTabs = node.$formkit === 'tabs' || node.$cmp === 'tabs'
-      if ((isList || isCard || isInputGroup || isTabs) && !Array.isArray(node.children)) {
+      if ((isList || isCard || isElementsContainer || isInputGroup || isTabs) && !Array.isArray(node.children)) {
         next = { ...node, children: [] }
         if (next.$cmp) {
           next.props = { ...next.props }

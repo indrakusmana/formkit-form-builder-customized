@@ -670,6 +670,16 @@ const defs: DefaultElementDef[] = [
     descriptionKey: 'elements.tabs.description',
     children: [],
   },
+  {
+    $cmp: 'elementsContainer',
+    nameKey: 'elements.elementsContainer.name',
+    labelKey: 'elements.elementsContainer.label',
+    id: 'elements_container',
+    outerClass: 'col-span-12',
+    props: { modelValue: [], elementsKey: '', dndEnabled: true, useDragHandle: false },
+    descriptionKey: 'elements.elementsContainer.description',
+    children: [],
+  },
 ]
 
 export function createDefaultFormElements(t: (key: string) => string): FormKitSchemaFormKit[] {
