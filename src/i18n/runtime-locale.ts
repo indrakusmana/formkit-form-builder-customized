@@ -34,7 +34,7 @@ export function provideRuntimeLocale(initialLocale: RuntimeLocale) {
 }
 
 export function useRuntimeLocale() {
-  const fallbackLocale = ref<RuntimeLocale>('zh-CN')
+  const fallbackLocale = ref<RuntimeLocale>('en')
   return inject(RUNTIME_LOCALE_KEY, {
     locale: fallbackLocale,
     setLocale: (next) => {

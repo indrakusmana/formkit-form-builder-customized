@@ -6,7 +6,7 @@ import { findSchemaByKey } from './schema'
 import { computePlacements, findInsertIndexForCell, getRowSpan } from './grid'
 import { getRealCoords } from './range'
 
-// 创建插入提示线 DOM
+// Create the insert guide DOM element.
 export function createInsertPoint<T>(parent: ParentRecord<T>, insertState: InsertState<T>) {
   const insertPoint = parent.data.config.insertConfig?.insertPoint({
     el: parent.el,
@@ -33,7 +33,7 @@ export function removeInsertPoint<T>(insertState: InsertState<T>) {
   insertState.insertPoint = null
 }
 
-// 根据命中范围定位插入提示线（支持 row-span 的分段提示 + 更精确的插入位置计算）
+// Position the insert guide from the hit range, including row-span segments.
 export function positionInsertPoint<T>(
   parent: ParentRecord<T>,
   position: { x: number[]; y: number[]; vertical: boolean },

@@ -14,18 +14,14 @@ import { createDefaultInsertPointElement } from '../utils/dnd/insert-point-eleme
 import { collectSchemaNames, ensureUniqueName, generateKey, toSafeName } from '../utils/dnd/schema'
 import { findSchemaNodeByKey } from '../composables/form-fields'
 import { useFormBuilderI18n } from '@/i18n/context'
-import { useRuntimeLocale } from '@/i18n/runtime-locale'
 import { toCanvasSchemaNode } from '../utils/canvas-schema'
 import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
 import { normalizeContainerNode } from '@/containers/registry'
 import ContainerChildrenGrid from '@/components/ui/containers/shared/ContainerChildrenGrid.vue'
 
 const showImportExportModal = ref(false)
-const { setLocale, locale } = useRuntimeLocale()
 
 const { t } = useFormBuilderI18n()
-
-const isZh = computed(() => locale.value === 'zh-CN')
 
 const canvasFormClass = computed(() => {
   const common = [
@@ -331,27 +327,6 @@ provideCanvasSchemaContext({
             </template>
             {{ t('builder.importExportSchema') }}
           </n-tooltip>
-        </n-button-group>
-
-        <n-button-group vertical class="bg-card shadow-sm rounded-lg border border-border/50">
-          <n-button
-            size="small"
-            class="w-8 h-8"
-            :type="isZh ? 'primary' : 'default'"
-            aria-label="切换到中文"
-            @click="setLocale('zh-CN')"
-          >
-            中
-          </n-button>
-          <n-button
-            size="small"
-            class="w-8 h-8"
-            :type="!isZh ? 'primary' : 'default'"
-            aria-label="Switch to English"
-            @click="setLocale('en')"
-          >
-            EN
-          </n-button>
         </n-button-group>
       </div>
     </div>

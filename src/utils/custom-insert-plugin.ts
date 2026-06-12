@@ -1,3 +1,3 @@
-// 该文件作为稳定入口（供 BuilderDropArea 引用），核心实现已拆分到 utils/dnd/ 下
+// Stable entry point for BuilderDropArea; the core implementation lives under utils/dnd/.
 export { insertState } from './dnd/insert-state'
 export { customInsertPlugin } from './dnd/plugin'

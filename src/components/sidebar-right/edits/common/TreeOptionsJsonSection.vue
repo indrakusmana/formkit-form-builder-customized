@@ -23,13 +23,13 @@ const model = computed({
     try {
       const parsed = JSON.parse(value) as unknown
       if (!Array.isArray(parsed)) {
-        error.value = 'Options 必须是数组 JSON'
+        error.value = 'Options must be a JSON array'
         return
       }
       optionsRaw.value = parsed
       error.value = ''
     } catch {
-      error.value = 'JSON 格式错误'
+      error.value = 'Invalid JSON'
     }
   },
 })

@@ -72,7 +72,7 @@ function createUiInput(
 export default defaultConfig({
   plugins: [createI18nPlugin({ en, zh })],
   locales: { en, zh },
-  locale: 'zh',
+  locale: 'en',
   config: {
     rootClasses,
   },

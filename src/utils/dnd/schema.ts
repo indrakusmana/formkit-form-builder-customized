@@ -1,14 +1,14 @@
  
 import type { FormKitSchemaFormKit } from '@formkit/core'
 
-// 生成稳定的字段 key，用于拖拽过程中的字段身份识别
+// Generate a stable field key for identifying fields during drag-and-drop.
 export const generateKey = () => {
   const uuid = globalThis.crypto?.randomUUID?.()
   if (uuid) return uuid
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`
 }
 
-// 在 schema 树中按 __key 查找节点（用于从“真实 schema”读取最新 outerClass 等属性）
+// Find a node by __key in the schema tree to read the latest values from the real schema.
 export const findSchemaByKey = (schema: any[], key: string): any | undefined => {
   for (const node of schema) {
     if (node && typeof node === 'object' && (node as any).__key === key) return node
@@ -21,7 +21,7 @@ export const findSchemaByKey = (schema: any[], key: string): any | undefined => 
   return undefined
 }
 
-// 将字段名规整为安全标识（小写、下划线、避免数字开头）
+// Normalize a field name into a safe identifier.
 export const toSafeName = (input: unknown) => {
   const raw = typeof input === 'string' ? input : ''
   let name = raw
@@ -35,7 +35,7 @@ export const toSafeName = (input: unknown) => {
   return name
 }
 
-// 递归收集 schema 里所有已存在的 name，用于生成不冲突的新字段名
+// Recursively collect existing names in the schema to avoid name collisions.
 export const collectSchemaNames = (schema: FormKitSchemaFormKit[], names: Set<string>) => {
   for (const field of schema) {
     if (typeof field?.name === 'string' && field.name) names.add(field.name)
@@ -44,7 +44,7 @@ export const collectSchemaNames = (schema: FormKitSchemaFormKit[], names: Set<st
   }
 }
 
-// 生成唯一 name（如 name, name_1, name_2...）
+// Generate a unique name, such as name, name_1, name_2.
 export const ensureUniqueName = (base: string, existing: Set<string>) => {
   let name = base
   let i = 1

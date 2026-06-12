@@ -150,7 +150,7 @@ function normalizeInsertValues(
   }) as FormKitSchemaFormKit[]
 }
 
-// 调整横向插入时的 col-span：优先使用 explicitRow（row-span>1 的精确命中），否则回退到“视觉行”算法
+// Adjust col-span for horizontal inserts. Prefer explicitRow, then use the visual-row fallback.
 function adjustColSpansForInsert(
   targetParentValues: any[],
   draggedOverValue: any,
@@ -194,7 +194,7 @@ function adjustColSpansForInsert(
   }
 }
 
-// 处理 dragEnd：根据 insertState 决定最终插入位置，并提交到 schema 历史
+// Handle dragEnd by resolving the final insert position from insertState and committing schema history.
 export function handleEnd<T>(state: DragState<T> | SynthDragState<T> | BaseDragState<T>) {
   if (!isDragState(state) && !isSynthDragState(state)) return
 

@@ -2,7 +2,7 @@
 import type { Coordinates, NodeRecord } from '@formkit/drag-and-drop'
 import { isDragState, isSynthDragState, parents, state } from '@formkit/drag-and-drop'
 
-// 将元素的 DOM 坐标转换为带滚动偏移的“页面坐标”
+// Convert DOM coordinates into page coordinates with scroll offsets.
 export function getRealCoords(el: HTMLElement): Coordinates {
   const { top, bottom, left, right, height, width } = el.getBoundingClientRect()
 
@@ -19,7 +19,7 @@ export function getRealCoords(el: HTMLElement): Coordinates {
   }
 }
 
-// 为每个 draggable node 计算插入命中范围（left/right/top/bottom）
+// Calculate insert hit ranges for each draggable node.
 export function defineRanges(parent: HTMLElement) {
   if (!isDragState(state) && !isSynthDragState(state)) return
 

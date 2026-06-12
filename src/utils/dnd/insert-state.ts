@@ -1,15 +1,15 @@
 import * as DnD from '@formkit/drag-and-drop'
 import type { InsertState } from '@formkit/drag-and-drop'
 
-// 插入提示线与拖拽插入过程的共享状态（跨事件共享）
+// Shared state for the insert guide and drag insertion flow.
 export type InsertStateEx<T> = InsertState<T> & {
-  // 当前命中方向是否为上下插入（top/bottom），否则为左右插入（left/right）
+  // Whether the current hit direction is vertical; otherwise it is horizontal.
   verticalInsert?: boolean
-  // 当前拖拽元素的最大 row-span（用于提示线分段显示）
+  // Maximum row span of the current dragged element, used for segmented guides.
   draggedRowSpan?: number
-  // 对 row-span>1 的目标元素，命中到下半行时会计算出一个更精确的插入 index
+  // More precise insert index for row-span targets when hitting the lower half.
   explicitIndex?: number
-  // 对 row-span>1 的目标元素，命中到下半行时会计算出一个更精确的“目标行”
+  // More precise target row for row-span targets when hitting the lower half.
   explicitRow?: number
 }
 

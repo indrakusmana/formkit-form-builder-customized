@@ -1,6 +1,6 @@
  
 
-// 从 outerClass 中解析 col-span，默认 12
+// Parse col-span from outerClass, defaulting to 12.
 export function getColSpan(item: any): number {
   const outerClass = item?.outerClass
   if (typeof outerClass !== 'string') return 12
@@ -8,7 +8,7 @@ export function getColSpan(item: any): number {
   return match ? parseInt(match[1]!, 10) : 12
 }
 
-// 写入/替换 outerClass 中的 col-span-*
+// Write or replace col-span-* in outerClass.
 export function setColSpan(item: any, span: number) {
   if (!item) return
   let classes = item.outerClass || ''
@@ -20,7 +20,7 @@ export function setColSpan(item: any, span: number) {
   item.outerClass = classes
 }
 
-// 从 outerClass 中解析 row-span，默认 1
+// Parse row-span from outerClass, defaulting to 1.
 export function getRowSpan(item: any): number {
   const outerClass = item?.outerClass
   if (typeof outerClass !== 'string') return 1
@@ -31,7 +31,7 @@ export function getRowSpan(item: any): number {
 
 export type Placement = { index: number; row: number; col: number; rowSpan: number; colSpan: number }
 
-// 基于 12 列网格 + rowSpan/colSpan 做简易“自动布局”，用于推断某个元素在第几行/第几列
+// Approximate auto layout in a 12-column grid to infer each item position.
 export function computePlacements(values: any[]): Placement[] {
   const placements: Placement[] = []
   const occupied = new Set<string>()
@@ -77,7 +77,7 @@ function cellKey(row: number, col: number) {
   return row * 100 + col
 }
 
-// 根据“目标 cell 的行列”，推断应该插入到 values 的哪个 index
+// Infer the insertion index from the target cell row and column.
 export function findInsertIndexForCell(placements: Placement[], row: number, col: number) {
   const target = cellKey(row, col)
   for (let i = 0; i < placements.length; i++) {
@@ -87,7 +87,7 @@ export function findInsertIndexForCell(placements: Placement[], row: number, col
   return placements.length
 }
 
-// 用 col-span 近似推断“视觉行”（兼容老逻辑，row-span 情况下会在 explicitRow 逻辑中绕开）
+// Approximate the visual row from col-span for compatibility with older logic.
 export function getVisualRows(values: any[]) {
   const rows: { startIndex: number; endIndex: number; items: any[]; totalSpan: number }[] = []
   let currentRow: { startIndex: number; endIndex: number; items: any[]; totalSpan: number } = {
@@ -114,7 +114,7 @@ export function getVisualRows(values: any[]) {
   return rows
 }
 
-// 仅对指定行（row-span 覆盖到的那一行）进行均分 col-span，避免影响其他行
+// Evenly divide col-span only on the target row to avoid affecting other rows.
 export function adjustColSpansForInsertAtRow(targetParentValues: any[], row: number, insertValues: any[]) {
   const placements = computePlacements(targetParentValues)
   const rowIndices = placements

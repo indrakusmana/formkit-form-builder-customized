@@ -1,52 +1,58 @@
 # formkit-form-builder
 
-基于 Vue 3 + FormKit 的可视化表单 Schema 设计器（左侧物料库 / 中间画布 / 右侧属性面板），支持拖拽搭建、校验配置、预览，以及可选的 AI 生成 Schema。
+A visual FormKit schema builder for Vue 3.
 
-## 安装
+The builder provides a three-panel interface: a component palette on the left, a form canvas in the center, and a property editor on the right. It supports drag-and-drop form composition, validation setup, preview, import/export, and optional AI-generated schemas.
+
+For notes about installing this fork into another Vue project, see [HOWTOIMPORT.md](./HOWTOIMPORT.md).
+
+## Installation
 
 ```bash
 pnpm i @zeng-alt/formkit-form-builder
 ```
 
-本库依赖以下 peer 依赖（需要你在项目里自行安装，版本按你项目实际选择即可）：
+This package expects the host Vue project to provide the main Vue/FormKit UI runtime dependencies:
 
 ```bash
-pnpm i vue naive-ui @vueuse/core
+pnpm i vue @formkit/vue naive-ui @vueuse/core
 ```
 
-## 样式引入
+## Styles
+
+Import the package stylesheet once in your application entry:
 
 ```ts
-import "@zeng-alt/formkit-form-builder/style.css";
+import '@zeng-alt/formkit-form-builder/style.css'
 ```
 
-## 快速开始
+## Quick Start
 
-### 1) 安装并注册 FormKit
+### 1. Install and register FormKit
 
-示例（Vite + Vue 3）：
+Example for Vite + Vue 3:
 
 ```ts
 // main.ts
-import { createApp } from "vue";
-import { plugin as formkitPlugin } from "@formkit/vue";
-import App from "./App.vue";
-import formkitConfig from "./formkit.config";
+import { createApp } from 'vue'
+import { plugin as formkitPlugin } from '@formkit/vue'
+import App from './App.vue'
+import formkitConfig from './formkit.config'
 
-createApp(App).use(formkitPlugin, formkitConfig).mount("#app");
+createApp(App).use(formkitPlugin, formkitConfig).mount('#app')
 ```
 
-### 2) 使用 FormBuilder
+### 2. Use FormBuilder
 
 ```vue
 <script setup lang="ts">
-import { FormBuilder, BuilderProvider } from "formkit-form-builder";
-import "formkit-form-builder/style.css";
+import { BuilderProvider, FormBuilder } from '@zeng-alt/formkit-form-builder'
+import '@zeng-alt/formkit-form-builder/style.css'
 
 const config = {
-  locale: "zh-CN",
-  apiKey: "",
-};
+  locale: 'en',
+  apiKey: '',
+}
 </script>
 
 <template>
@@ -58,7 +64,7 @@ const config = {
 
 ## API
 
-### 导出
+### Exports
 
 ```ts
 import {
@@ -69,28 +75,32 @@ import {
   FormBuilderProvider,
   useFormBuilderConfig,
   provideFormBuilderConfig,
-} from "formkit-form-builder";
+} from '@zeng-alt/formkit-form-builder'
 ```
 
-- `FormBuilder`：主组件（设计器 UI）。
-- `BuilderProvider / FormBuilderProvider`：提供全局配置（同一个组件，两个别名）。
-- `FormSchemaRenderer`：对外表单渲染组件（渲染 builder 产出的 schema）。
-- `BuilderPreview`：对外可复用的弹窗渲染组件（基于 FormSchemaRenderer）。
-- `useFormBuilderConfig / provideFormBuilderConfig`：低层配置注入工具（通常你只需要 `BuilderProvider`）。
+- `FormBuilder`: Main builder UI component.
+- `BuilderProvider / FormBuilderProvider`: Global configuration provider. These are aliases for the same component.
+- `FormSchemaRenderer`: Public form renderer for schemas produced by the builder.
+- `BuilderPreview`: Reusable modal preview component built on top of `FormSchemaRenderer`.
+- `useFormBuilderConfig / provideFormBuilderConfig`: Low-level configuration injection helpers. In most cases, use `BuilderProvider`.
 
-### 表单渲染（对外）
+### Form Rendering
 
 ```vue
 <script setup lang="ts">
-import { ref } from "vue";
-import { FormSchemaRenderer } from "formkit-form-builder";
+import { ref } from 'vue'
+import { FormSchemaRenderer } from '@zeng-alt/formkit-form-builder'
 
-const schema = ref([]);
-const data = ref({});
+const schema = ref([])
+const data = ref({})
 </script>
 
 <template>
-  <FormSchemaRenderer :schema="schema" v-model="data" @submit="(v) => console.log(v)" />
+  <FormSchemaRenderer
+    :schema="schema"
+    v-model="data"
+    @submit="(value) => console.log(value)"
+  />
 </template>
 ```
 
@@ -98,74 +108,74 @@ const data = ref({});
 
 ```ts
 export interface FormBuilderConfig {
-  apiKey?: string;
-  locale?: string;
-  messages?: Record<string, any>;
+  apiKey?: string
+  locale?: string
+  messages?: Record<string, any>
 }
 ```
 
-- `apiKey`：可选，AI 面板使用 OpenAI 时需要。
-- `locale`：可选，默认 `zh-CN`。
-- `messages`：可选，多语言覆写（结构与默认 messages 一致）。
+- `apiKey`: Optional. Required only when the AI panel calls OpenAI.
+- `locale`: Optional. Defaults to `en`.
+- `messages`: Optional i18n overrides. The structure should match the default messages object.
 
-## i18n 覆写
+## i18n Overrides
 
 ```ts
 const config = {
-  locale: "zh-CN",
+  locale: 'en',
   messages: {
-    "zh-CN": {
+    en: {
       builder: {
-        clearForm: "清空当前表单",
+        clearForm: 'Clear the current form',
       },
     },
   },
-};
+}
 ```
 
-## 示例
+## Screenshots
 
 ![light](./img/light.png)
 ![dark](./img/dark.png)
 ![preview](./img/preview.png)
 
-## 发布到 npm（公共仓库）
+## Publishing to npm
 
-1. 确认 `package.json`：
+1. Check `package.json`:
 
-- `name` 是未被占用的包名
-- `version` 已更新（遵循 semver）
-- `publishConfig.access = "public"`
-- `private` 已移除
+- `name` is available and matches your intended package name.
+- `version` has been updated using semver.
+- `publishConfig.access` is set to `public`.
+- `private` is not set.
 
-2. 安装依赖并生成构建产物：
+2. Install dependencies and build the package:
 
 ```bash
 pnpm install --no-frozen-lockfile
 pnpm build
 ```
 
-3. 登录并发布：
+3. Log in and publish:
 
 ```bash
 npm login
 npm publish --access public
 ```
 
-如果你用 pnpm：
+If you use pnpm:
 
 ```bash
 pnpm publish --access public
 ```
 
-## 开发（本仓库）
+## Development
 
 ```bash
 pnpm install
 pnpm dev
 
-pnpm version patch   # 1.0.0 → 1.0.1
-pnpm version minor   # 1.0.0 → 1.1.0
-pnpm version major   # 1.0.0 → 2.0.0
+pnpm version patch
+pnpm version minor
+pnpm version major
 pnpm publish
 ```

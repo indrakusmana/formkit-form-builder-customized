@@ -35,9 +35,9 @@ const isNameTaken = (name: string) => {
 
 const nameError = computed(() => {
   if (!isFieldsCategory.value) return ''
-  if (!fieldName.value) return 'Name 不能为空'
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(fieldName.value)) return 'Name 只能包含字母/数字/_ 且不能以数字开头'
-  if (isNameTaken(fieldName.value)) return 'Name 已存在'
+  if (!fieldName.value) return 'Name is required'
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(fieldName.value)) return 'Name can only contain letters, numbers, and _, and cannot start with a number'
+  if (isNameTaken(fieldName.value)) return 'Name already exists'
   return ''
 })
 </script>

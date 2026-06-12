@@ -27,7 +27,7 @@ const activeTheme = computed(() => {
 
 const cfg = useFormBuilderConfig() as FormBuilderConfig
 
-const initialLocale: RuntimeLocale = cfg?.locale === 'en' ? 'en' : 'zh-CN'
+const initialLocale: RuntimeLocale = cfg?.locale === 'zh-CN' ? 'zh-CN' : 'en'
 const runtimeLocale = provideRuntimeLocale(initialLocale)
 
 watch(

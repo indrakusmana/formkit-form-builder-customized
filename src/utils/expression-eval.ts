@@ -79,19 +79,19 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
       continue
     }
     if (ch === '&') {
-      if (input[i + 1] !== '&') return { ok: false, error: '无法解析字符: &' }
+      if (input[i + 1] !== '&') return { ok: false, error: 'Unable to parse character: &' }
       pushOp('&&')
       i += 2
       continue
     }
     if (ch === '|') {
-      if (input[i + 1] !== '|') return { ok: false, error: '无法解析字符: |' }
+      if (input[i + 1] !== '|') return { ok: false, error: 'Unable to parse character: |' }
       pushOp('||')
       i += 2
       continue
     }
     if (ch === '=') {
-      if (input[i + 1] !== '=') return { ok: false, error: '无法解析字符: =' }
+      if (input[i + 1] !== '=') return { ok: false, error: 'Unable to parse character: =' }
       pushOp('==')
       i += 2
       continue
@@ -134,10 +134,10 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
 
     if (ch === '$') {
       i++
-      if (i >= n) return { ok: false, error: '表达式以 $ 结尾' }
+      if (i >= n) return { ok: false, error: 'Expression ends with $' }
       const start = i
       const first = input[i]!
-      if (!isIdentStart(first)) return { ok: false, error: '变量名不合法' }
+      if (!isIdentStart(first)) return { ok: false, error: 'Invalid variable name' }
       i++
       while (i < n && isIdent(input[i]!)) i++
       const name = input.slice(start, i)
@@ -159,7 +159,7 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
         tokens.push({ type: 'boolean', value: false })
         continue
       }
-      return { ok: false, error: `未知标识符: ${word}` }
+      return { ok: false, error: `Unknown identifier: ${word}` }
     }
 
     if (ch === '"' || ch === "'") {
@@ -170,7 +170,7 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
         const c = input[i]!
         if (c === '\\') {
           const next = input[i + 1]
-          if (next === undefined) return { ok: false, error: '字符串转义不完整' }
+          if (next === undefined) return { ok: false, error: 'Incomplete string escape' }
           out += next
           i++
           continue
@@ -178,7 +178,7 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
         if (c === quote) break
         out += c
       }
-      if (i >= n || input[i] !== quote) return { ok: false, error: '字符串未闭合' }
+      if (i >= n || input[i] !== quote) return { ok: false, error: 'Unclosed string' }
       i++
       tokens.push({ type: 'string', value: out })
       continue
@@ -190,12 +190,12 @@ function tokenize(input: string, deps: Set<string>): TokenizeResult {
       while (i < n && (isDigit(input[i]!) || input[i] === '.')) i++
       const raw = input.slice(start, i)
       const value = Number(raw)
-      if (!Number.isFinite(value)) return { ok: false, error: `数字不合法: ${raw}` }
+      if (!Number.isFinite(value)) return { ok: false, error: `Invalid number: ${raw}` }
       tokens.push({ type: 'number', value })
       continue
     }
 
-    return { ok: false, error: `无法解析字符: ${ch}` }
+    return { ok: false, error: `Unable to parse character: ${ch}` }
   }
 
   return { ok: true, tokens }
@@ -244,7 +244,7 @@ function toRpn(tokens: Token[]): RpnResult {
         }
         output.push(top)
       }
-      if (!found) return { ok: false, error: '括号不匹配' }
+      if (!found) return { ok: false, error: 'Mismatched parentheses' }
       prev = t
       continue
     }
@@ -277,7 +277,7 @@ function toRpn(tokens: Token[]): RpnResult {
 
   while (ops.length) {
     const top = ops.pop()!
-    if (top.type === 'lparen' || top.type === 'rparen') return { ok: false, error: '括号不匹配' }
+    if (top.type === 'lparen' || top.type === 'rparen') return { ok: false, error: 'Mismatched parentheses' }
     output.push(top)
   }
 
@@ -320,19 +320,19 @@ function evalRpn(rpn: Token[], vars: Record<string, unknown>): EvalRpnResult {
     }
     if (t.type === 'op') {
       if (t.op === 'u-' || t.op === 'u+' || t.op === '!') {
-        if (stack.length < 1) return { ok: false, error: '表达式不完整' }
+        if (stack.length < 1) return { ok: false, error: 'Incomplete expression' }
         const a = stack.pop()
         if (t.op === '!') {
           stack.push(!truthy(a))
           continue
         }
         const n = toNum(a)
-        if (!Number.isFinite(n)) return { ok: false, error: '数值运算失败' }
+        if (!Number.isFinite(n)) return { ok: false, error: 'Numeric operation failed' }
         stack.push(t.op === 'u-' ? -n : n)
         continue
       }
 
-      if (stack.length < 2) return { ok: false, error: '表达式不完整' }
+      if (stack.length < 2) return { ok: false, error: 'Incomplete expression' }
       const b = stack.pop()
       const a = stack.pop()
 
@@ -343,7 +343,7 @@ function evalRpn(rpn: Token[], vars: Record<string, unknown>): EvalRpnResult {
         }
         const na = toNum(a)
         const nb = toNum(b)
-        if (!Number.isFinite(na) || !Number.isFinite(nb)) return { ok: false, error: '数值运算失败' }
+        if (!Number.isFinite(na) || !Number.isFinite(nb)) return { ok: false, error: 'Numeric operation failed' }
         stack.push(na + nb)
         continue
       }
@@ -386,15 +386,15 @@ function evalRpn(rpn: Token[], vars: Record<string, unknown>): EvalRpnResult {
 
       const na = toNum(a)
       const nb = toNum(b)
-      if (!Number.isFinite(na) || !Number.isFinite(nb)) return { ok: false, error: '数值运算失败' }
+      if (!Number.isFinite(na) || !Number.isFinite(nb)) return { ok: false, error: 'Numeric operation failed' }
       if (t.op === '-') stack.push(na - nb)
       else if (t.op === '*') stack.push(na * nb)
       else if (t.op === '/') stack.push(na / nb)
-      else return { ok: false, error: '未知运算符' }
+      else return { ok: false, error: 'Unknown operator' }
       continue
     }
   }
 
-  if (stack.length !== 1) return { ok: false, error: '表达式不完整' }
+  if (stack.length !== 1) return { ok: false, error: 'Incomplete expression' }
   return { ok: true, value: stack[0] }
 }

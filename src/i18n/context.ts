@@ -39,7 +39,7 @@ export function provideFormBuilderI18n(options: {
   locale: ComputedRef<string | undefined>
   messages?: ComputedRef<AnyMessages | undefined>
 }) {
-  const locale = computed(() => options.locale.value ?? 'zh-CN')
+  const locale = computed(() => options.locale.value ?? 'en')
   const messages = computed(() => {
     const extra = options.messages?.value ?? {}
     return mergeMessages(defaultMessages as AnyMessages, extra)
@@ -60,7 +60,7 @@ export function provideFormBuilderI18n(options: {
 
 export function useFormBuilderI18n() {
   return inject<I18nContext>(I18N_KEY, {
-    locale: computed(() => 'zh-CN'),
+    locale: computed(() => 'en'),
     t: (key) => key,
   })
 }

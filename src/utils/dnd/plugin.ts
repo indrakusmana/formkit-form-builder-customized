@@ -30,7 +30,7 @@ import { eventCoordinates, pd } from '../utils'
 
 let documentController: AbortController | undefined
 
-// Safari 在高频 moveBetween 时容易抖动，这里做简单节流
+// Safari can jitter during high-frequency moveBetween events, so throttle lightly.
 const throttle = (fn: (...args: any[]) => void) => {
   const delay = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) ? 100 : 0
   let timerFlag: ReturnType<typeof setTimeout> | null = null
@@ -44,7 +44,7 @@ const throttle = (fn: (...args: any[]) => void) => {
   }
 }
 
-// 找到第一个可滚动父容器，用于滚动时重算命中范围
+// Find the first scrollable parent so hit ranges can be recalculated on scroll.
 function findFirstOverflowingParent(element: HTMLElement): HTMLElement | null {
   let parent = element.parentElement
   while (parent) {
@@ -58,7 +58,7 @@ function findFirstOverflowingParent(element: HTMLElement): HTMLElement | null {
   return null
 }
 
-// 当鼠标移出所有注册的 drop-zone 时隐藏插入提示线
+// Hide the insert guide when the pointer leaves all registered drop zones.
 function checkPosition(e: DragEvent | PointerEvent) {
   if (!isDragState(state)) return
 
@@ -163,7 +163,7 @@ function handleInsertBasedOnRange<T>(foundRange: [NodeRecord<any>, string] | nul
   )
 }
 
-// 在一个 parent 内移动（排序）
+// Move within one parent for sorting.
 export function moveBetween<T>(data: ParentRecord<T>, state: DragState<T>) {
   if (data.data.config.sortable === false) return
 
@@ -266,7 +266,7 @@ function moveOutside<T>(data: ParentRecord<T>, state: DragState<T>) {
   }
 }
 
-// 找到当前鼠标坐标命中的 drop-range（left/right/top/bottom）
+// Find the drop range currently hit by the pointer coordinates.
 function findClosest<T>(enabledNodes: NodeRecord<T>[], state: DragState<T>) {
   if (state.coordinates?.x === undefined || state.coordinates?.y === undefined) return null
   let foundRange: [NodeRecord<T>, string] | null = null
@@ -306,7 +306,7 @@ function findClosest<T>(enabledNodes: NodeRecord<T>[], state: DragState<T>) {
   return foundRange
 }
 
-// 对外暴露：在 BuilderDropArea 里作为插件传入
+// Public plugin entry used by BuilderDropArea.
 export function customInsertPlugin<T>(insertConfig: InsertConfig<T>) {
   return (parent: HTMLElement) => {
     const parentData = parents.get(parent)
