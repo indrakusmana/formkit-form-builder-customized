@@ -52,6 +52,26 @@ import '@zeng-alt/formkit-form-builder/style.css'
 const config = {
   locale: 'en',
   aiAssistant: false,
+  enabledFields: [
+    // Available field ids:
+    // 'text', 'textarea', 'email', 'number', 'url', 'checkbox', 'color',
+    // 'date', 'time', 'naiveDateTime', 'file', 'password', 'radio',
+    // 'range', 'select', 'naiveCascader', 'naiveTreeSelect', 'naiveMention',
+    // 'naiveRate', 'naiveSwitch', 'naiveAvatar', 'naiveImage', 'tel',
+    // 'naiveButton', 'submit', 'reset', 'list', 'card', 'inputGroup', 'tabs',
+    // 'naiveText', 'naiveP', 'naiveA', 'naiveBlockquote', 'naiveH1',
+    // 'naiveH2', 'naiveH3', 'naiveH4', 'naiveH5', 'naiveH6',
+    // 'naiveUl', 'naiveOl', 'naiveLi', 'naiveDivider', 'naiveAlert',
+    // 'naiveBackTop'
+    'text',
+    'textarea',
+    'number',
+    'date',
+    'select',
+    'radio',
+    'checkbox',
+    'file',
+  ],
   apiKey: '',
 }
 </script>
@@ -111,6 +131,7 @@ const data = ref({})
 export interface FormBuilderConfig {
   apiKey?: string
   aiAssistant?: boolean
+  enabledFields?: readonly FormBuilderFieldName[]
   locale?: string
   messages?: Record<string, any>
 }
@@ -118,6 +139,7 @@ export interface FormBuilderConfig {
 
 - `apiKey`: Optional. Required only when the AI assistant is enabled and calls OpenAI.
 - `aiAssistant`: Optional. Defaults to `false`. Set to `true` to lazy-load and show the AI assistant.
+- `enabledFields`: Optional. Defaults to `text`, `textarea`, `number`, `date`, `select`, `radio`, `checkbox`, and `file`.
 - `locale`: Optional. Defaults to `en`.
 - `messages`: Optional i18n overrides. The structure should match the default messages object.
 

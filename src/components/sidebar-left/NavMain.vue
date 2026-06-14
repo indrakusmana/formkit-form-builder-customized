@@ -7,12 +7,31 @@ import DraggableList from './DraggableList.vue'
 import { useFormBuilderI18n } from '../../i18n/context'
 import type { FormKitSchemaFormKit } from '@formkit/core'
 import { getContainerKind } from '../../utils/schema/containers'
+import { useFormBuilderConfig } from '../../composables/use-config'
+import { DEFAULT_ENABLED_FIELDS, type FormBuilderFieldName } from '../../types/env'
 
 const searchInput = inject('searchInput', ref(''))
 const collapsed = inject('sidebarCollapsed', ref(false)) as Ref<boolean>
 const { t } = useFormBuilderI18n()
+const config = useFormBuilderConfig()
 const fieldProps = computed(() => createFieldProps(t))
-const defaultFormElements = computed(() => createDefaultFormElements(t))
+
+const getTypeName = (item: any) => {
+  const kind = getContainerKind(item)
+  if (kind) return kind
+  return String(item?.$formkit ?? item?.$cmp ?? '')
+}
+
+const enabledFieldNames = computed(() => {
+  const configured = config.enabledFields ?? DEFAULT_ENABLED_FIELDS
+  return new Set<FormBuilderFieldName>(configured)
+})
+
+const defaultFormElements = computed(() =>
+  createDefaultFormElements(t).filter((element) =>
+    enabledFieldNames.value.has(getTypeName(element) as FormBuilderFieldName),
+  ),
+)
 
 const filteredFormElements = computed(() => {
   if (!searchInput.value.trim()) {
@@ -44,8 +63,7 @@ const groupedElements = computed(() => {
   }
 
   filteredFormElements.value.forEach((item) => {
-    const kind = getContainerKind(item)
-    const typeName = kind ? kind : String((item as any).$formkit ?? (item as any).$cmp ?? '')
+    const typeName = getTypeName(item)
     const prop = fieldProps.value.find((p) => p.name === typeName)
     const category = (prop?.category || 'fields') as ElementCategory
     if (groups[category]) {
@@ -55,6 +73,10 @@ const groupedElements = computed(() => {
 
   return groups
 })
+
+const visibleCategories = computed(() =>
+  categories.value.filter((category) => groupedElements.value[category.id].length > 0),
+)
 </script>
 
 <template>
@@ -70,7 +92,7 @@ const groupedElements = computed(() => {
       class="h-full flex flex-col"
       pane-class="flex-1 overflow-hidden"
     >
-      <n-tab-pane v-for="category in categories" :key="category.id" :name="category.id" :tab="category.label">
+      <n-tab-pane v-for="category in visibleCategories" :key="category.id" :name="category.id" :tab="category.label">
         <n-scrollbar class="h-full sidebar-scrollbar" content-class="pb-4 px-2">
           <DraggableList :elements="groupedElements[category.id]" />
         </n-scrollbar>
