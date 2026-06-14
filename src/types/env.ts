@@ -125,6 +125,7 @@ export const DEFAULT_ENABLED_VALIDATIONS = [
 export interface FormBuilderConfig {
   apiKey?: string
   aiAssistant?: boolean
+  canvasViewControls?: boolean
   enabledFields?: readonly FormBuilderFieldName[]
   enabledValidations?: readonly FormBuilderValidationName[]
   locale?: string

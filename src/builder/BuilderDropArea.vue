@@ -18,10 +18,21 @@ import { toCanvasSchemaNode } from '../utils/canvas-schema'
 import { provideCanvasSchemaContext } from './composables/canvas-schema-context'
 import { normalizeContainerNode } from '@/containers/registry'
 import ContainerChildrenGrid from '@/components/ui/containers/shared/ContainerChildrenGrid.vue'
+import { useFormBuilderConfig } from '../composables/use-config'
 
 const showImportExportModal = ref(false)
 
 const { t } = useFormBuilderI18n()
+const config = useFormBuilderConfig()
+const showCanvasViewControls = computed(() => config.canvasViewControls === true)
+
+watch(
+  showCanvasViewControls,
+  (showControls) => {
+    if (!showControls) canvasView.value = 'desktop'
+  },
+  { immediate: true },
+)
 
 const canvasFormClass = computed(() => {
   const common = [
@@ -227,7 +238,7 @@ provideCanvasSchemaContext({
   <div class="flex flex-1 h-full min-h-0 flex-row justify-start pb-15 pt-10">
 
     <!-- Left side controls -->
-    <div class="w-16 shrink-0 flex flex-col items-center">
+    <div v-if="showCanvasViewControls" class="w-16 shrink-0 flex flex-col items-center">
       <n-button-group vertical class="sticky top-20 bg-card shadow-sm rounded-lg border border-border/50">
         <n-tooltip placement="right">
           <template #trigger>

@@ -52,6 +52,7 @@ import '@zeng-alt/formkit-form-builder/style.css'
 const config = {
   locale: 'en',
   aiAssistant: false,
+  canvasViewControls: false,
   enabledFields: [
     // Available field ids:
     // 'text', 'textarea', 'email', 'number', 'url', 'checkbox', 'color',
@@ -155,6 +156,7 @@ const data = ref({})
 export interface FormBuilderConfig {
   apiKey?: string
   aiAssistant?: boolean
+  canvasViewControls?: boolean
   enabledFields?: readonly FormBuilderFieldName[]
   enabledValidations?: readonly FormBuilderValidationName[]
   locale?: string
@@ -164,6 +166,7 @@ export interface FormBuilderConfig {
 
 - `apiKey`: Optional. Required only when the AI assistant is enabled and calls OpenAI.
 - `aiAssistant`: Optional. Defaults to `false`. Set to `true` to lazy-load and show the AI assistant.
+- `canvasViewControls`: Optional. Defaults to `false`. When disabled, the builder stays in desktop view.
 - `enabledFields`: Optional. Defaults to `text`, `textarea`, `number`, `date`, `select`, `radio`, `checkbox`, and `file`.
 - `enabledValidations`: Optional. Defaults to `required`, `alpha_spaces`, `number`, `date_format`, `min`, and `max`.
 - `locale`: Optional. Defaults to `en`.
