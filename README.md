@@ -46,13 +46,15 @@ createApp(App).use(formkitPlugin, formkitConfig).mount('#app')
 
 ```vue
 <script setup lang="ts">
-import { BuilderProvider, FormBuilder } from '@zeng-alt/formkit-form-builder'
-import '@zeng-alt/formkit-form-builder/style.css'
+import { BuilderProvider, FormBuilder } from '@indrakusmana/formkit-form-builder-customized'
+import '@indrakusmana/formkit-form-builder-customized/style.css'
 
 const config = {
   locale: 'en',
   aiAssistant: false,
   canvasViewControls: false,
+  themeSwitcher: false,
+  themeMode: 'light',
   enabledFields: [
     // Available field ids:
     // 'text', 'textarea', 'email', 'number', 'url', 'checkbox', 'color',
@@ -161,6 +163,8 @@ export interface FormBuilderConfig {
   enabledValidations?: readonly FormBuilderValidationName[]
   locale?: string
   messages?: Record<string, any>
+  themeMode?: FormBuilderThemeMode
+  themeSwitcher?: boolean
 }
 ```
 
@@ -171,6 +175,8 @@ export interface FormBuilderConfig {
 - `enabledValidations`: Optional. Defaults to `required`, `alpha_spaces`, `number`, `date_format`, `min`, and `max`.
 - `locale`: Optional. Defaults to `en`.
 - `messages`: Optional i18n overrides. The structure should match the default messages object.
+- `themeMode`: Optional. Defaults to `light`. Supported values are `light`, `dark`, and `auto`.
+- `themeSwitcher`: Optional. Defaults to `false`. Set to `true` to show the light/dark/system theme switcher.
 
 ## i18n Overrides
 

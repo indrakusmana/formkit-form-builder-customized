@@ -12,6 +12,7 @@ const AiPrompt = defineAsyncComponent(() => import('../components/ai-prompt/AiPr
 const { t } = useFormBuilderI18n()
 const config = useFormBuilderConfig()
 const showAiAssistant = computed(() => config.aiAssistant === true)
+const showThemeSwitcher = computed(() => config.themeSwitcher === true)
 
 const clearForm = () => {
   commitSchema([], { reason: 'clear' })
@@ -93,7 +94,7 @@ const showPreview = ref(false)
             {{ t('builder.redo') }}
           </n-tooltip>
         </n-button-group>
-        <ThemeSwitcher />
+        <ThemeSwitcher v-if="showThemeSwitcher" />
       </div>
     </div>
   </header>

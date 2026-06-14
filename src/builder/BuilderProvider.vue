@@ -3,7 +3,7 @@ import { provideFormBuilderConfig } from '../composables/use-config'
 import type { FormBuilderConfig } from '../types/env'
 
 interface Props {
-  config: FormBuilderConfig
+  config?: FormBuilderConfig
 }
 
 const props = defineProps<Props>()

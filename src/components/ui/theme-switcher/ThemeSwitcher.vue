@@ -6,6 +6,7 @@ type ColorMode = 'light' | 'dark' | 'auto'
 
 const colorModeOptions = {
   disableTransition: false,
+  initialValue: 'light' as const,
 }
 const mode = useColorMode(colorModeOptions)
 

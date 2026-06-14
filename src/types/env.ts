@@ -122,6 +122,12 @@ export const DEFAULT_ENABLED_VALIDATIONS = [
   'max',
 ] as const satisfies readonly FormBuilderValidationName[]
 
+export const AVAILABLE_THEME_MODES = ['light', 'dark', 'auto'] as const
+
+export type FormBuilderThemeMode = (typeof AVAILABLE_THEME_MODES)[number]
+
+export const DEFAULT_THEME_MODE = 'light' as const satisfies FormBuilderThemeMode
+
 export interface FormBuilderConfig {
   apiKey?: string
   aiAssistant?: boolean
@@ -130,4 +136,6 @@ export interface FormBuilderConfig {
   enabledValidations?: readonly FormBuilderValidationName[]
   locale?: string
   messages?: Record<string, any>
+  themeMode?: FormBuilderThemeMode
+  themeSwitcher?: boolean
 }

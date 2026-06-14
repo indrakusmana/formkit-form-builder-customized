@@ -9,7 +9,7 @@ import SidebarRight from '../components/sidebar-right/SidebarRight.vue'
 import BuilderDropArea from './BuilderDropArea.vue'
 import BuilderHeader from './BuilderHeader.vue'
 import { useFormBuilderConfig } from '../composables/use-config'
-import type { FormBuilderConfig } from '../types/env'
+import type { FormBuilderConfig, FormBuilderThemeMode } from '../types/env'
 import { provideFormBuilderI18n } from '../i18n/context'
 import { provideRuntimeLocale, type RuntimeLocale } from '../i18n/runtime-locale'
 import { selectedKey, selectedTarget } from '../utils/default-form-elements'
@@ -17,7 +17,12 @@ import { selectedKey, selectedTarget } from '../utils/default-form-elements'
 
 const props = defineProps<ConfigProviderProps>()
 
-const colorMode = useColorMode()
+const cfg = useFormBuilderConfig() as FormBuilderConfig
+const configuredThemeMode = computed<FormBuilderThemeMode>(() => cfg.themeMode ?? 'light')
+const colorMode = useColorMode<FormBuilderThemeMode>({
+  disableTransition: false,
+  initialValue: configuredThemeMode,
+})
 const preferredDark = usePreferredDark()
 const resolvedIsDark = computed(() => colorMode.value === 'dark' || (colorMode.value === 'auto' && preferredDark.value))
 const activeTheme = computed(() => {
@@ -25,7 +30,13 @@ const activeTheme = computed(() => {
   return resolvedIsDark.value ? darkTheme : null
 })
 
-const cfg = useFormBuilderConfig() as FormBuilderConfig
+watch(
+  configuredThemeMode,
+  (nextThemeMode) => {
+    colorMode.value = nextThemeMode
+  },
+  { immediate: true },
+)
 
 const initialLocale: RuntimeLocale = cfg?.locale === 'zh-CN' ? 'zh-CN' : 'en'
 const runtimeLocale = provideRuntimeLocale(initialLocale)
