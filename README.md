@@ -51,6 +51,7 @@ import '@zeng-alt/formkit-form-builder/style.css'
 
 const config = {
   locale: 'en',
+  aiAssistant: false,
   apiKey: '',
 }
 </script>
@@ -109,12 +110,14 @@ const data = ref({})
 ```ts
 export interface FormBuilderConfig {
   apiKey?: string
+  aiAssistant?: boolean
   locale?: string
   messages?: Record<string, any>
 }
 ```
 
-- `apiKey`: Optional. Required only when the AI panel calls OpenAI.
+- `apiKey`: Optional. Required only when the AI assistant is enabled and calls OpenAI.
+- `aiAssistant`: Optional. Defaults to `false`. Set to `true` to lazy-load and show the AI assistant.
 - `locale`: Optional. Defaults to `en`.
 - `messages`: Optional i18n overrides. The structure should match the default messages object.
 
