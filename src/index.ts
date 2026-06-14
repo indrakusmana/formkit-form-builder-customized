@@ -4,7 +4,13 @@ import BuilderProvider from './builder/BuilderProvider.vue'
 import FormSchemaRenderer from './renderer/FormSchemaRenderer.vue'
 
 export { useFormBuilderConfig, provideFormBuilderConfig } from './composables/use-config'
-export type { FormBuilderConfig } from './types/env'
+export {
+  AVAILABLE_BUILDER_FIELDS,
+  AVAILABLE_VALIDATION_RULES,
+  DEFAULT_ENABLED_FIELDS,
+  DEFAULT_ENABLED_VALIDATIONS,
+} from './types/env'
+export type { FormBuilderConfig, FormBuilderFieldName, FormBuilderValidationName } from './types/env'
 
 export { FormBuilder, BuilderProvider }
 export { BuilderPreview, FormSchemaRenderer }

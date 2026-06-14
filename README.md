@@ -72,6 +72,30 @@ const config = {
     'checkbox',
     'file',
   ],
+  enabledValidations: [
+    // Defaults matching the basic validation set:
+    // Required -> 'required'
+    // String -> 'alpha_spaces' (closest available text validation)
+    // Number -> 'number'
+    // Date -> 'date_format'
+    // Min / Max -> 'min', 'max'
+    //
+    // Available validation ids:
+    // 'accepted', 'required', 'email', 'number', 'lowercase', 'uppercase',
+    // 'url', 'alpha', 'alpha_spaces', 'alphanumeric', 'symbol',
+    // 'contains_alpha', 'contains_alphanumeric', 'contains_alpha_spaces',
+    // 'contains_symbol', 'contains_uppercase', 'contains_lowercase',
+    // 'contains_numeric', 'confirm', 'min', 'max', 'matches',
+    // 'starts_with', 'ends_with', 'date_after', 'date_before',
+    // 'date_format', 'is', 'not', 'require_one', 'date_between',
+    // 'length', 'between'
+    'required',
+    'alpha_spaces',
+    'number',
+    'date_format',
+    'min',
+    'max',
+  ],
   apiKey: '',
 }
 </script>
@@ -132,6 +156,7 @@ export interface FormBuilderConfig {
   apiKey?: string
   aiAssistant?: boolean
   enabledFields?: readonly FormBuilderFieldName[]
+  enabledValidations?: readonly FormBuilderValidationName[]
   locale?: string
   messages?: Record<string, any>
 }
@@ -140,6 +165,7 @@ export interface FormBuilderConfig {
 - `apiKey`: Optional. Required only when the AI assistant is enabled and calls OpenAI.
 - `aiAssistant`: Optional. Defaults to `false`. Set to `true` to lazy-load and show the AI assistant.
 - `enabledFields`: Optional. Defaults to `text`, `textarea`, `number`, `date`, `select`, `radio`, `checkbox`, and `file`.
+- `enabledValidations`: Optional. Defaults to `required`, `alpha_spaces`, `number`, `date_format`, `min`, and `max`.
 - `locale`: Optional. Defaults to `en`.
 - `messages`: Optional i18n overrides. The structure should match the default messages object.
 

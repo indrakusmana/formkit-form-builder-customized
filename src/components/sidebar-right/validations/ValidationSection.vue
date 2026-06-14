@@ -5,9 +5,17 @@ import DoubleParamValidation from './DoubleParamValidation.vue'
 import { computed } from 'vue'
 import { useFormBuilderI18n } from '../../../i18n/context'
 import { useFormField, selectedField } from '../../../composables/form-fields'
+import { useFormBuilderConfig } from '../../../composables/use-config'
+import { DEFAULT_ENABLED_VALIDATIONS, type FormBuilderValidationName } from '../../../types/env'
 
 const { t } = useFormBuilderI18n()
+const config = useFormBuilderConfig()
 const { currentFieldType } = useFormField()
+
+const enabledValidationNames = computed(() => {
+  const configured = config.enabledValidations ?? DEFAULT_ENABLED_VALIDATIONS
+  return new Set<FormBuilderValidationName>(configured)
+})
 
 const validations = computed(() => ({
   singleValue: [
@@ -274,12 +282,15 @@ const showForFieldType = (validationType: string, fieldType: string | null) => {
 const visibleValidations = computed(() => {
   return {
     singleValue: validations.value.singleValue.filter((validation) =>
+      enabledValidationNames.value.has(validation.value as FormBuilderValidationName) &&
       showForFieldType(validation.value, currentFieldType.value ?? null),
     ),
     singleParam: validations.value.singleParam.filter((validation) =>
+      enabledValidationNames.value.has(validation.value as FormBuilderValidationName) &&
       showForFieldType(validation.value, currentFieldType.value ?? null),
     ),
     doubleParam: validations.value.doubleParam.filter((validation) =>
+      enabledValidationNames.value.has(validation.value as FormBuilderValidationName) &&
       showForFieldType(validation.value, currentFieldType.value ?? null),
     ),
   }
