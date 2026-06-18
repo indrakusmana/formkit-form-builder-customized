@@ -66,6 +66,7 @@ export const DEFAULT_ENABLED_FIELDS = [
   'radio',
   'checkbox',
   'file',
+  'naiveButton',
 ] as const satisfies readonly FormBuilderFieldName[]
 
 // Available validation rule ids for FormBuilderConfig.enabledValidations:
